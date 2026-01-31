@@ -5,8 +5,6 @@
 - [x] Next.js projesi olusturma (TypeScript, Tailwind, App Router, src-dir=false) <!-- id: 0 -->
 - [x] shadcn/ui kurulumu ve temel bilesenlerin eklenmesi <!-- id: 1 -->
 - [x] Ek bagimliliklarin kurulumu (firebase, next-pwa, web-push, resend, date-fns, dnd-kit) <!-- id: 2 -->
-- [ ] Firebase projesi ve Web App olusturma (Manuel islem) <!-- id: 3 -->
-- [ ] Firestore veritabani ve guvenlik kurallarinin ayarlanmasi <!-- id: 4 -->
 - [x] Firebase projesi ve Web App olusturma (Manuel islem) <!-- id: 3 -->
 - [x] Firestore veritabani ve guvenlik kurallarinin ayarlanmasi <!-- id: 4 -->
 - [x] Firestore indekslerinin olusturulmasi <!-- id: 5 -->
@@ -20,9 +18,9 @@
 ## Faz 2: CRUD Moduller
 
 - [x] Musteriler modulu (Liste, Detay, Ekleme/Duzenleme) <!-- id: 12 -->
-- [ ] Projeler modulu (Liste, Detay, Ekleme) <!-- id: 13 -->
-- [ ] Gorevler/Backlog (Surukle-Birak destegi @dnd-kit) <!-- id: 14 -->
-- [ ] Iletisim kayitlari (CRUD) <!-- id: 15 -->
+- [x] Projeler modulu (Liste, Detay, Ekleme) <!-- id: 13 -->
+- [x] Gorevler/Backlog (Surukle-Birak destegi @dnd-kit) <!-- id: 14 -->
+- [x] Iletisim kayitlari (CRUD) <!-- id: 15 -->
 
 ## Faz 3: Dashboard + UX
 

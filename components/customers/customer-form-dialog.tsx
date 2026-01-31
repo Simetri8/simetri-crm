@@ -82,6 +82,10 @@ export function CustomerFormDialog({
     }, [customer, form, open]);
 
     const onSubmit = async (values: FormValues) => {
+        console.log('CustomerFormDialog: Submit triggered', {
+            hasCustomerId: !!customer?.id,
+            values
+        });
         try {
             if (customer?.id) {
                 await customerService.update(customer.id, values);

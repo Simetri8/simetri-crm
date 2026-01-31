@@ -1,6 +1,7 @@
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/sidebar"
 import { Home, Folder, Users, MessageSquare, Flag } from "lucide-react"
 import Link from "next/link"
+import { NavUser } from "./nav-user"
+import { useAuth } from "@/components/auth/auth-provider"
 
 const items = [
     {
@@ -42,6 +45,14 @@ const items = [
 ]
 
 export function AppSidebar() {
+    const { user } = useAuth();
+
+    const userData = {
+        name: user?.displayName || user?.email?.split('@')[0] || "Kullanıcı",
+        email: user?.email || "",
+        avatar: user?.photoURL || "",
+    };
+
     return (
         <Sidebar>
             <SidebarHeader>
@@ -65,6 +76,9 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+            <SidebarFooter>
+                <NavUser user={userData} />
+            </SidebarFooter>
         </Sidebar>
     )
 }

@@ -86,42 +86,54 @@ export function CommunicationFormDialog({
     },
   });
 
-  useEffect(() => {
-    loadCustomers();
-  }, []);
-
-  useEffect(() => {
-    if (communication) {
-      form.reset({
-        customerId: communication.customerId,
-        type: communication.type,
-        date: communication.date.toDate(),
-        summary: communication.summary,
-        nextAction: communication.nextAction || '',
-        nextActionDate: communication.nextActionDate?.toDate() || null,
-      });
-    } else {
-      form.reset({
-        customerId: preselectedCustomerId || '',
-        type: 'phone',
-        date: new Date(),
-        summary: '',
-        nextAction: '',
-        nextActionDate: null,
-      });
-    }
-  }, [communication, form, open, preselectedCustomerId]);
-
   const loadCustomers = async () => {
     try {
+      console.log('CommunicationFormDialog: Loading customers...');
       const data = await customerService.getAll();
+      console.log(`CommunicationFormDialog: Loaded ${data.length} customers`);
       setCustomers(data as Customer[]);
     } catch (error) {
-      console.error('Error loading customers:', error);
+      console.error('CommunicationFormDialog: Error loading customers:', error);
     }
   };
 
+  useEffect(() => {
+    if (!open) return;
+
+    // Load customers and reset form in the same effect to batch updates if possible
+    // or at least avoid multiple triggers
+    const initializeForm = async () => {
+      await loadCustomers();
+
+      if (communication) {
+        form.reset({
+          customerId: communication.customerId,
+          type: communication.type,
+          date: communication.date.toDate(),
+          summary: communication.summary,
+          nextAction: communication.nextAction || '',
+          nextActionDate: communication.nextActionDate?.toDate() || null,
+        });
+      } else {
+        form.reset({
+          customerId: preselectedCustomerId || '',
+          type: 'phone',
+          date: new Date(),
+          summary: '',
+          nextAction: '',
+          nextActionDate: null,
+        });
+      }
+    };
+
+    initializeForm();
+  }, [open, communication, preselectedCustomerId, form]);
+
   const onSubmit = async (values: FormValues) => {
+    console.log('CommunicationFormDialog: Submit triggered', {
+      hasCommId: !!communication?.id,
+      values
+    });
     try {
       const selectedCustomer = customers.find((c) => c.id === values.customerId);
 
@@ -177,11 +189,15 @@ export function CommunicationFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {customers.map((customer) => (
-                        <SelectItem key={customer.id} value={customer.id || ''}>
-                          {customer.name} - {customer.company}
-                        </SelectItem>
-                      ))}
+                      {customers.length === 0 ? (
+                        <SelectItem value="none" disabled>Musteri bulunamadi</SelectItem>
+                      ) : (
+                        customers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id || 'err'}>
+                            {customer.name} - {customer.company}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />

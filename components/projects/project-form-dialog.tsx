@@ -84,42 +84,52 @@ export function ProjectFormDialog({
     },
   });
 
-  useEffect(() => {
-    loadCustomers();
-  }, []);
-
-  useEffect(() => {
-    if (project) {
-      form.reset({
-        name: project.name,
-        description: project.description || '',
-        customerId: project.customerId || '',
-        status: project.status,
-        targetStartDate: project.targetStartDate?.toDate() || null,
-        targetEndDate: project.targetEndDate?.toDate() || null,
-      });
-    } else {
-      form.reset({
-        name: '',
-        description: '',
-        customerId: '',
-        status: 'active',
-        targetStartDate: null,
-        targetEndDate: null,
-      });
-    }
-  }, [project, form, open]);
-
   const loadCustomers = async () => {
     try {
+      console.log('ProjectFormDialog: Loading customers...');
       const data = await customerService.getAll();
+      console.log(`ProjectFormDialog: Loaded ${data.length} customers`);
       setCustomers(data as Customer[]);
     } catch (error) {
-      console.error('Error loading customers:', error);
+      console.error('ProjectFormDialog: Error loading customers:', error);
     }
   };
 
+  useEffect(() => {
+    if (!open) return;
+
+    const initializeForm = async () => {
+      await loadCustomers();
+
+      if (project) {
+        form.reset({
+          name: project.name,
+          description: project.description || '',
+          customerId: project.customerId || '',
+          status: project.status,
+          targetStartDate: project.targetStartDate?.toDate() || null,
+          targetEndDate: project.targetEndDate?.toDate() || null,
+        });
+      } else {
+        form.reset({
+          name: '',
+          description: '',
+          customerId: '',
+          status: 'active',
+          targetStartDate: null,
+          targetEndDate: null,
+        });
+      }
+    };
+
+    initializeForm();
+  }, [open, project, form]);
+
   const onSubmit = async (values: FormValues) => {
+    console.log('ProjectFormDialog: Submit triggered', {
+      hasProjectId: !!project?.id,
+      values
+    });
     try {
       const selectedCustomer = customers.find((c) => c.id === values.customerId);
 
@@ -204,12 +214,16 @@ export function ProjectFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Musteri yok</SelectItem>
-                        {customers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id || ''}>
-                            {customer.name}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="none">Musteri yok</SelectItem>
+                        {customers.length === 0 ? (
+                          <SelectItem value="none-disabled" disabled>Musteri bulunamadi</SelectItem>
+                        ) : (
+                          customers.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id || 'none'}>
+                              {customer.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
