@@ -1,0 +1,43 @@
+# Simetri Planner Task List
+
+## Faz 1: Altyapi ve Kurulum
+
+- [x] Next.js projesi olusturma (TypeScript, Tailwind, App Router, src-dir=false) <!-- id: 0 -->
+- [x] shadcn/ui kurulumu ve temel bilesenlerin eklenmesi <!-- id: 1 -->
+- [x] Ek bagimliliklarin kurulumu (firebase, next-pwa, web-push, resend, date-fns, dnd-kit) <!-- id: 2 -->
+- [ ] Firebase projesi ve Web App olusturma (Manuel islem) <!-- id: 3 -->
+- [ ] Firestore veritabani ve guvenlik kurallarinin ayarlanmasi <!-- id: 4 -->
+- [x] Firebase projesi ve Web App olusturma (Manuel islem) <!-- id: 3 -->
+- [x] Firestore veritabani ve guvenlik kurallarinin ayarlanmasi <!-- id: 4 -->
+- [x] Firestore indekslerinin olusturulmasi <!-- id: 5 -->
+- [x] Environment variables (.env.local) olusturulmasi <!-- id: 6 -->
+- [x] Firebase config ve Admin SDK yapilandirmasi (lib/firebase/\*) <!-- id: 7 -->
+- [x] Temel klasor yapisinin olusturulmasi <!-- id: 8 -->
+- [x] PWA yapilandirmasi (next.config.js, public/manifest.json) <!-- id: 9 -->
+- [x] Layout (SidebarProvider) + Navigation implementasyonu <!-- id: 10 -->
+- [x] Railway deployment ve Cron Job ayari (Manuel islem) <!-- id: 11 -->
+
+## Faz 2: CRUD Moduller
+
+- [x] Musteriler modulu (Liste, Detay, Ekleme/Duzenleme) <!-- id: 12 -->
+- [ ] Projeler modulu (Liste, Detay, Ekleme) <!-- id: 13 -->
+- [ ] Gorevler/Backlog (Surukle-Birak destegi @dnd-kit) <!-- id: 14 -->
+- [ ] Iletisim kayitlari (CRUD) <!-- id: 15 -->
+
+## Faz 3: Dashboard + UX
+
+- [ ] Dashboard yapisi (3 kolon + haftalik plan) <!-- id: 16 -->
+- [ ] Akilli Durtmeler (Smart Nudges) <!-- id: 17 -->
+- [ ] Global Arama (Cmd+K) <!-- id: 18 -->
+- [ ] Hizli Eylem Menusu (+) <!-- id: 19 -->
+
+## Faz 4: Vizyon + Otomasyon
+
+- [ ] Vizyon sayfasi (Haftalik, Aylik, Yillik hedefler) <!-- id: 20 -->
+- [ ] Railway Cron Job endpoint (/api/cron/daily) <!-- id: 21 -->
+- [ ] Resend e-posta entegrasyonu <!-- id: 22 -->
+
+## Faz 5: PWA + Push (Gelismis)
+
+- [ ] Web Push Notifications implementasyonu (subscribe/send endpoints) <!-- id: 23 -->
+- [ ] Service Worker detayli yapilandirmasi <!-- id: 24 -->

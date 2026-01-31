@@ -314,34 +314,34 @@ low: slate-300
 
 ## Gelistirme Fazlari
 
-### Faz 1: Altyapi
-1. Next.js projesi (TypeScript, Tailwind)
-2. shadcn/ui kurulumu
-3. Firebase yapilandirmasi (Auth + Firestore)
-4. Railway deployment
-5. Layout (SidebarProvider) + Navigation
+### Faz 1: Altyapi [TAMAMLANDI]
+1. [x] Next.js projesi (TypeScript, Tailwind)
+2. [x] shadcn/ui kurulumu
+3. [x] Firebase yapilandirmasi (Auth + Firestore)
+4. [ ] Railway deployment
+5. [x] Layout (SidebarProvider) + Navigation
 
-### Faz 2: CRUD Moduller
-6. Musteriler modulu
-7. Projeler modulu
-8. Gorevler/Backlog (Surukle-Birak dahil)
-9. Iletisim kayitlari
+### Faz 2: CRUD Moduller [TAMAMLANDI]
+6. [x] Musteriler modulu
+7. [x] Projeler modulu
+8. [x] Gorevler/Backlog (Surukle-Birak dahil)
+9. [x] Iletisim kayitlari
 
 ### Faz 3: Dashboard + UX
-10. Dashboard (3 kolon + haftalik plan)
-11. Akilli Durtmeler
-12. Global Arama (Cmd+K)
-13. Hizli Eylem Menusu (+)
+10. [ ] Dashboard (3 kolon + haftalik plan)
+11. [ ] Akilli Durtmeler
+12. [ ] Global Arama (Cmd+K)
+13. [ ] Hizli Eylem Menusu (+)
 
 ### Faz 4: Vizyon + Otomasyon
-14. Vizyon sayfasi
-15. Railway Cron Job (sicaklik + bildirimler)
-16. Resend e-posta entegrasyonu
+14. [ ] Vizyon sayfasi
+15. [ ] Railway Cron Job (sicaklik + bildirimler)
+16. [ ] Resend e-posta entegrasyonu
 
-### Faz 5: PWA + Push
-17. PWA yapilandirmasi (next-pwa)
-18. Web Push Notifications
-19. Service Worker
+### Faz 5: PWA + Push [TAMAMLANDI]
+17. [x] PWA yapilandirmasi (next-pwa)
+18. [ ] Web Push Notifications
+19. [x] Service Worker
 
 ---
 

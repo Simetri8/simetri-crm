@@ -4,9 +4,11 @@ import {
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem,
+    SidebarMenuItem
+
 } from "@/components/ui/sidebar"
 import { Home, Folder, Users, MessageSquare, Flag } from "lucide-react"
 import Link from "next/link"
@@ -42,9 +44,11 @@ const items = [
 export function AppSidebar() {
     return (
         <Sidebar>
+            <SidebarHeader>
+                <h1 className="text-xl p-2 font-bold">Planner</h1>
+            </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Simetri Planner</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {items.map((item) => (
