@@ -42,6 +42,11 @@ const items = [
         url: "/vision",
         icon: Flag,
     },
+    {
+        title: "Kullanıcılar",
+        url: "/users",
+        icon: Users,
+    },
 ]
 
 export function AppSidebar() {

@@ -10,6 +10,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter, usePathname } from 'next/navigation';
+import { userService } from '@/lib/firebase/users';
+import { toast } from 'sonner';
 
 interface AuthContextType {
     user: User | null;
@@ -27,22 +29,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             console.log('AuthProvider: Auth state changed', {
-                isLoggedIn: !!user,
-                uid: user?.uid,
-                email: user?.email,
+                isLoggedIn: !!firebaseUser,
+                uid: firebaseUser?.uid,
+                email: firebaseUser?.email,
                 pathname
             });
-            setUser(user);
+
+            if (firebaseUser && firebaseUser.email) {
+                // Check whitelist
+                const isAllowed = await userService.isWhitelisted(firebaseUser.email);
+                
+                if (!isAllowed) {
+                    console.error('AuthProvider: User not whitelisted', firebaseUser.email);
+                    toast.error('Giriş yetkiniz bulunmamaktadır. Lütfen yönetici ile iletişime geçin.');
+                    await signOut(auth);
+                    setUser(null);
+                    setLoading(false);
+                    router.push('/');
+                    return;
+                }
+            }
+
+            setUser(firebaseUser);
             setLoading(false);
 
-            if (user && pathname === '/') {
+            if (firebaseUser && pathname === '/') {
                 console.log('AuthProvider: User detected on root, redirecting to dashboard');
                 router.push('/dashboard');
             }
 
-            if (!user && pathname !== '/') {
+            if (!firebaseUser && pathname !== '/') {
                 console.log('AuthProvider: No user on protected route, redirecting to root');
                 router.push('/');
             }
