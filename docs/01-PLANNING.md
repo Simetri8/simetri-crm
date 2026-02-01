@@ -11,6 +11,7 @@
 - Musterilerle yapilan gorusmeleri kaydetme
 - Next.js, Firebase ve sadece Google ile giris
 - **Yetki:** Herkes her seyi gorebilir ve duzenleyebilir (tek seviye yetki - simdilik herkes admin)
+- **Güvenlik:** Sadece whitelist'e eklenmiş e-posta adresleri Google ile giriş yapabilir.
 
 ### Dashboard Gereksinimleri
 - **Buyuk Ekrana Yansitilacak Yapi:** Tek bakista tum durumu gorebilme
@@ -221,6 +222,8 @@ goals/
 
 /vision                 -> Haftalik/Aylik/Yillik hedefler
 
+/users                  -> Kullanici yönetimi (Whitelist)
+
 /api/cron/daily         -> Cron endpoint (Railway tarafindan cagirilir)
 /api/push/subscribe     -> Push subscription kaydi
 /api/push/send          -> Push bildirim gonderme
@@ -241,12 +244,13 @@ goals/
 |  - Musteriler    |                                |
 |  - Iletisim      |                                |
 |  - Vizyon        |                                |
+|  - Kullanıcılar  |                                |
 |                  |                                |
 |  -----------     |                                |
 |  Kullanici       |                                |
 |  Cikis           |                                |
 +------------------+--------------------------------+
-                                          [+] Hizli Eylem
+                                         [+] Hizli Eylem
 ```
 
 ### Dashboard
@@ -320,28 +324,30 @@ low: slate-300
 3. [x] Firebase yapilandirmasi (Auth + Firestore)
 4. [ ] Railway deployment
 5. [x] Layout (SidebarProvider) + Navigation
+6. [x] Whitelist tabanlı giriş güvenliği
 
 ### Faz 2: CRUD Moduller [TAMAMLANDI]
-6. [x] Musteriler modulu
-7. [x] Projeler modulu
-8. [x] Gorevler/Backlog (Surukle-Birak dahil)
-9. [x] Iletisim kayitlari
+7. [x] Musteriler modulu
+8. [x] Projeler modulu
+9. [x] Gorevler/Backlog (Surukle-Birak dahil)
+10. [x] Iletisim kayitlari
+11. [x] Kullanıcı yönetimi (Whitelist)
 
-### Faz 3: Dashboard + UX
-10. [ ] Dashboard (3 kolon + haftalik plan)
-11. [ ] Akilli Durtmeler
-12. [ ] Global Arama (Cmd+K)
-13. [ ] Hizli Eylem Menusu (+)
+### Faz 3: Dashboard + UX [TAMAMLANDI]
+12. [x] Dashboard (3 kolon + haftalik plan)
+13. [x] Akilli Durtmeler
+14. [x] Global Arama (Cmd+K)
+15. [x] Hizli Eylem Menusu (+)
 
-### Faz 4: Vizyon + Otomasyon
-14. [ ] Vizyon sayfasi
-15. [ ] Railway Cron Job (sicaklik + bildirimler)
-16. [ ] Resend e-posta entegrasyonu
+### Faz 4: Vizyon + Otomasyon [TAMAMLANDI]
+16. [x] Vizyon sayfasi (Haftalık/Aylık/Yıllık)
+17. [x] Railway Cron Job (sicaklik + bildirimler)
+18. [x] Resend e-posta entegrasyonu
 
 ### Faz 5: PWA + Push [TAMAMLANDI]
-17. [x] PWA yapilandirmasi (next-pwa)
-18. [ ] Web Push Notifications
-19. [x] Service Worker
+19. [x] PWA yapilandirmasi (next-pwa)
+20. [x] Web Push Notifications altyapısı
+21. [x] Service Worker entegrasyonu
 
 ---
 
