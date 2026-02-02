@@ -15,6 +15,7 @@ import { db } from './config';
 import { getCollection } from './firestore';
 import { Communication } from '@/lib/types';
 import { customerService } from './customers';
+import { taskService } from './tasks';
 
 const COMMUNICATIONS_COLLECTION = 'communications';
 
@@ -55,15 +56,37 @@ export const communicationService = {
   // Add new communication
   add: async (communication: Omit<Communication, 'id' | 'createdAt'>) => {
     const now = serverTimestamp();
-    const result = await addDoc(getCollection<Communication>(COMMUNICATIONS_COLLECTION), {
+    const commData = {
       ...communication,
+      projectId: communication.projectId || null,
+      projectName: communication.projectName || null,
       createdAt: now as Timestamp,
-    });
+    };
+
+    const result = await addDoc(getCollection<Communication>(COMMUNICATIONS_COLLECTION), commData);
 
     // Update customer's lastContactDate
     if (communication.customerId) {
       await customerService.update(communication.customerId, {
         lastContactDate: communication.date,
+      });
+    }
+
+    // Auto-create task if nextAction is provided
+    if (communication.nextAction && communication.nextActionDate) {
+      await taskService.add({
+        projectId: communication.projectId || null,
+        projectName: communication.projectName || null,
+        customerId: communication.customerId,
+        customerName: communication.customerName,
+        sourceCommunicationId: result.id,
+        title: communication.nextAction,
+        description: `Musteri gorusmesinden: ${communication.summary.substring(0, 100)}${communication.summary.length > 100 ? '...' : ''}`,
+        status: 'todo',
+        priority: 'normal',
+        order: 0,
+        dueDate: communication.nextActionDate,
+        weeklyPlanDate: communication.nextActionDate,
       });
     }
 

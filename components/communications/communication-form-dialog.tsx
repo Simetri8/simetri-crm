@@ -35,9 +35,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Communication, Customer } from '@/lib/types';
+import { Communication, Customer, Project } from '@/lib/types';
 import { communicationService } from '@/lib/firebase/communications';
 import { customerService } from '@/lib/firebase/customers';
+import { projectService } from '@/lib/firebase/projects';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -48,6 +49,7 @@ import { Timestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
   customerId: z.string().min(1, 'Musteri secimi zorunludur'),
+  projectId: z.string().optional(),
   type: z.enum(['phone', 'email', 'meeting', 'other']),
   date: z.date(),
   summary: z.string().min(2, 'Ozet en az 2 karakter olmalidir'),
@@ -73,11 +75,13 @@ export function CommunicationFormDialog({
   onSuccess,
 }: CommunicationFormDialogProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       customerId: preselectedCustomerId || '',
+      projectId: '',
       type: 'phone',
       date: new Date(),
       summary: '',
@@ -86,28 +90,36 @@ export function CommunicationFormDialog({
     },
   });
 
-  const loadCustomers = async () => {
+  const selectedCustomerId = form.watch('customerId');
+
+  const loadData = async () => {
     try {
-      console.log('CommunicationFormDialog: Loading customers...');
-      const data = await customerService.getAll();
-      console.log(`CommunicationFormDialog: Loaded ${data.length} customers`);
-      setCustomers(data as Customer[]);
+      const [customersData, projectsData] = await Promise.all([
+        customerService.getAll(),
+        projectService.getAll(),
+      ]);
+      setCustomers(customersData as Customer[]);
+      setProjects(projectsData as Project[]);
     } catch (error) {
-      console.error('CommunicationFormDialog: Error loading customers:', error);
+      console.error('CommunicationFormDialog: Error loading data:', error);
     }
   };
+
+  // Filter projects by selected customer
+  const filteredProjects = selectedCustomerId
+    ? projects.filter((p) => p.customerId === selectedCustomerId || !p.customerId)
+    : projects;
 
   useEffect(() => {
     if (!open) return;
 
-    // Load customers and reset form in the same effect to batch updates if possible
-    // or at least avoid multiple triggers
     const initializeForm = async () => {
-      await loadCustomers();
+      await loadData();
 
       if (communication) {
         form.reset({
           customerId: communication.customerId,
+          projectId: communication.projectId || '',
           type: communication.type,
           date: communication.date.toDate(),
           summary: communication.summary,
@@ -117,6 +129,7 @@ export function CommunicationFormDialog({
       } else {
         form.reset({
           customerId: preselectedCustomerId || '',
+          projectId: '',
           type: 'phone',
           date: new Date(),
           summary: '',
@@ -130,16 +143,15 @@ export function CommunicationFormDialog({
   }, [open, communication, preselectedCustomerId, form]);
 
   const onSubmit = async (values: FormValues) => {
-    console.log('CommunicationFormDialog: Submit triggered', {
-      hasCommId: !!communication?.id,
-      values
-    });
     try {
       const selectedCustomer = customers.find((c) => c.id === values.customerId);
+      const selectedProject = values.projectId ? projects.find((p) => p.id === values.projectId) : null;
 
       const commData = {
         customerId: values.customerId,
-        customerName: selectedCustomer?.name || '',
+        customerName: selectedCustomer?.company || '',
+        projectId: values.projectId || null,
+        projectName: selectedProject?.name || null,
         type: values.type,
         date: Timestamp.fromDate(values.date),
         summary: values.summary,
@@ -152,7 +164,9 @@ export function CommunicationFormDialog({
         toast.success('Gorusme guncellendi');
       } else {
         await communicationService.add(commData);
-        toast.success('Gorusme eklendi');
+        toast.success(values.nextAction && values.nextActionDate
+          ? 'Gorusme eklendi ve gorev olusturuldu'
+          : 'Gorusme eklendi');
       }
       onSuccess();
       onOpenChange(false);
@@ -176,34 +190,65 @@ export function CommunicationFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="customerId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Musteri</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Musteri secin" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {customers.length === 0 ? (
-                        <SelectItem value="none" disabled>Musteri bulunamadi</SelectItem>
-                      ) : (
-                        customers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id || 'err'}>
-                            {customer.name} - {customer.company}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="customerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Musteri</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Musteri secin" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {customers.length === 0 ? (
+                          <SelectItem value="none" disabled>Musteri bulunamadi</SelectItem>
+                        ) : (
+                          customers.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id || 'err'}>
+                              {customer.name} - {customer.company}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Proje (Opsiyonel)</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(val === '__none__' ? '' : val)}
+                      value={field.value || '__none__'}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Proje secin" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__none__">Proje yok</SelectItem>
+                        {filteredProjects.map((project) => (
+                          <SelectItem key={project.id} value={project.id || 'err'}>
+                            {project.name}
                           </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField

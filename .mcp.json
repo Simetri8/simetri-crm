@@ -1,0 +1,59 @@
+{
+    "mcpServers": {
+      "sequential-thinking": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+        "env": {}
+      },
+      "shadcn": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["shadcn@latest", "mcp"]
+      },
+      "time": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["mcp-server-time", "--local-timezone=America/Montevideo"]
+      },
+      "context7": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@upstash/context7-mcp",
+          "--api-key",
+          "ctx7sk-246ec8c9-2e8f-42df-857a-c35700c83eba"
+        ],
+        "env": {}
+      },
+      "playwright": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "@playwright/mcp@latest",
+          "--browser=chrome --headless",
+          "--isolated",
+          "--viewport-size=1366x900"
+        ],
+        "env": {}
+      },
+      "chrome-devtools": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["chrome-devtools-mcp@latest"]
+      },
+      "kibo-ui": {
+        "command": "npx",
+        "args": ["-y", "mcp-remote", "https://www.kibo-ui.com/api/mcp/mcp"]
+      },
+      "github": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-github"]
+      },
+      "next-devtools": {
+        "command": "npx",
+        "args": ["-y", "next-devtools-mcp@latest"]
+      }
+    }
+  }

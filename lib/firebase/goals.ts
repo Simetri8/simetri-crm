@@ -19,15 +19,15 @@ const GOALS_COLLECTION = 'goals';
 export const goalService = {
   // Get weekly goals
   getWeeklyGoals: async (weekStart: Date) => {
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
+    // Normalize weekStart to start of day for exact match
+    const normalizedWeekStart = new Date(weekStart);
+    normalizedWeekStart.setHours(0, 0, 0, 0);
 
     const q = query(
       getCollection<Goal>(GOALS_COLLECTION),
       where('type', '==', 'weekly'),
-      where('weekStart', '>=', Timestamp.fromDate(weekStart)),
-      where('weekStart', '<', Timestamp.fromDate(weekEnd)),
-      orderBy('weekStart', 'asc')
+      where('weekStart', '==', Timestamp.fromDate(normalizedWeekStart)),
+      orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));

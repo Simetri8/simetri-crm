@@ -24,7 +24,9 @@ export function WeeklyView() {
   const [isGoalDialogOpen, setIsGoalDialogOpen] = useState(false);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
 
-  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+  const weekStartRaw = startOfWeek(currentDate, { weekStartsOn: 1 });
+  // Normalize to start of day (midnight) for consistent Firestore queries
+  const weekStart = new Date(weekStartRaw.getFullYear(), weekStartRaw.getMonth(), weekStartRaw.getDate(), 0, 0, 0, 0);
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
 
   const loadData = async () => {
@@ -85,7 +87,7 @@ export function WeeklyView() {
               <Badge variant="secondary" className="ml-2">{tasks.length}</Badge>
             </CardTitle>
             <Button size="sm" onClick={() => setIsTaskDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-1" /> Ekle
+              <Plus className="h-4 w-4 mr-1" /> Ekle...
             </Button>
           </CardHeader>
           <CardContent className="flex-1">
@@ -169,22 +171,19 @@ export function WeeklyView() {
         </Card>
       </div>
 
-      <GoalFormDialog 
-        open={isGoalDialogOpen} 
+      <GoalFormDialog
+        open={isGoalDialogOpen}
         onOpenChange={setIsGoalDialogOpen}
         type="weekly"
         weekStart={weekStart}
         onSuccess={loadData}
       />
 
-      {/* Note: In a real app, we would need a way to select project for new task. 
-          For now, we might need a simpler task add dialog or force project selection.
-          Since TaskFormDialog requires projectId, we can't easily use it here without context.
-          For this iteration, I'll skip TaskFormDialog integration or mock it. 
-          Actually, I should probably use a simplified "Quick Task" dialog or redirect to Projects.
-          But let's leave the button there, maybe it opens a "Select Project" dialog first?
-          For now, let's just show a toast that this feature is coming or link to projects.
-      */}
+      <TaskFormDialog
+        open={isTaskDialogOpen}
+        onOpenChange={setIsTaskDialogOpen}
+        onSuccess={loadData}
+      />
     </div>
   );
 }

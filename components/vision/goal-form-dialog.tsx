@@ -111,6 +111,13 @@ export function GoalFormDialog({
 
   const onSubmit = async (values: FormValues) => {
     try {
+      // Normalize weekStart to start of day for consistent querying
+      let normalizedWeekStart: Date | null = null;
+      if (weekStart) {
+        normalizedWeekStart = new Date(weekStart);
+        normalizedWeekStart.setHours(0, 0, 0, 0);
+      }
+
       const goalData = {
         title: values.title,
         description: values.description || '',
@@ -118,9 +125,9 @@ export function GoalFormDialog({
         status: values.status,
         targetDate: Timestamp.fromDate(values.targetDate),
         type,
-        weekStart: weekStart ? Timestamp.fromDate(weekStart) : null,
-        month: month || null,
-        year: year || new Date().getFullYear(),
+        weekStart: normalizedWeekStart ? Timestamp.fromDate(normalizedWeekStart) : null,
+        month: month !== undefined ? month : null,
+        year: year ?? new Date().getFullYear(),
         relatedProjectId: null,
         relatedCustomerId: null,
       };

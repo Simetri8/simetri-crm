@@ -4,7 +4,6 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -15,6 +14,8 @@ import { Home, Folder, Users, MessageSquare, Flag } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
+import { ThemeSwitcher } from "@/components/kibo-ui/theme-switcher"
+import { useTheme } from "next-themes"
 
 const items = [
     {
@@ -51,6 +52,7 @@ const items = [
 
 export function AppSidebar() {
     const { user } = useAuth();
+    const { theme, setTheme } = useTheme();
 
     const userData = {
         name: user?.displayName || user?.email?.split('@')[0] || "Kullanıcı",
@@ -81,7 +83,14 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
+            <SidebarFooter className="gap-4">
+                <div className="px-4 py-2 flex items-center justify-between border-t border-border/50">
+                    <span className="text-xs text-muted-foreground font-medium">Görünüm</span>
+                    <ThemeSwitcher
+                        value={theme as "light" | "dark" | "system"}
+                        onChange={(t) => setTheme(t)}
+                    />
+                </div>
                 <NavUser user={userData} />
             </SidebarFooter>
         </Sidebar>

@@ -37,13 +37,15 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Customer } from '@/lib/types';
+import { Customer, Project } from '@/lib/types';
 import { communicationService } from '@/lib/firebase/communications';
 import { customerService } from '@/lib/firebase/customers';
+import { projectService } from '@/lib/firebase/projects';
 import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   customerId: z.string().min(1, 'Musteri secimi zorunludur'),
+  projectId: z.string().optional(),
   type: z.enum(['phone', 'email', 'meeting', 'other']),
   date: z.date(),
   summary: z.string().min(2, 'Ozet en az 2 karakter olmalidir'),
@@ -56,11 +58,13 @@ type FormValues = z.infer<typeof formSchema>;
 export default function NewCommunicationPage() {
   const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       customerId: '',
+      projectId: '',
       type: 'phone',
       date: new Date(),
       summary: '',
@@ -69,25 +73,39 @@ export default function NewCommunicationPage() {
     },
   });
 
+  const selectedCustomerId = form.watch('customerId');
+
+  // Filter projects by selected customer
+  const filteredProjects = selectedCustomerId
+    ? projects.filter((p) => p.customerId === selectedCustomerId || !p.customerId)
+    : projects;
+
   useEffect(() => {
-    const loadCustomers = async () => {
+    const loadData = async () => {
       try {
-        const data = await customerService.getAll();
-        setCustomers(data as Customer[]);
+        const [customersData, projectsData] = await Promise.all([
+          customerService.getAll(),
+          projectService.getAll(),
+        ]);
+        setCustomers(customersData as Customer[]);
+        setProjects(projectsData as Project[]);
       } catch (error) {
-        console.error('Error loading customers:', error);
+        console.error('Error loading data:', error);
       }
     };
-    loadCustomers();
+    loadData();
   }, []);
 
   const onSubmit = async (values: FormValues) => {
     try {
       const selectedCustomer = customers.find((c) => c.id === values.customerId);
+      const selectedProject = values.projectId ? projects.find((p) => p.id === values.projectId) : null;
 
       const commData = {
         customerId: values.customerId,
-        customerName: selectedCustomer?.name || '',
+        customerName: selectedCustomer?.company || '',
+        projectId: values.projectId || null,
+        projectName: selectedProject?.name || null,
         type: values.type,
         date: Timestamp.fromDate(values.date),
         summary: values.summary,
@@ -96,7 +114,9 @@ export default function NewCommunicationPage() {
       };
 
       await communicationService.add(commData);
-      toast.success('Gorusme eklendi');
+      toast.success(values.nextAction && values.nextActionDate
+        ? 'Gorusme eklendi ve gorev olusturuldu'
+        : 'Gorusme eklendi');
       router.push('/communications');
     } catch (error) {
       console.error('Error saving communication:', error);
@@ -128,34 +148,65 @@ export default function NewCommunicationPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="customerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Musteri</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Musteri secin" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {customers.length === 0 ? (
-                          <SelectItem value="none" disabled>Musteri bulunamadi</SelectItem>
-                        ) : (
-                          customers.map((customer) => (
-                            <SelectItem key={customer.id} value={customer.id || 'err'}>
-                              {customer.name} - {customer.company}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="customerId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Musteri</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Musteri secin" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {customers.length === 0 ? (
+                            <SelectItem value="none" disabled>Musteri bulunamadi</SelectItem>
+                          ) : (
+                            customers.map((customer) => (
+                              <SelectItem key={customer.id} value={customer.id || 'err'}>
+                                {customer.name} - {customer.company}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="projectId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Proje (Opsiyonel)</FormLabel>
+                      <Select
+                        onValueChange={(val) => field.onChange(val === '__none__' ? '' : val)}
+                        value={field.value || '__none__'}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Proje secin" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="__none__">Proje yok</SelectItem>
+                          {filteredProjects.map((project) => (
+                            <SelectItem key={project.id} value={project.id || 'err'}>
+                              {project.name}
                             </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField

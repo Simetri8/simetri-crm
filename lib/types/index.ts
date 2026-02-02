@@ -44,8 +44,11 @@ export type TaskPriority = 'low' | 'normal' | 'high' | 'urgent';
 
 export type Task = {
   id?: string;
-  projectId: string;
-  projectName: string;
+  projectId: string | null;
+  projectName: string | null;
+  customerId: string | null;
+  customerName: string | null;
+  sourceCommunicationId: string | null;
   title: string;
   description: string;
   status: TaskStatus;
@@ -64,6 +67,8 @@ export type Communication = {
   id?: string;
   customerId: string;
   customerName: string;
+  projectId: string | null;
+  projectName: string | null;
   type: CommunicationType;
   date: Timestamp;
   summary: string;

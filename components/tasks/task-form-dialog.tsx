@@ -59,8 +59,10 @@ interface TaskFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: Task | null;
-  projectId: string;
-  projectName: string;
+  projectId?: string | null;
+  projectName?: string | null;
+  customerId?: string | null;
+  customerName?: string | null;
   onSuccess: () => void;
 }
 
@@ -70,6 +72,8 @@ export function TaskFormDialog({
   task,
   projectId,
   projectName,
+  customerId,
+  customerName,
   onSuccess,
 }: TaskFormDialogProps) {
   const form = useForm<FormValues>({
@@ -115,10 +119,13 @@ export function TaskFormDialog({
         });
         toast.success('Gorev guncellendi');
       } else {
-        const maxOrder = await taskService.getMaxOrder(projectId);
+        const maxOrder = projectId ? await taskService.getMaxOrder(projectId) : 0;
         await taskService.add({
-          projectId,
-          projectName,
+          projectId: projectId || null,
+          projectName: projectName || null,
+          customerId: customerId || null,
+          customerName: customerName || null,
+          sourceCommunicationId: null,
           title: values.title,
           description: values.description || '',
           status: values.status,

@@ -57,14 +57,49 @@ export const taskService = {
   },
 
   // Get recently completed tasks
-  getRecentlyCompleted: async (limit: number = 10) => {
+  getRecentlyCompleted: async (limitCount: number = 10) => {
     const q = query(
       getCollection<Task>(TASKS_COLLECTION),
       where('status', '==', 'done'),
       orderBy('completedAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.slice(0, limit).map((doc) => doc.data());
+    return snapshot.docs.slice(0, limitCount).map((doc) => doc.data());
+  },
+
+  // Get tasks by customer
+  getByCustomer: async (customerId: string) => {
+    const q = query(
+      getCollection<Task>(TASKS_COLLECTION),
+      where('customerId', '==', customerId),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => doc.data());
+  },
+
+  // Get standalone tasks (no project, customer follow-ups)
+  getStandaloneTasks: async () => {
+    const q = query(
+      getCollection<Task>(TASKS_COLLECTION),
+      where('projectId', '==', null),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => doc.data());
+  },
+
+  // Get pending follow-up tasks (from communications)
+  getPendingFollowUps: async () => {
+    const q = query(
+      getCollection<Task>(TASKS_COLLECTION),
+      where('sourceCommunicationId', '!=', null),
+      where('status', '!=', 'done'),
+      orderBy('sourceCommunicationId', 'asc'),
+      orderBy('dueDate', 'asc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => doc.data());
   },
 
   // Add new task
@@ -72,6 +107,11 @@ export const taskService = {
     const now = serverTimestamp();
     return addDoc(getCollection<Task>(TASKS_COLLECTION), {
       ...task,
+      projectId: task.projectId || null,
+      projectName: task.projectName || null,
+      customerId: task.customerId || null,
+      customerName: task.customerName || null,
+      sourceCommunicationId: task.sourceCommunicationId || null,
       completedAt: null,
       createdAt: now as Timestamp,
       updatedAt: now as Timestamp,
@@ -129,6 +169,19 @@ export const taskService = {
       if (task.id) {
         const docRef = doc(db, TASKS_COLLECTION, task.id);
         batch.update(docRef, { projectName: newName, updatedAt: serverTimestamp() });
+      }
+    });
+    return batch.commit();
+  },
+
+  // Update customer name in all related tasks (denormalization sync)
+  updateCustomerName: async (customerId: string, newName: string) => {
+    const tasks = await taskService.getByCustomer(customerId);
+    const batch = writeBatch(db);
+    tasks.forEach((task) => {
+      if (task.id) {
+        const docRef = doc(db, TASKS_COLLECTION, task.id);
+        batch.update(docRef, { customerName: newName, updatedAt: serverTimestamp() });
       }
     });
     return batch.commit();

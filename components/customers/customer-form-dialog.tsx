@@ -24,6 +24,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Customer } from '@/lib/types';
 import { customerService } from '@/lib/firebase/customers';
+import { projectService } from '@/lib/firebase/projects';
+import { communicationService } from '@/lib/firebase/communications';
+import { taskService } from '@/lib/firebase/tasks';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -82,19 +85,25 @@ export function CustomerFormDialog({
     }, [customer, form, open]);
 
     const onSubmit = async (values: FormValues) => {
-        console.log('CustomerFormDialog: Submit triggered', {
-            hasCustomerId: !!customer?.id,
-            values
-        });
         try {
             if (customer?.id) {
                 await customerService.update(customer.id, values);
+
+                // Sync company name to related records if changed
+                if (customer.company !== values.company) {
+                    await Promise.all([
+                        projectService.updateCustomerName(customer.id, values.company),
+                        communicationService.updateCustomerName(customer.id, values.company),
+                        taskService.updateCustomerName(customer.id, values.company),
+                    ]);
+                }
+
                 toast.success('Musteri guncellendi');
             } else {
                 await customerService.add({
                     ...values,
                     notes: values.notes || '',
-                    lastContactDate: null, // New customers haven't been contacted yet?
+                    lastContactDate: null,
                 });
                 toast.success('Musteri eklendi');
             }

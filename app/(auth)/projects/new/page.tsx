@@ -89,7 +89,7 @@ export default function NewProjectPage() {
         name: values.name,
         description: values.description || '',
         customerId: values.customerId || null,
-        customerName: selectedCustomer?.name || null,
+        customerName: selectedCustomer?.company || null,
         status: values.status,
         targetStartDate: values.targetStartDate ? Timestamp.fromDate(values.targetStartDate) : null,
         targetEndDate: values.targetEndDate ? Timestamp.fromDate(values.targetEndDate) : null,
@@ -163,16 +163,19 @@ export default function NewProjectPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Musteri</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <Select
+                        onValueChange={(val) => field.onChange(val === '__none__' ? '' : val)}
+                        value={field.value || '__none__'}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Musteri secin" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="none">Musteri yok</SelectItem>
+                          <SelectItem value="__none__">Musteri yok</SelectItem>
                           {customers.map((customer) => (
-                            <SelectItem key={customer.id} value={customer.id || 'none'}>
+                            <SelectItem key={customer.id} value={customer.id || '__err__'}>
                               {customer.name}
                             </SelectItem>
                           ))}
