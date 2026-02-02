@@ -29,7 +29,7 @@ export default function AuthLayout({
     return (
         <SidebarProvider>
             <AppSidebar />
-            <main className="w-full relative min-h-screen">
+            <main className="relative min-h-screen flex-1 min-w-0 overflow-x-hidden">
                 <div className="p-4 md:p-6 lg:p-8">
                     <div className="mb-4 flex items-center">
                         <SidebarTrigger />
