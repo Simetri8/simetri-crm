@@ -7,7 +7,8 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem
+    SidebarMenuItem,
+    SidebarSeparator
 
 } from "@/components/ui/sidebar"
 import { Home, Folder, Users, MessageSquare, Flag } from "lucide-react"
@@ -24,24 +25,7 @@ const items = [
         icon: Home,
     },
     {
-        title: "Projeler",
-        url: "/projects",
-        icon: Folder,
-    },
-    {
-        title: "Musteriler",
-        url: "/customers",
-        icon: Users,
-    },
-    {
-        title: "Iletisim",
-        url: "/communications",
-        icon: MessageSquare,
-    },
-    {
-        title: "Vizyon",
-        url: "/vision",
-        icon: Flag,
+        type: "divider",
     },
     {
         title: "Kullanıcılar",
@@ -69,11 +53,13 @@ export function AppSidebar() {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item) => (
+                            {items.map((item, index) => item.type === "divider" ? (
+                                <SidebarSeparator key={index} />
+                            ) : (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <Link href={item.url}>
-                                            <item.icon />
+                                        <Link href={item.url || ""}>
+                                            {item.icon && <item.icon />}
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>

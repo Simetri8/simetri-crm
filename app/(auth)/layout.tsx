@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/auth/auth-provider"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
-import { CommandMenu } from "@/components/layout/command-menu"
 import { QuickActionButton } from "@/components/layout/quick-action-button"
 import { Toaster } from "@/components/ui/sonner"
 
@@ -37,7 +36,6 @@ export default function AuthLayout({
                     </div>
                     {children}
                 </div>
-                <CommandMenu />
                 <QuickActionButton />
                 <Toaster />
             </main>
