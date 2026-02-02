@@ -1,4 +1,4 @@
-import { ProjectStatus, TaskStatus, TaskPriority } from '@/lib/types';
+import { ProjectStatus, TaskStatus, TaskPriority, CustomerTemperature } from '@/lib/types';
 
 // Project Status
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -39,4 +39,17 @@ export const TASK_PRIORITY_COLORS: Record<TaskPriority, string> = {
   normal: 'bg-slate-500 text-white hover:bg-slate-600',
   high: 'bg-amber-500 text-white hover:bg-amber-600',
   urgent: 'bg-red-500 text-white hover:bg-red-600',
+};
+
+// Customer Temperature
+export const CUSTOMER_TEMPERATURE_LABELS: Record<CustomerTemperature, string> = {
+  hot: 'Sicak',
+  warm: 'Ilik',
+  cold: 'Soguk',
+};
+
+export const CUSTOMER_TEMPERATURE_COLORS: Record<CustomerTemperature, string> = {
+  hot: 'bg-red-500 text-white hover:bg-red-600',
+  warm: 'bg-amber-500 text-white hover:bg-amber-600',
+  cold: 'bg-blue-500 text-white hover:bg-blue-600',
 };

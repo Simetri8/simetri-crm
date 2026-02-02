@@ -2,6 +2,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -26,6 +27,16 @@ export const customerService = {
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => doc.data());
+  },
+
+  // Get single customer by ID
+  getById: async (id: string) => {
+    const docRef = doc(db, CUSTOMERS_COLLECTION, id);
+    const snapshot = await getDoc(docRef);
+    if (!snapshot.exists()) {
+      return null;
+    }
+    return { id: snapshot.id, ...snapshot.data() } as Customer;
   },
 
   // Add new customer
