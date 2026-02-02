@@ -1,0 +1,248 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { format } from 'date-fns';
+import { tr } from 'date-fns/locale';
+import { CalendarIcon, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { COMPANY_STATUS } from '@/lib/types';
+import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
+import type { Company, CompanyFormData } from '@/lib/types';
+
+const formSchema = z.object({
+  name: z.string().min(1, 'Sirket adi zorunlu'),
+  status: z.enum(['active', 'inactive']),
+  tags: z.string(),
+  nextAction: z.string().optional(),
+  nextActionDate: z.date().optional().nullable(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+type CompanyFormDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  company?: Company | null;
+  onSubmit: (data: CompanyFormData) => Promise<void>;
+};
+
+export function CompanyFormDialog({
+  open,
+  onOpenChange,
+  company,
+  onSubmit,
+}: CompanyFormDialogProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEdit = !!company;
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: company?.name ?? '',
+      status: company?.status ?? 'active',
+      tags: company?.tags?.join(', ') ?? '',
+      nextAction: company?.nextAction ?? '',
+      nextActionDate: company?.nextActionDate?.toDate() ?? null,
+    },
+  });
+
+  // Form reset when company changes
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: company?.name ?? '',
+        status: company?.status ?? 'active',
+        tags: company?.tags?.join(', ') ?? '',
+        nextAction: company?.nextAction ?? '',
+        nextActionDate: company?.nextActionDate?.toDate() ?? null,
+      });
+    }
+  }, [open, company, form]);
+
+  const handleSubmit = async (values: FormValues) => {
+    setIsSubmitting(true);
+    try {
+      const data: CompanyFormData = {
+        name: values.name,
+        status: values.status,
+        tags: values.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean),
+        nextAction: values.nextAction || null,
+        nextActionDate: values.nextActionDate ?? null,
+      };
+      await onSubmit(data);
+      onOpenChange(false);
+      form.reset();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>
+            {isEdit ? 'Sirketi Duzenle' : 'Yeni Sirket'}
+          </DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sirket Adi</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ABC Teknoloji" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Durum</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {COMPANY_STATUS.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {COMPANY_STATUS_CONFIG[status].label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etiketler</FormLabel>
+                  <FormControl>
+                    <Input placeholder="yazilim, fintech, startup" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nextAction"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sonraki Adim</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Teklif gonder..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nextActionDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Sonraki Adim Tarihi</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(field.value, 'dd MMM yyyy', { locale: tr })
+                            : 'Tarih sec'}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ?? undefined}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Iptal
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isEdit ? 'Guncelle' : 'Olustur'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

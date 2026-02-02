@@ -4,6 +4,7 @@ import {
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -11,24 +12,60 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Folder, Users, MessageSquare, Flag } from "lucide-react"
+import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
 import { ThemeSwitcher } from "@/components/kibo-ui/theme-switcher"
 import { useTheme } from "next-themes"
 
-const items = [
+const mainItems = [
     {
         title: "Dashboard",
         url: "/dashboard",
         icon: Home,
     },
+]
+
+const crmItems = [
     {
-        type: "divider",
+        title: "Sirketler",
+        url: "/crm/companies",
+        icon: Building2,
     },
     {
-        title: "Kullanıcılar",
+        title: "Kisiler",
+        url: "/crm/contacts",
+        icon: Contact,
+    },
+    {
+        title: "Pipeline",
+        url: "/crm/pipeline",
+        icon: KanbanSquare,
+    },
+    {
+        title: "Teklifler",
+        url: "/crm/proposals",
+        icon: FileText,
+    },
+]
+
+const opsItems = [
+    {
+        title: "Is Emirleri",
+        url: "/ops/work-orders",
+        icon: Briefcase,
+    },
+    {
+        title: "Zaman Girisi",
+        url: "/time",
+        icon: Clock,
+    },
+]
+
+const settingsItems = [
+    {
+        title: "Kullanicilar",
         url: "/users",
         icon: Users,
     },
@@ -47,19 +84,81 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarHeader>
-                <h1 className="text-xl p-2 font-bold">Planner</h1>
+                <h1 className="text-xl p-2 font-bold">Simetri CRM</h1>
             </SidebarHeader>
             <SidebarContent>
+                {/* Ana Menu */}
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item, index) => item.type === "divider" ? (
-                                <SidebarSeparator key={index} />
-                            ) : (
+                            {mainItems.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <Link href={item.url || ""}>
-                                            {item.icon && <item.icon />}
+                                        <Link href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarSeparator className="mx-0" />
+
+                {/* CRM */}
+                <SidebarGroup>
+                    <SidebarGroupLabel>CRM</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {crmItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <Link href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarSeparator className="mx-0" />
+
+                {/* Operasyon */}
+                <SidebarGroup>
+                    <SidebarGroupLabel>Operasyon</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {opsItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <Link href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarSeparator className="mx-0" />
+
+                {/* Ayarlar */}
+                <SidebarGroup>
+                    <SidebarGroupLabel>Ayarlar</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {settingsItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild>
+                                        <Link href={item.url}>
+                                            <item.icon />
                                             <span>{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
