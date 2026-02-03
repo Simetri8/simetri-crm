@@ -8,6 +8,7 @@ import {
     Clock,
     FolderOpen,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import type { DashboardKPIs } from '@/lib/types';
 
 export type KPICardsProps = {
@@ -23,6 +24,7 @@ type KPICardData = {
     subtitle: string | null;
     icon: React.ReactNode;
     colorClass: string;
+    entityName: string;
 };
 
 export function KPICards({
@@ -62,6 +64,7 @@ export function KPICards({
                 (kpis?.overdueNextActions ?? 0) > 0
                     ? 'text-red-600'
                     : 'text-muted-foreground',
+            entityName: 'FollowUp',
         },
         {
             title: 'Bugün Yapılacaklar',
@@ -72,6 +75,7 @@ export function KPICards({
                 (kpis?.todayNextActions ?? 0) > 0
                     ? 'text-blue-600'
                     : 'text-muted-foreground',
+            entityName: 'FollowUp',
         },
         {
             title: 'Açık İş Emirleri',
@@ -82,6 +86,7 @@ export function KPICards({
                     : null,
             icon: <FolderOpen className="h-4 w-4" />,
             colorClass: 'text-muted-foreground',
+            entityName: 'WorkOrder',
         },
         {
             title: 'Onay Bekleyen Zaman Girişleri',
@@ -92,6 +97,7 @@ export function KPICards({
                 (kpis?.pendingTimesheets ?? 0) > 0
                     ? 'text-amber-600'
                     : 'text-muted-foreground',
+            entityName: 'TimeEntry',
         },
     ];
 
@@ -112,6 +118,11 @@ export function KPICards({
                                 {card.subtitle}
                             </p>
                         )}
+                        <div className="mt-2 text-xs">
+                            <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
+                                {card.entityName}
+                            </Badge>
+                        </div>
                     </CardContent>
                 </Card>
             ))}

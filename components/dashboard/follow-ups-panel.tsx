@@ -177,19 +177,18 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                 return (
                                     <div
                                         key={`${item.type}-${item.id}`}
-                                        className={`w-full p-3 rounded-lg border transition-colors ${
-                                            isEditing ? 'border-primary bg-accent' :
+                                        className={`w-full p-3 rounded-lg border transition-colors ${isEditing ? 'border-primary bg-accent' :
                                             item.isOverdue
                                                 ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
                                                 : 'hover:bg-accent cursor-pointer'
-                                        }`}
+                                            }`}
                                         onClick={() => !isEditing && handleItemClick(item)}
                                     >
                                         <div className="flex items-start gap-3">
                                             <div
                                                 className={`p-2 rounded-full ${item.type === 'company'
-                                                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                                                        : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
+                                                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+                                                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
                                                     }`}
                                             >
                                                 {item.type === 'company' ? (
@@ -282,7 +281,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                                     variant={item.isOverdue ? 'destructive' : 'secondary'}
                                                     className="shrink-0"
                                                 >
-                                                    {item.type === 'company' ? 'Şirket' : 'Fırsat'}
+                                                    {item.type === 'company' ? 'Company' : 'Deal'}
                                                 </Badge>
                                                 {!isEditing && (
                                                     <Button
@@ -302,6 +301,11 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                         </div>
                     )}
                 </ScrollArea>
+                <div className="mt-4 text-xs">
+                    <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
+                        FollowUp
+                    </Badge>
+                </div>
             </CardContent>
         </Card>
     );

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -128,6 +129,11 @@ export function TimesheetPanel({ queue, loading }: TimesheetPanelProps) {
                         </div>
                     )}
                 </ScrollArea>
+                <div className="mt-4 text-xs">
+                    <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
+                        TimeEntry
+                    </Badge>
+                </div>
             </CardContent>
         </Card>
     );

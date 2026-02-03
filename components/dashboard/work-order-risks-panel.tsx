@@ -162,6 +162,11 @@ export function WorkOrderRisksPanel({
                         </div>
                     )}
                 </ScrollArea>
+                <div className="mt-4 text-xs">
+                    <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
+                        WorkOrder
+                    </Badge>
+                </div>
             </CardContent>
         </Card>
     );
