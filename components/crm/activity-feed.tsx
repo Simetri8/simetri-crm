@@ -32,7 +32,7 @@ const ACTIVITY_ICONS: Record<ActivityType, typeof Phone> = {
 
 type ActivityFeedProps = {
   activities: Activity[];
-  showContext?: boolean; // Sirket/Deal linklerini goster
+  showContext?: boolean; // Şirket/Deal linklerini goster
   emptyMessage?: string;
 };
 

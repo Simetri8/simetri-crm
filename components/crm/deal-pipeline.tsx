@@ -1,10 +1,8 @@
-'use client';
-
 import { useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { Building2, User, Calendar, BadgeDollarSign } from 'lucide-react';
+import { Building2, BadgeDollarSign, Edit, Pencil } from 'lucide-react';
 import {
   KanbanProvider,
   KanbanBoard,
@@ -13,7 +11,7 @@ import {
   KanbanCard,
   type DragEndEvent,
 } from '@/components/kibo-ui/kanban';
-import { StatusBadge } from './status-badge';
+import { Button } from '@/components/ui/button';
 import { DEAL_STAGE_CONFIG, DEAL_STAGE_ORDER, formatMoney } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
 import type { Deal, DealStage } from '@/lib/types';
@@ -26,9 +24,14 @@ type KanbanDeal = Deal & {
 type DealPipelineProps = {
   deals: Deal[];
   onStageChange: (dealId: string, newStage: DealStage) => Promise<void>;
+  onEdit: (deal: Deal) => void;
 };
 
-export function DealPipeline({ deals, onStageChange }: DealPipelineProps) {
+export function DealPipeline({ deals, onStageChange, onEdit }: DealPipelineProps) {
+
+  // Onceki deals prop'unu takip etmek icin state
+  const [prevDeals, setPrevDeals] = useState(deals);
+
   // Kanban formatina cevir
   const [kanbanData, setKanbanData] = useState<KanbanDeal[]>(() =>
     deals.map((deal) => ({
@@ -37,6 +40,18 @@ export function DealPipeline({ deals, onStageChange }: DealPipelineProps) {
       column: deal.stage,
     }))
   );
+
+  // Deals prop'u degistiginde kanbanData'yi güncelle (render sirasinda)
+  if (deals !== prevDeals) {
+    setPrevDeals(deals);
+    setKanbanData(
+      deals.map((deal) => ({
+        ...deal,
+        name: deal.title,
+        column: deal.stage,
+      }))
+    );
+  }
 
   // Pipeline icin sadece aktif stage'ler
   const activeStages = DEAL_STAGE_ORDER.filter(
@@ -100,50 +115,69 @@ export function DealPipeline({ deals, onStageChange }: DealPipelineProps) {
           <KanbanCards<KanbanDeal> id={column.id}>
             {(deal) => (
               <KanbanCard key={deal.id} id={deal.id} name={deal.title} column={deal.column}>
-                <Link
-                  href={`/crm/deals/${deal.id}`}
-                  className="block hover:bg-accent/50 transition-colors -m-3 p-3 rounded-md"
-                >
-                  <div className="space-y-2">
-                    <p className="font-medium text-sm line-clamp-2">{deal.title}</p>
+                <div className="relative group">
+                  <Link
+                    href={`/crm/deals/${deal.id}`}
+                    className="block hover:bg-accent/50 transition-colors -m-3 p-3 rounded-md"
+                  >
+                    <div className="space-y-2">
+                      <div className="pr-6">
+                        <p className="font-medium text-sm line-clamp-2">{deal.title}</p>
+                      </div>
 
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Building2 className="h-3 w-3" />
-                      <span className="truncate">{deal.companyName}</span>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Building2 className="h-3 w-3" />
+                        <span className="truncate">{deal.companyName}</span>
+                      </div>
+
+                      {deal.estimatedBudgetMinor && (
+                        <div className="flex items-center gap-1 text-xs font-medium text-green-600">
+                          <BadgeDollarSign className="h-3 w-3" />
+                          <span>{formatMoney(deal.estimatedBudgetMinor, deal.currency)}</span>
+                        </div>
+                      )}
+
+                      {deal.nextAction && (
+                        <div
+                          className={cn(
+                            'text-xs p-1.5 rounded',
+                            deal.nextActionDate &&
+                              deal.nextActionDate.toDate() < new Date()
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-amber-100 text-amber-700'
+                          )}
+                        >
+                          {deal.nextAction}
+                          {deal.nextActionDate && (
+                            <span className="ml-1 opacity-75">
+                              ({format(deal.nextActionDate.toDate(), 'dd MMM', { locale: tr })})
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
+                  </Link>
+                  <Button
+                    variant="default"
+                    size="icon"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow-sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onEdit(deal);
+                    }}
+                  >
+                    <Pencil className="" />
+                  </Button>
+                </div>
 
-                    {deal.estimatedBudgetMinor && (
-                      <div className="flex items-center gap-1 text-xs font-medium text-green-600">
-                        <BadgeDollarSign className="h-3 w-3" />
-                        <span>{formatMoney(deal.estimatedBudgetMinor, deal.currency)}</span>
-                      </div>
-                    )}
-
-                    {deal.nextAction && (
-                      <div
-                        className={cn(
-                          'text-xs p-1.5 rounded',
-                          deal.nextActionDate &&
-                            deal.nextActionDate.toDate() < new Date()
-                            ? 'bg-red-100 text-red-700'
-                            : 'bg-amber-100 text-amber-700'
-                        )}
-                      >
-                        {deal.nextAction}
-                        {deal.nextActionDate && (
-                          <span className="ml-1 opacity-75">
-                            ({format(deal.nextActionDate.toDate(), 'dd MMM', { locale: tr })})
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </Link>
               </KanbanCard>
             )}
           </KanbanCards>
         </KanbanBoard>
       )}
+
     </KanbanProvider>
+
   );
 }

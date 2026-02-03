@@ -197,7 +197,7 @@ export const timeEntryService = {
   },
 
   /**
-   * Zaman girisini gunceller (sadece draft durumda)
+   * Zaman girisini günceller (sadece draft durumda)
    */
   update: async (
     id: string,
@@ -219,13 +219,13 @@ export const timeEntryService = {
       updatedBy: userId,
     };
 
-    // Tarih degisti ise weekKey'i de guncelle
+    // Tarih degisti ise weekKey'i de güncelle
     if (data.date) {
       updateData.date = Timestamp.fromDate(data.date);
       updateData.weekKey = getWeekKey(data.date);
     }
 
-    // Work order degisti ise adini da guncelle
+    // Work order degisti ise adini da güncelle
     if (data.workOrderId !== undefined) {
       if (data.workOrderId) {
         const workOrderRef = doc(
@@ -241,7 +241,7 @@ export const timeEntryService = {
       }
     }
 
-    // Deliverable degisti ise adini da guncelle
+    // Deliverable degisti ise adini da güncelle
     if (data.deliverableId !== undefined) {
       if (data.deliverableId) {
         const deliverableRef = doc(
@@ -257,7 +257,7 @@ export const timeEntryService = {
       }
     }
 
-    // Task degisti ise adini da guncelle
+    // Task degisti ise adini da güncelle
     if (data.taskId !== undefined) {
       if (data.taskId) {
         const taskRef = doc(getCollection<Task>('tasks'), data.taskId);
@@ -486,7 +486,7 @@ export const timeEntryService = {
   },
 
   /**
-   * Is emri bazinda toplam zaman hesaplar
+   * İş Emri bazinda toplam zaman hesaplar
    */
   getTotalByWorkOrder: async (
     workOrderId: string
@@ -535,13 +535,13 @@ export const timeEntryService = {
       updatedBy: correctedBy,
     };
 
-    // Tarih degisti ise weekKey'i de guncelle
+    // Tarih degisti ise weekKey'i de güncelle
     if (data.date) {
       updateData.date = Timestamp.fromDate(data.date);
       updateData.weekKey = getWeekKey(data.date);
     }
 
-    // Work order degisti ise adini da guncelle
+    // Work order degisti ise adini da güncelle
     if (data.workOrderId !== undefined) {
       if (data.workOrderId) {
         const workOrderRef = doc(
@@ -557,7 +557,7 @@ export const timeEntryService = {
       }
     }
 
-    // Deliverable degisti ise adini da guncelle
+    // Deliverable degisti ise adini da güncelle
     if (data.deliverableId !== undefined) {
       if (data.deliverableId) {
         const deliverableRef = doc(
@@ -573,7 +573,7 @@ export const timeEntryService = {
       }
     }
 
-    // Task degisti ise adini da guncelle
+    // Task degisti ise adini da güncelle
     if (data.taskId !== undefined) {
       if (data.taskId) {
         const taskRef = doc(getCollection<Task>('tasks'), data.taskId);

@@ -94,7 +94,7 @@ export const catalogItemService = {
   },
 
   /**
-   * Katalog kalemi gunceller
+   * Katalog kalemi günceller
    */
   update: async (
     id: string,

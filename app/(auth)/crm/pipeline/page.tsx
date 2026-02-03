@@ -16,6 +16,7 @@ export default function PipelinePage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
 
   const loadDeals = async () => {
     try {
@@ -39,9 +40,24 @@ export default function PipelinePage() {
       await dealService.add(data, user.uid);
       toast.success('Fırsat oluşturuldu');
       loadDeals();
+      setFormOpen(false);
     } catch (error) {
       console.error('Error creating deal:', error);
       toast.error('Fırsat oluşturulamadı');
+    }
+  };
+
+  const handleUpdate = async (data: DealFormData) => {
+    if (!user || !editingDeal) return;
+    try {
+      await dealService.update(editingDeal.id, data, user.uid);
+      toast.success('Fırsat güncellendi');
+      loadDeals();
+      setFormOpen(false);
+      setEditingDeal(null);
+    } catch (error) {
+      console.error('Error updating deal:', error);
+      toast.error('Fırsat güncellenemedi');
     }
   };
 
@@ -78,7 +94,10 @@ export default function PipelinePage() {
             Satış fırsatlarını takip edin
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
+        <Button onClick={() => {
+          setEditingDeal(null);
+          setFormOpen(true);
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           Yeni Fırsat
         </Button>
@@ -95,20 +114,35 @@ export default function PipelinePage() {
             <Button
               variant="link"
               className="mt-2"
-              onClick={() => setFormOpen(true)}
+              onClick={() => {
+                setEditingDeal(null);
+                setFormOpen(true);
+              }}
             >
               İlk fırsatı ekle
             </Button>
           </div>
         ) : (
-          <DealPipeline deals={deals} onStageChange={handleStageChange} />
+          <DealPipeline
+            deals={deals}
+            onStageChange={handleStageChange}
+            onEdit={(deal) => {
+              console.log('Editing deal:', deal);
+              setEditingDeal(deal);
+              setFormOpen(true);
+            }}
+          />
         )}
       </div>
 
       <DealFormDialog
         open={formOpen}
-        onOpenChange={setFormOpen}
-        onSubmit={handleCreate}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditingDeal(null);
+        }}
+        onSubmit={editingDeal ? handleUpdate : handleCreate}
+        deal={editingDeal}
       />
     </div>
   );

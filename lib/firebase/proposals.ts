@@ -192,7 +192,7 @@ export const proposalService = {
   },
 
   /**
-   * Teklif gunceller
+   * Teklif günceller
    */
   update: async (
     id: string,
@@ -210,7 +210,7 @@ export const proposalService = {
     }
     const proposal = existing.data();
 
-    // Sadece draft teklifler guncellenebilir
+    // Sadece draft teklifler güncellenebilir
     if (proposal.status !== 'draft') {
       throw new Error('Only draft proposals can be updated');
     }
@@ -256,12 +256,29 @@ export const proposalService = {
    */
   markAsSent: async (id: string, userId: string): Promise<void> => {
     const docRef = doc(getCollection<Proposal>(COLLECTION), id);
+    
+    const proposalSnap = await getDoc(docRef);
+    if (!proposalSnap.exists()) {
+      throw new Error('Proposal not found');
+    }
+    const proposal = proposalSnap.data();
+
     await updateDoc(docRef, {
       status: 'sent',
       sentAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       updatedBy: userId,
     });
+
+    // Deal statusunu güncelle
+    if (proposal.dealId) {
+      const dealRef = doc(getCollection<Deal>('deals'), proposal.dealId);
+      await updateDoc(dealRef, {
+        stage: 'proposal-sent',
+        updatedAt: serverTimestamp(),
+        updatedBy: userId,
+      });
+    }
   },
 
   /**
@@ -274,6 +291,13 @@ export const proposalService = {
     userId: string
   ): Promise<void> => {
     const docRef = doc(getCollection<Proposal>(COLLECTION), id);
+    
+    const proposalSnap = await getDoc(docRef);
+    if (!proposalSnap.exists()) {
+      throw new Error('Proposal not found');
+    }
+    const proposal = proposalSnap.data();
+
     await updateDoc(docRef, {
       status: 'accepted',
       acceptedAt: serverTimestamp(),
@@ -282,6 +306,16 @@ export const proposalService = {
       updatedAt: serverTimestamp(),
       updatedBy: userId,
     });
+
+    // Deal statusunu güncelle
+    if (proposal.dealId) {
+      const dealRef = doc(getCollection<Deal>('deals'), proposal.dealId);
+      await updateDoc(dealRef, {
+        stage: 'won',
+        updatedAt: serverTimestamp(),
+        updatedBy: userId,
+      });
+    }
   },
 
   /**

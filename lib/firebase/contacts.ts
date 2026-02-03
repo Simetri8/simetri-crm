@@ -48,7 +48,7 @@ export const contactService = {
   },
 
   /**
-   * Sirketin kisilerini getirir
+   * Şirketin kisilerini getirir
    */
   getByCompanyId: async (companyId: string): Promise<Contact[]> => {
     const q = query(
@@ -74,7 +74,7 @@ export const contactService = {
    * Yeni kisi ekler
    */
   add: async (data: ContactFormData, userId: string): Promise<string> => {
-    // Sirket adini al (denormalizasyon icin)
+    // Şirket adini al (denormalizasyon icin)
     const companyRef = doc(getCollection<Company>('companies'), data.companyId);
     const companySnap = await getDoc(companyRef);
     const companyName = companySnap.exists() ? companySnap.data().name : '';
@@ -103,7 +103,7 @@ export const contactService = {
   },
 
   /**
-   * Kisi gunceller
+   * Kisi günceller
    */
   update: async (
     id: string,
@@ -138,7 +138,7 @@ export const contactService = {
   },
 
   /**
-   * Sirketin primary contact'ini getirir
+   * Şirketin primary contact'ini getirir
    */
   getPrimaryByCompanyId: async (companyId: string): Promise<Contact | null> => {
     const q = query(
@@ -152,7 +152,7 @@ export const contactService = {
   },
 
   /**
-   * Sirketteki diger primary'leri kaldirir
+   * Şirketteki diger primary'leri kaldirir
    */
   clearPrimaryForCompany: async (
     companyId: string,
@@ -175,7 +175,7 @@ export const contactService = {
   },
 
   /**
-   * Kisi adini ve iliskili dokumanlardaki denormalize alanlari gunceller
+   * Kisi adini ve iliskili dokumanlardaki denormalize alanlari günceller
    */
   updateName: async (
     id: string,
@@ -185,7 +185,7 @@ export const contactService = {
     const batch = writeBatch(db);
     const contactRef = doc(db, COLLECTION, id);
 
-    // Kisiyi guncelle
+    // Kisiyi güncelle
     batch.update(contactRef, {
       fullName: newName,
       updatedAt: serverTimestamp(),

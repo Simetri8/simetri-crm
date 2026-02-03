@@ -53,7 +53,7 @@ export const deliverableService = {
   },
 
   /**
-   * Is emrinin teslimatlarini getirir
+   * İş Emrinin teslimatlarini getirir
    */
   getByWorkOrderId: async (workOrderId: string): Promise<Deliverable[]> => {
     const q = query(
@@ -102,7 +102,7 @@ export const deliverableService = {
   },
 
   /**
-   * Birden fazla teslimat ekler (is emri olusturulurken)
+   * Birden fazla teslimat ekler (İş Emri olusturulurken)
    */
   addMultiple: async (
     workOrderId: string,
@@ -143,7 +143,7 @@ export const deliverableService = {
   },
 
   /**
-   * Teslimati gunceller
+   * Teslimati günceller
    */
   update: async (
     id: string,
@@ -168,7 +168,7 @@ export const deliverableService = {
   },
 
   /**
-   * Teslimat durumunu gunceller
+   * Teslimat durumunu günceller
    */
   updateStatus: async (
     id: string,
@@ -192,7 +192,7 @@ export const deliverableService = {
   },
 
   /**
-   * Teslimat basligini ve iliskili dokumanlardaki denormalize alanlari gunceller
+   * Teslimat basligini ve iliskili dokumanlardaki denormalize alanlari günceller
    */
   updateTitle: async (
     id: string,
@@ -202,7 +202,7 @@ export const deliverableService = {
     const batch = writeBatch(db);
     const deliverableRef = doc(db, COLLECTION, id);
 
-    // Teslimati guncelle
+    // Teslimati güncelle
     batch.update(deliverableRef, {
       title: newTitle,
       updatedAt: serverTimestamp(),
@@ -237,7 +237,7 @@ export const deliverableService = {
   },
 
   /**
-   * Is emrinin blocked teslimat sayisini getirir
+   * İş Emrinin blocked teslimat sayisini getirir
    */
   getBlockedCount: async (workOrderId: string): Promise<number> => {
     const q = query(
@@ -250,7 +250,7 @@ export const deliverableService = {
   },
 
   /**
-   * Is emrinin teslimat istatistiklerini getirir
+   * İş Emrinin teslimat istatistiklerini getirir
    */
   getStatsByWorkOrder: async (
     workOrderId: string

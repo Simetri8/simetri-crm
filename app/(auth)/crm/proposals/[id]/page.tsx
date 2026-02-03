@@ -425,7 +425,7 @@ export default function ProposalDetailPage({
       // Company and Deal Info
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Sirket: ${proposal.companyName}`, 20, yPos);
+      doc.text(`Şirket: ${proposal.companyName}`, 20, yPos);
       yPos += 7;
       doc.text(`Firsat: ${proposal.dealTitle}`, 20, yPos);
       yPos += 7;

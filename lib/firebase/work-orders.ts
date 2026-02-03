@@ -88,7 +88,7 @@ export const workOrderService = {
   },
 
   /**
-   * Tek bir is emrini getirir
+   * Tek bir İş Emrini getirir
    */
   getById: async (id: string): Promise<WorkOrder | null> => {
     const docRef = doc(getCollection<WorkOrder>(COLLECTION), id);
@@ -97,7 +97,7 @@ export const workOrderService = {
   },
 
   /**
-   * Yeni is emri ekler
+   * Yeni İş Emri ekler
    */
   add: async (data: WorkOrderFormData, userId: string): Promise<string> => {
     // Company bilgisini al
@@ -138,7 +138,7 @@ export const workOrderService = {
   },
 
   /**
-   * Deal kazanildiginda is emri olusturur
+   * Deal kazanildiginda İş Emri olusturur
    */
   createFromDeal: async (
     dealId: string,
@@ -178,7 +178,7 @@ export const workOrderService = {
   },
 
   /**
-   * Is emrini gunceller
+   * İş Emrini günceller
    */
   update: async (
     id: string,
@@ -206,7 +206,7 @@ export const workOrderService = {
   },
 
   /**
-   * Is emri durumunu gunceller
+   * İş Emri durumunu günceller
    */
   updateStatus: async (
     id: string,
@@ -222,7 +222,7 @@ export const workOrderService = {
   },
 
   /**
-   * Odeme durumunu gunceller
+   * Ödeme durumunu günceller
    */
   updatePaymentStatus: async (
     id: string,
@@ -238,7 +238,7 @@ export const workOrderService = {
   },
 
   /**
-   * lastActivityAt gunceller
+   * lastActivityAt günceller
    */
   updateLastActivity: async (id: string): Promise<void> => {
     const docRef = doc(getCollection<WorkOrder>(COLLECTION), id);
@@ -248,7 +248,7 @@ export const workOrderService = {
   },
 
   /**
-   * Is emrini arsivler
+   * İş Emrini arsivler
    */
   archive: async (id: string, userId: string): Promise<void> => {
     const docRef = doc(getCollection<WorkOrder>(COLLECTION), id);
@@ -260,7 +260,7 @@ export const workOrderService = {
   },
 
   /**
-   * Is emrini siler
+   * İş Emrini siler
    */
   delete: async (id: string): Promise<void> => {
     const docRef = doc(getCollection<WorkOrder>(COLLECTION), id);
@@ -268,7 +268,7 @@ export const workOrderService = {
   },
 
   /**
-   * Is emri basligini ve iliskili dokumanlardaki denormalize alanlari gunceller
+   * İş Emri basligini ve iliskili dokumanlardaki denormalize alanlari günceller
    */
   updateTitle: async (
     id: string,
@@ -278,7 +278,7 @@ export const workOrderService = {
     const batch = writeBatch(db);
     const workOrderRef = doc(db, COLLECTION, id);
 
-    // Is emrini guncelle
+    // İş Emrini güncelle
     batch.update(workOrderRef, {
       title: newTitle,
       updatedAt: serverTimestamp(),
@@ -351,7 +351,7 @@ export const workOrderService = {
       ownerId: options?.ownerId,
     });
 
-    // Her is emri icin blocked deliverable sayisini hesapla
+    // Her İş Emri icin blocked deliverable sayisini hesapla
     const results: WorkOrderRiskItem[] = [];
     for (const wo of workOrders) {
       const deliverablesQuery = query(

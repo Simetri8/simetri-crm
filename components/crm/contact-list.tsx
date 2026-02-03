@@ -49,7 +49,7 @@ export function ContactList({
         <TableRow>
           <TableHead>Ad Soyad</TableHead>
           <TableHead>Unvan</TableHead>
-          {showCompany && <TableHead>Sirket</TableHead>}
+          {showCompany && <TableHead>Şirket</TableHead>}
           <TableHead>Iletisim</TableHead>
           <TableHead className="w-[70px]"></TableHead>
         </TableRow>

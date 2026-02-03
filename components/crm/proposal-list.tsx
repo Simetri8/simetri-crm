@@ -58,7 +58,7 @@ export function ProposalList({
       <TableHeader>
         <TableRow>
           <TableHead>Teklif</TableHead>
-          <TableHead>Sirket / Firsat</TableHead>
+          <TableHead>Şirket / Firsat</TableHead>
           <TableHead>Durum</TableHead>
           <TableHead className="text-right">Toplam</TableHead>
           <TableHead>Tarih</TableHead>

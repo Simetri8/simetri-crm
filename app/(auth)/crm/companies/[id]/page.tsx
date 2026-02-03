@@ -76,9 +76,13 @@ export default function CompanyDetailPage({
   const [activityFormOpen, setActivityFormOpen] = useState(false);
 
   const loadData = async () => {
+    console.log('CompanyDetailPage loadData for ID:', id);
     try {
-      const [companyData, contactsData, activitiesData, dealsData] = await Promise.all([
-        companyService.getById(id),
+      // DEBUG: Fetch company specifically first to log result
+      const companyData = await companyService.getById(id);
+      console.log('Company Data Result:', companyData);
+
+      const [contactsData, activitiesData, dealsData] = await Promise.all([
         contactService.getByCompanyId(id),
         activityService.getByCompanyId(id, 20),
         dealService.getAll({ companyId: id }),

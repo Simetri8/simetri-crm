@@ -34,10 +34,10 @@ export const COMPANY_STATUS_CONFIG: Record<CompanyStatus, StatusConfig> = {
 export const DEAL_STAGE_CONFIG: Record<DealStage, StatusConfig> = {
   lead: { label: 'Lead', color: 'text-slate-700', bgColor: 'bg-slate-100' },
   qualified: { label: 'Nitelikli', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  'proposal-prep': { label: 'Teklif Hazirlik', color: 'text-indigo-700', bgColor: 'bg-indigo-100' },
-  'proposal-sent': { label: 'Teklif Gonderildi', color: 'text-purple-700', bgColor: 'bg-purple-100' },
-  negotiation: { label: 'Muzakere', color: 'text-amber-700', bgColor: 'bg-amber-100' },
-  won: { label: 'Kazanildi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  'proposal-prep': { label: 'Teklif Hazırlık', color: 'text-indigo-700', bgColor: 'bg-indigo-100' },
+  'proposal-sent': { label: 'Teklif Gönderildi', color: 'text-purple-700', bgColor: 'bg-purple-100' },
+  negotiation: { label: 'Müzakere', color: 'text-amber-700', bgColor: 'bg-amber-100' },
+  won: { label: 'Kazanıldı', color: 'text-green-700', bgColor: 'bg-green-100' },
   lost: { label: 'Kaybedildi', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
 
@@ -59,9 +59,9 @@ export const LOST_REASON_LABELS: Record<LostReason, string> = {
   price: 'Fiyat',
   timing: 'Zamanlama',
   competitor: 'Rakip',
-  'no-response': 'Donus Yok',
+  'no-response': 'Dönüş Yok',
   cancelled: 'İptal Edildi',
-  other: 'Diger',
+  other: 'Diğer',
 };
 
 // =============================================================================
@@ -70,7 +70,7 @@ export const LOST_REASON_LABELS: Record<LostReason, string> = {
 
 export const PROPOSAL_STATUS_CONFIG: Record<ProposalStatus, StatusConfig> = {
   draft: { label: 'Taslak', color: 'text-gray-700', bgColor: 'bg-gray-100' },
-  sent: { label: 'Gonderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  sent: { label: 'Gönderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
   accepted: { label: 'Kabul Edildi', color: 'text-green-700', bgColor: 'bg-green-100' },
   rejected: { label: 'Reddedildi', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
@@ -91,11 +91,11 @@ export const WORK_ORDER_STATUS_CONFIG: Record<WorkOrderStatus, StatusConfig> = {
 // =============================================================================
 
 export const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, StatusConfig> = {
-  unplanned: { label: 'Planlanmadi', color: 'text-gray-500', bgColor: 'bg-gray-100' },
-  'deposit-requested': { label: 'On Odeme Istendi', color: 'text-amber-700', bgColor: 'bg-amber-100' },
-  'deposit-received': { label: 'On Odeme Alindi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  invoiced: { label: 'Faturalandi', color: 'text-indigo-700', bgColor: 'bg-indigo-100' },
-  paid: { label: 'Odendi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  unplanned: { label: 'Planlanmadı', color: 'text-gray-500', bgColor: 'bg-gray-100' },
+  'deposit-requested': { label: 'Ön Ödeme İstendi', color: 'text-amber-700', bgColor: 'bg-amber-100' },
+  'deposit-received': { label: 'Ön Ödeme Alındı', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  invoiced: { label: 'Faturalandı', color: 'text-indigo-700', bgColor: 'bg-indigo-100' },
+  paid: { label: 'Ödendi', color: 'text-green-700', bgColor: 'bg-green-100' },
 };
 
 // =============================================================================
@@ -103,11 +103,11 @@ export const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, StatusConfig> = {
 // =============================================================================
 
 export const DELIVERABLE_STATUS_CONFIG: Record<DeliverableStatus, StatusConfig> = {
-  'not-started': { label: 'Baslamadi', color: 'text-gray-500', bgColor: 'bg-gray-100' },
+  'not-started': { label: 'Başlamadı', color: 'text-gray-500', bgColor: 'bg-gray-100' },
   'in-progress': { label: 'Devam Ediyor', color: 'text-blue-700', bgColor: 'bg-blue-100' },
   blocked: { label: 'Engellendi', color: 'text-red-700', bgColor: 'bg-red-100' },
   delivered: { label: 'Teslim Edildi', color: 'text-purple-700', bgColor: 'bg-purple-100' },
-  approved: { label: 'Onaylandi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  approved: { label: 'Onaylandı', color: 'text-green-700', bgColor: 'bg-green-100' },
 };
 
 // =============================================================================
@@ -126,11 +126,11 @@ export const TASK_STATUS_CONFIG: Record<TaskStatus, StatusConfig> = {
 // =============================================================================
 
 export const BLOCKED_REASON_LABELS: Record<BlockedReason, string> = {
-  'waiting-client': 'Musteri Bekleniyor',
-  'internal-approval': 'Ic Onay Bekleniyor',
-  payment: 'Odeme Bekleniyor',
-  dependency: 'Bagimlilik',
-  other: 'Diger',
+  'waiting-client': 'Müşteri Bekleniyor',
+  'internal-approval': 'İç Onay Bekleniyor',
+  payment: 'Ödeme Bekleniyor',
+  dependency: 'Bağımlılık',
+  other: 'Diğer',
 };
 
 // =============================================================================
@@ -139,7 +139,7 @@ export const BLOCKED_REASON_LABELS: Record<BlockedReason, string> = {
 
 export const ACTIVITY_TYPE_CONFIG: Record<ActivityType, StatusConfig & { icon?: string }> = {
   call: { label: 'Arama', color: 'text-green-700', bgColor: 'bg-green-100' },
-  meeting: { label: 'Toplanti', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  meeting: { label: 'Toplantı', color: 'text-blue-700', bgColor: 'bg-blue-100' },
   email: { label: 'E-posta', color: 'text-indigo-700', bgColor: 'bg-indigo-100' },
   note: { label: 'Not', color: 'text-amber-700', bgColor: 'bg-amber-100' },
   file: { label: 'Dosya', color: 'text-purple-700', bgColor: 'bg-purple-100' },
@@ -153,8 +153,8 @@ export const ACTIVITY_TYPE_CONFIG: Record<ActivityType, StatusConfig & { icon?: 
 
 export const TIME_ENTRY_STATUS_CONFIG: Record<TimeEntryStatus, StatusConfig> = {
   draft: { label: 'Taslak', color: 'text-gray-500', bgColor: 'bg-gray-100' },
-  submitted: { label: 'Gonderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  approved: { label: 'Onaylandi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  submitted: { label: 'Gönderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  approved: { label: 'Onaylandı', color: 'text-green-700', bgColor: 'bg-green-100' },
   locked: { label: 'Kilitli', color: 'text-purple-700', bgColor: 'bg-purple-100' },
 };
 
@@ -163,9 +163,9 @@ export const TIME_ENTRY_STATUS_CONFIG: Record<TimeEntryStatus, StatusConfig> = {
 // =============================================================================
 
 export const CHANGE_REQUEST_IMPACT_CONFIG: Record<ChangeRequestImpact, StatusConfig> = {
-  low: { label: 'Dusuk', color: 'text-green-700', bgColor: 'bg-green-100' },
+  low: { label: 'Düşük', color: 'text-green-700', bgColor: 'bg-green-100' },
   medium: { label: 'Orta', color: 'text-amber-700', bgColor: 'bg-amber-100' },
-  high: { label: 'Yuksek', color: 'text-red-700', bgColor: 'bg-red-100' },
+  high: { label: 'Yüksek', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
 
 // =============================================================================
@@ -174,8 +174,8 @@ export const CHANGE_REQUEST_IMPACT_CONFIG: Record<ChangeRequestImpact, StatusCon
 
 export const CHANGE_REQUEST_STATUS_CONFIG: Record<ChangeRequestStatus, StatusConfig> = {
   draft: { label: 'Taslak', color: 'text-gray-500', bgColor: 'bg-gray-100' },
-  sent: { label: 'Gonderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  approved: { label: 'Onaylandi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  sent: { label: 'Gönderildi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  approved: { label: 'Onaylandı', color: 'text-green-700', bgColor: 'bg-green-100' },
   rejected: { label: 'Reddedildi', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
 

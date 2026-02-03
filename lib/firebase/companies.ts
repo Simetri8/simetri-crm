@@ -21,7 +21,7 @@ const COLLECTION = 'companies';
 
 export const companyService = {
   /**
-   * Tum sirketleri getirir
+   * Tum Şirketleri getirir
    */
   getAll: async (options?: {
     status?: CompanyStatus;
@@ -52,7 +52,7 @@ export const companyService = {
   },
 
   /**
-   * Tek bir sirketi getirir
+   * Tek bir Şirketi getirir
    */
   getById: async (id: string): Promise<Company | null> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
@@ -61,7 +61,7 @@ export const companyService = {
   },
 
   /**
-   * Yeni sirket ekler
+   * Yeni Şirket ekler
    */
   add: async (data: CompanyFormData, userId: string): Promise<string> => {
     const now = serverTimestamp() as Timestamp;
@@ -83,7 +83,7 @@ export const companyService = {
   },
 
   /**
-   * Sirket gunceller
+   * Şirket günceller
    */
   update: async (
     id: string,
@@ -108,7 +108,7 @@ export const companyService = {
   },
 
   /**
-   * Sirketi arsivler (soft delete)
+   * Şirketi arsivler (soft delete)
    */
   archive: async (id: string, userId: string): Promise<void> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
@@ -120,7 +120,7 @@ export const companyService = {
   },
 
   /**
-   * Sirketi kalici olarak siler
+   * Şirketi kalici olarak siler
    */
   delete: async (id: string): Promise<void> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
@@ -128,7 +128,7 @@ export const companyService = {
   },
 
   /**
-   * Next action gunceller
+   * Next action günceller
    */
   updateNextAction: async (
     id: string,
@@ -146,7 +146,7 @@ export const companyService = {
   },
 
   /**
-   * lastActivityAt gunceller (aktivite eklendiginde cagirilir)
+   * lastActivityAt günceller (aktivite eklendiginde cagirilir)
    */
   updateLastActivity: async (id: string): Promise<void> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
@@ -156,7 +156,7 @@ export const companyService = {
   },
 
   /**
-   * Sirket adini ve iliskili dokumanlardalci denormalize alanlari gunceller
+   * Şirket adini ve iliskili dokumanlardalci denormalize alanlari günceller
    */
   updateName: async (
     id: string,
@@ -166,7 +166,7 @@ export const companyService = {
     const batch = writeBatch(db);
     const companyRef = doc(db, COLLECTION, id);
 
-    // Sirketi guncelle
+    // Şirketi güncelle
     batch.update(companyRef, {
       name: newName,
       updatedAt: serverTimestamp(),

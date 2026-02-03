@@ -116,7 +116,7 @@ export function DealFormDialog({
     }
   }, [open, deal, defaultStage, form]);
 
-  // Sirketleri yukle
+  // Şirketleri yukle
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -133,7 +133,7 @@ export function DealFormDialog({
     }
   }, [open]);
 
-  // Sirket secildiginde kontaklari yukle
+  // Şirket secildiginde kontaklari yukle
   useEffect(() => {
     const loadContacts = async () => {
       if (!selectedCompanyId) {

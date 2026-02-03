@@ -114,7 +114,7 @@ export const dealService = {
    * Yeni deal ekler
    */
   add: async (data: DealFormData, userId: string): Promise<string> => {
-    // Sirket ve contact adlarini al (denormalizasyon icin)
+    // Şirket ve contact adlarini al (denormalizasyon icin)
     const companyRef = doc(getCollection<Company>('companies'), data.companyId);
     const companySnap = await getDoc(companyRef);
     const companyName = companySnap.exists() ? companySnap.data().name : '';
@@ -155,7 +155,7 @@ export const dealService = {
   },
 
   /**
-   * Deal gunceller
+   * Deal günceller
    */
   update: async (
     id: string,
@@ -230,7 +230,7 @@ export const dealService = {
   },
 
   /**
-   * Next action gunceller
+   * Next action günceller
    */
   updateNextAction: async (
     id: string,
@@ -248,7 +248,7 @@ export const dealService = {
   },
 
   /**
-   * lastActivityAt gunceller
+   * lastActivityAt günceller
    */
   updateLastActivity: async (id: string): Promise<void> => {
     const docRef = doc(getCollection<Deal>(COLLECTION), id);
@@ -258,7 +258,7 @@ export const dealService = {
   },
 
   /**
-   * Deal basligini ve iliskili dokumanlardaki denormalize alanlari gunceller
+   * Deal basligini ve iliskili dokumanlardaki denormalize alanlari günceller
    */
   updateTitle: async (
     id: string,
@@ -268,7 +268,7 @@ export const dealService = {
     const batch = writeBatch(db);
     const dealRef = doc(db, COLLECTION, id);
 
-    // Deal'i guncelle
+    // Deal'i güncelle
     batch.update(dealRef, {
       title: newTitle,
       updatedAt: serverTimestamp(),

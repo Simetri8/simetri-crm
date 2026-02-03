@@ -114,7 +114,7 @@ export function ActivityFormDialog({
     }
   }, [open, defaultCompanyId, defaultDealId, form]);
 
-  // Sirketleri yukle
+  // Şirketleri yukle
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -131,7 +131,7 @@ export function ActivityFormDialog({
     }
   }, [open, defaultCompanyId, defaultWorkOrderId]);
 
-  // Sirket secildiginde deal'lari yukle
+  // Şirket secildiginde deal'lari yukle
   useEffect(() => {
     const loadDeals = async () => {
       if (!selectedCompanyId) {
@@ -181,7 +181,7 @@ export function ActivityFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {/* Sirket ve Deal secimi (eger default verilmediyse) */}
+            {/* Şirket ve Deal secimi (eger default verilmediyse) */}
             {!defaultCompanyId && !defaultDealId && !defaultWorkOrderId && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField

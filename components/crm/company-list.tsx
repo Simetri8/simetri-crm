@@ -45,7 +45,7 @@ export function CompanyList({ companies, onEdit, onDelete }: CompanyListProps) {
     {
       accessorKey: 'name',
       header: ({ column }) => (
-        <TableColumnHeader column={column} title="Sirket" />
+        <TableColumnHeader column={column} title="Şirket" />
       ),
       cell: ({ row }) => (
         <Link

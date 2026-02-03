@@ -128,7 +128,7 @@ export default function DealDetailPage({
   const handleStageChange = async (newStage: DealStage) => {
     if (!user || !deal) return;
 
-    // Eger "won" secildiyse, once is emri olusturma dialogunu goster
+    // Eger "won" secildiyse, once İş Emri olusturma dialogunu goster
     if (newStage === 'won' && deal.stage !== 'won') {
       setPendingStageChange(newStage);
       setTargetDeliveryDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 gün sonra default
@@ -177,14 +177,14 @@ export default function DealDetailPage({
       // Asamayi degistir
       await executeStageChange(pendingStageChange);
 
-      // Is emri olustur
+      // İş Emri olustur
       const workOrderId = await workOrderService.createFromDeal(id, targetDeliveryDate, user.uid);
 
       toast.success('İş emri oluşturuldu');
       setShowCreateWorkOrderDialog(false);
       setPendingStageChange(null);
 
-      // Is emri sayfasina yonlendir
+      // İş Emri sayfasina yonlendir
       router.push(`/ops/work-orders/${workOrderId}`);
     } catch (error) {
       console.error('Error creating work order:', error);

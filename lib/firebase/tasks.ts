@@ -68,7 +68,7 @@ export const taskService = {
   },
 
   /**
-   * Is emrinin gorevlerini getirir
+   * İş Emrinin gorevlerini getirir
    */
   getByWorkOrderId: async (workOrderId: string): Promise<Task[]> => {
     const q = query(
@@ -157,7 +157,7 @@ export const taskService = {
   },
 
   /**
-   * Gorevi gunceller
+   * Gorevi günceller
    */
   update: async (
     id: string,
@@ -178,7 +178,7 @@ export const taskService = {
         : null;
     }
 
-    // Assignee degisti ise adini da guncelle
+    // Assignee degisti ise adini da güncelle
     if (data.assigneeId !== undefined) {
       if (data.assigneeId) {
         const userRef = doc(getCollection<User>('users'), data.assigneeId);
@@ -191,7 +191,7 @@ export const taskService = {
       }
     }
 
-    // Deliverable degisti ise adini da guncelle
+    // Deliverable degisti ise adini da güncelle
     if (data.deliverableId !== undefined) {
       if (data.deliverableId) {
         const deliverableRef = doc(
@@ -211,7 +211,7 @@ export const taskService = {
   },
 
   /**
-   * Gorev durumunu gunceller
+   * Gorev durumunu günceller
    */
   updateStatus: async (
     id: string,
@@ -236,7 +236,7 @@ export const taskService = {
   },
 
   /**
-   * Gorev atanmasini gunceller
+   * Gorev atanmasini günceller
    */
   updateAssignee: async (
     id: string,
@@ -268,7 +268,7 @@ export const taskService = {
   },
 
   /**
-   * Gorev basligini ve iliskili dokumanlardaki denormalize alanlari gunceller
+   * Gorev basligini ve iliskili dokumanlardaki denormalize alanlari günceller
    */
   updateTitle: async (
     id: string,
@@ -278,7 +278,7 @@ export const taskService = {
     const batch = writeBatch(db);
     const taskRef = doc(db, COLLECTION, id);
 
-    // Gorevi guncelle
+    // Gorevi güncelle
     batch.update(taskRef, {
       title: newTitle,
       updatedAt: serverTimestamp(),
@@ -339,7 +339,7 @@ export const taskService = {
   },
 
   /**
-   * Is emrinin gorev istatistiklerini getirir
+   * İş Emrinin gorev istatistiklerini getirir
    */
   getStatsByWorkOrder: async (
     workOrderId: string

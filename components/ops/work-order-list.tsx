@@ -76,10 +76,10 @@ export function WorkOrderList({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Is Emri</TableHead>
-          <TableHead>Sirket</TableHead>
+          <TableHead>İş Emri</TableHead>
+          <TableHead>Şirket</TableHead>
           <TableHead>Durum</TableHead>
-          <TableHead>Odeme</TableHead>
+          <TableHead>Ödeme</TableHead>
           <TableHead>Hedef Teslim</TableHead>
           <TableHead className="w-[70px]"></TableHead>
         </TableRow>

@@ -142,7 +142,7 @@ export type User = {
 };
 
 // =============================================================================
-// COMPANY (Musteri Sirketleri)
+// COMPANY (Musteri Şirketleri)
 // =============================================================================
 
 export type Company = BaseEntity &

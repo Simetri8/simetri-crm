@@ -67,7 +67,7 @@ export const activityService = {
   },
 
   /**
-   * Sirketin aktivitelerini getirir
+   * Şirketin aktivitelerini getirir
    */
   getByCompanyId: async (
     companyId: string,
@@ -87,7 +87,7 @@ export const activityService = {
   },
 
   /**
-   * Is emrinin aktivitelerini getirir
+   * İş Emrinin aktivitelerini getirir
    */
   getByWorkOrderId: async (
     workOrderId: string,
@@ -182,7 +182,7 @@ export const activityService = {
       createdBy: userId,
     } as Activity);
 
-    // lastActivityAt guncelle
+    // lastActivityAt güncelle
     if (data.companyId) {
       batch.update(doc(db, 'companies', data.companyId), {
         lastActivityAt: now,
@@ -199,7 +199,7 @@ export const activityService = {
       });
     }
 
-    // Eger nextAction belirlendiyse, ilgili kaydi guncelle
+    // Eger nextAction belirlendiyse, ilgili kaydi güncelle
     if (data.nextAction && data.nextActionDate) {
       if (data.dealId) {
         batch.update(doc(db, 'deals', data.dealId), {
@@ -295,7 +295,7 @@ export const activityService = {
       createdBy: userId,
     } as Activity);
 
-    // lastActivityAt guncelle
+    // lastActivityAt güncelle
     if (companyId) {
       batch.update(doc(db, 'companies', companyId), {
         lastActivityAt: now,
