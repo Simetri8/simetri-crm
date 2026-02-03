@@ -1,8 +1,8 @@
 # **Ajans CRM ve İş Takip Uygulaması \- Ürün Tasarım Dokümanı (MVP Odaklı)**
 
-**Tarih:** 02.02.2026  
-**Versiyon:** 2.4  
-**Durum:** Planlama Aşaması  
+**Tarih:** 03.02.2026
+**Versiyon:** 2.5 (İş Akışı Diagramları Eklendi)
+**Durum:** Geliştirme - MVP Tamamlandı
 **Sektör:** Yazılım Geliştirme & Dijital Ajans
 
 > Bu doküman, “ileri düzey teknik özellikler” yerine ajansların günlük satış ve müşteri süreçlerini **daha düzenli, takip edilebilir ve kayıpsız** yönetmesini hedefleyen iş odaklı bir tasarım dokümanıdır.
@@ -85,8 +85,319 @@ Dashboard temel hedefi: “Bugün yapılacaklar, gecikenler, bu hafta yaklaşanl
 ### **3.4. Zaman Takibi (Basit Timesheet)**
 
 - Zaman kaydı alanları: tarih, süre (dk), iş emri/deliverable/görev bağlama, açıklama, `billable` (E/H).
-- Haftalık dönem kapanışı: “Onayla ve kilitle”.
-- Kilitli kayıt değişecekse “düzeltme kaydı” (not + kim + ne zaman).
+- Haftalık dönem kapanışı: "Onayla ve kilitle".
+- Kilitli kayıt değişecekse "düzeltme kaydı" (not + kim + ne zaman).
+
+### **3.5. İş Akışı Diagramları (Görsel Referans)**
+
+Bu bölüm, yukarıdaki iş akışlarını görsel olarak açıklar ve kullanıcının sistemi anlamasını kolaylaştırır.
+
+#### **3.5.1. Genel Uçtan Uca İş Akışı**
+
+```mermaid
+flowchart TD
+    Start([Yeni Müşteri]) --> Company[Şirket Oluştur]
+    Company --> Contact[Kişi Ekle]
+    Contact --> Deal[Fırsat/Deal Oluştur]
+
+    Deal --> Pipeline{Pipeline'da<br/>İlerlet}
+    Pipeline -->|Lead| Qualify[Kalifikasyon]
+    Qualify --> PrepProposal[Teklif Hazırla]
+    PrepProposal --> Proposal[Teklif Oluştur]
+    Proposal --> SendProposal[Teklif Gönder]
+    SendProposal --> Negotiation[Müzakere]
+
+    Negotiation --> Decision{Karar?}
+    Decision -->|Kazanıldı| Won[Deal: Won]
+    Decision -->|Kaybedildi| Lost[Deal: Lost<br/>Sebep Seç]
+
+    Won --> AutoWorkOrder[İş Emri Otomatik Oluştur<br/>Hedef Tarih Belirle]
+    AutoWorkOrder --> WorkOrder[Work Order]
+    WorkOrder --> Deliverables[Teslimatları Tanımla<br/>3-7 ana teslimat]
+    Deliverables --> Tasks[Görevleri Oluştur<br/>Teslimat bazlı]
+
+    Tasks --> TaskBoard[Task Kanban]
+    TaskBoard --> TimeEntry[Zaman Girişi<br/>İş/Teslimat/Görev]
+    TimeEntry --> Submit[Haftalık Gönder]
+    Submit --> Approve[Yönetici Onayı]
+    Approve --> Lock[Kilitle]
+    Lock --> End([Tamamlandı])
+
+    Lost --> End
+
+    style Start fill:#e1f5e1
+    style End fill:#ffe1e1
+    style Won fill:#d4edda
+    style Lost fill:#f8d7da
+    style AutoWorkOrder fill:#fff3cd
+```
+
+**Açıklama:**
+- Her aşamada **Activity Feed** ile iletişim kaydedilir
+- Her nesne üzerinde **Next Action** tanımlanır
+- Dashboard'da gecikmiş/yaklaşan takipler görünür
+
+#### **3.5.2. Deal Pipeline Durum Akışı**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Lead: Yeni Fırsat
+    Lead --> Qualified: Kalifikasyon OK
+    Qualified --> ProposalPrep: Teklif Hazırlığı
+    ProposalPrep --> ProposalSent: Teklif Gönderildi
+    ProposalSent --> Negotiation: Müzakere Başladı
+
+    Negotiation --> Won: Kazanıldı ✓
+    Negotiation --> Lost: Kaybedildi ✗
+
+    Lead --> Lost: Erken Kaybedildi
+    Qualified --> Lost
+    ProposalPrep --> Lost
+    ProposalSent --> Lost
+
+    Won --> [*]: İş Emri Oluştur
+    Lost --> [*]: Sebep Kaydet
+
+    note right of Won
+        Otomatik İş Emri
+        Hedef tarih zorunlu
+    end note
+
+    note right of Lost
+        Sebep zorunlu:
+        - price
+        - timing
+        - competitor
+        - no-response
+        - cancelled
+        - other
+    end note
+```
+
+#### **3.5.3. Work Order ve Operasyon Akışı**
+
+```mermaid
+flowchart TD
+    WO[Work Order<br/>Oluşturuldu] --> Status{Work Order<br/>Status}
+    Status --> Active[Active]
+    Status --> OnHold[On Hold]
+    Status --> Completed[Completed]
+    Status --> Cancelled[Cancelled]
+
+    Active --> Deliverables[Deliverable'ları<br/>Tanımla 3-7]
+    Deliverables --> D1[Deliverable 1<br/>Ana Teslimat]
+    Deliverables --> D2[Deliverable 2]
+    Deliverables --> D3[Deliverable 3]
+
+    D1 --> T1[Task 1.1]
+    D1 --> T2[Task 1.2]
+    D1 --> T3[Task 1.3]
+
+    T1 --> Kanban{Task Kanban}
+    T2 --> Kanban
+    T3 --> Kanban
+
+    Kanban --> Backlog[Backlog]
+    Backlog --> InProgress[In Progress]
+    InProgress --> BlockedCheck{Engel?}
+    BlockedCheck -->|Evet| Blocked[Blocked<br/>Sebep Seç]
+    BlockedCheck -->|Hayır| Done[Done]
+    Blocked -->|Çözüldü| InProgress
+
+    Done --> CheckAll{Tüm<br/>Görevler<br/>Tamam?}
+    CheckAll -->|Evet| DeliverableComplete[Deliverable<br/>Delivered]
+    CheckAll -->|Hayır| Kanban
+
+    DeliverableComplete --> WOComplete{Tüm<br/>Teslimatlar<br/>Tamam?}
+    WOComplete -->|Evet| Completed
+    WOComplete -->|Hayır| Active
+
+    style Blocked fill:#f8d7da
+    style Done fill:#d4edda
+    style Completed fill:#d4edda
+```
+
+**Blocked Sebepleri:**
+- `waiting-client`: Müşteri bekleniyor
+- `internal-approval`: İç onay bekleniyor
+- `payment`: Ödeme bekleniyor
+- `dependency`: Bağımlılık var
+- `other`: Diğer
+
+#### **3.5.4. Timesheet Durum Akışı**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Draft: Zaman Girişi Oluştur
+
+    Draft --> Submitted: Haftalık Gönder<br/>(Opsiyonel)
+    Draft --> Approved: Doğrudan Onayla<br/>(Submitted şart değil)
+
+    Submitted --> Approved: Yönetici Onayı
+
+    Approved --> Locked: Kilitle<br/>(Final)
+
+    Draft --> Draft: Düzenle (Serbest)
+
+    Locked --> Corrected: Düzeltme<br/>(correctLockedEntry)
+    Corrected --> Locked
+
+    note right of Draft
+        Kullanıcı serbestçe
+        düzenleyebilir
+    end note
+
+    note right of Locked
+        Kilitli kayıtlar
+        sadece yetkili
+        düzeltme ile değişir
+        (updatedBy kaydedilir)
+    end note
+```
+
+#### **3.5.5. Veri İlişkileri ve Bağımlılıklar**
+
+```mermaid
+erDiagram
+    COMPANY ||--o{ CONTACT : has
+    COMPANY ||--o{ DEAL : has
+    COMPANY ||--o{ WORK_ORDER : has
+    COMPANY ||--o{ ACTIVITY : "has activity on"
+
+    CONTACT ||--o{ DEAL : "is primary contact"
+
+    DEAL ||--o{ PROPOSAL : has
+    DEAL ||--o| WORK_ORDER : "creates (when won)"
+    DEAL ||--o{ ACTIVITY : "has activity on"
+
+    PROPOSAL }o--|| DEAL : "belongs to"
+    PROPOSAL }o--o| WORK_ORDER : "links to"
+
+    WORK_ORDER ||--o{ DELIVERABLE : has
+    WORK_ORDER ||--o{ TASK : has
+    WORK_ORDER ||--o{ TIME_ENTRY : "tracks time"
+    WORK_ORDER ||--o{ ACTIVITY : "has activity on"
+    WORK_ORDER ||--o{ CHANGE_REQUEST : "has changes"
+
+    DELIVERABLE ||--o{ TASK : has
+    DELIVERABLE ||--o{ TIME_ENTRY : "tracks time"
+
+    TASK }o--|| DELIVERABLE : "belongs to"
+    TASK ||--o{ TIME_ENTRY : "tracks time"
+
+    USER ||--o{ TIME_ENTRY : creates
+    USER ||--o{ ACTIVITY : creates
+    USER ||--o{ DEAL : owns
+    USER ||--o{ WORK_ORDER : owns
+
+    COMPANY {
+        string name
+        string nextAction
+        date nextActionDate
+        date lastActivityAt
+    }
+
+    DEAL {
+        string title
+        enum stage
+        string lostReason
+        string nextAction
+        date nextActionDate
+    }
+
+    WORK_ORDER {
+        string title
+        enum status
+        date targetDeliveryDate
+        enum paymentStatus
+    }
+
+    TASK {
+        string title
+        enum status
+        string blockedReason
+    }
+
+    TIME_ENTRY {
+        date date
+        number durationMinutes
+        boolean billable
+        enum status
+        string weekKey
+    }
+```
+
+**Temel İlişki Kuralları:**
+1. **Company → Deal**: Bir şirketin birden fazla fırsatı olabilir
+2. **Deal → Proposal**: Bir fırsatın birden fazla teklifi (versiyon) olabilir
+3. **Deal (Won) → Work Order**: Kazanılan her fırsat **otomatik** bir iş emri oluşturur
+4. **Work Order → Deliverable → Task**: Hiyerarşik yapı (3 seviye)
+5. **Time Entry**: Work Order, Deliverable veya Task'a bağlanabilir
+6. **Activity**: Company, Deal veya Work Order üzerinde oluşturulur
+7. **Next Action**: Company, Deal ve Work Order'da bulunur (takip disiplini)
+
+#### **3.5.6. Dashboard Veri Akışı**
+
+```mermaid
+flowchart LR
+    subgraph Data Sources
+        Companies[(Companies)]
+        Deals[(Deals)]
+        WorkOrders[(Work Orders)]
+        TimeEntries[(Time Entries)]
+        Activities[(Activities)]
+    end
+
+    subgraph Dashboard Queries
+        Q1[Geciken Takipler<br/>nextActionDate < today]
+        Q2[Bugün Yapılacaklar<br/>nextActionDate = today]
+        Q3[Pipeline Özeti<br/>stage bazlı grupla]
+        Q4[İş Emri Riskleri<br/>targetDeliveryDate yakın/geçmiş]
+        Q5[Timesheet Onayı<br/>status = submitted]
+    end
+
+    subgraph Dashboard Panels
+        KPI[KPI Kartları]
+        FollowUps[Takipler Paneli]
+        Pipeline[Pipeline Özeti]
+        WORisks[İş Emri Riskleri]
+        Timesheet[Timesheet Paneli]
+    end
+
+    Companies --> Q1
+    Deals --> Q1
+    Companies --> Q2
+    Deals --> Q2
+    Deals --> Q3
+    WorkOrders --> Q4
+    TimeEntries --> Q5
+
+    Q1 --> KPI
+    Q2 --> KPI
+    Q4 --> KPI
+    Q5 --> KPI
+
+    Q1 --> FollowUps
+    Q2 --> FollowUps
+    Q3 --> Pipeline
+    Q4 --> WORisks
+    Q5 --> Timesheet
+
+    Activities -.->|lastActivityAt<br/>güncelle| Companies
+    Activities -.->|lastActivityAt<br/>güncelle| Deals
+    Activities -.->|lastActivityAt<br/>güncelle| WorkOrders
+
+    style KPI fill:#e3f2fd
+    style FollowUps fill:#f3e5f5
+    style Pipeline fill:#e8f5e9
+    style WORisks fill:#fff3e0
+    style Timesheet fill:#fce4ec
+```
+
+**Dashboard Mantığı:**
+- Her panel **limitli sorgu** ile yüklenir (performans)
+- `lastActivityAt` alanı **denormalize** edilir (write sırasında güncellenir)
+- Smart Nudge'lar basit kurallara dayanır (AI değil, tarih/durum kontrolü)
 
 ## **4. Veri Modeli (Firestore)**
 
