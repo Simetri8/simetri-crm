@@ -88,6 +88,8 @@ export default function DealDetailPage({
   const [targetDeliveryDate, setTargetDeliveryDate] = useState<Date | undefined>(undefined);
   const [createWorkOrderLoading, setCreateWorkOrderLoading] = useState(false);
   const [pendingStageChange, setPendingStageChange] = useState<DealStage | null>(null);
+  const [showLostReasonDialog, setShowLostReasonDialog] = useState(false);
+  const [selectedLostReason, setSelectedLostReason] = useState<string>('');
 
   const loadData = async () => {
     try {
@@ -131,6 +133,14 @@ export default function DealDetailPage({
       setPendingStageChange(newStage);
       setTargetDeliveryDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 gün sonra default
       setShowCreateWorkOrderDialog(true);
+      return;
+    }
+
+    // Eger "lost" secildiyse, once sebep secimi yap
+    if (newStage === 'lost' && deal.stage !== 'lost') {
+      setPendingStageChange(newStage);
+      setSelectedLostReason('');
+      setShowLostReasonDialog(true);
       return;
     }
 
@@ -190,6 +200,40 @@ export default function DealDetailPage({
     await executeStageChange(pendingStageChange);
     setShowCreateWorkOrderDialog(false);
     setPendingStageChange(null);
+  };
+
+  const handleConfirmLostReason = async () => {
+    if (!user || !deal || !pendingStageChange || !selectedLostReason) {
+      toast.error('Lütfen bir sebep seçin');
+      return;
+    }
+
+    try {
+      const oldStage = deal.stage;
+      await dealService.updateStage(
+        id,
+        pendingStageChange,
+        user.uid,
+        selectedLostReason as any
+      );
+
+      // Sistem aktivitesi ekle
+      await activityService.addSystemActivity(
+        'deal_stage_changed',
+        `Aşama değişti: ${DEAL_STAGE_CONFIG[oldStage].label} -> ${DEAL_STAGE_CONFIG[pendingStageChange].label} (${LOST_REASON_LABELS[selectedLostReason as keyof typeof LOST_REASON_LABELS]})`,
+        { dealId: id },
+        user.uid
+      );
+
+      toast.success('Fırsat kaybedildi olarak işaretlendi');
+      setShowLostReasonDialog(false);
+      setPendingStageChange(null);
+      setSelectedLostReason('');
+      loadData();
+    } catch (error) {
+      console.error('Error updating deal:', error);
+      toast.error('Fırsat güncellenemedi');
+    }
   };
 
   const handleCreateActivity = async (data: ActivityFormData) => {
@@ -544,6 +588,57 @@ export default function DealDetailPage({
             >
               {createWorkOrderLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               İş Emri Oluştur
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lost Reason Dialog */}
+      <Dialog open={showLostReasonDialog} onOpenChange={setShowLostReasonDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-red-600" />
+              Fırsat Kaybedildi
+            </DialogTitle>
+            <DialogDescription>
+              Bu fırsatı kaybedildi olarak işaretlemek için lütfen bir sebep seçin.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Kayıp Sebebi *</Label>
+              <Select value={selectedLostReason} onValueChange={setSelectedLostReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sebep seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(LOST_REASON_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowLostReasonDialog(false);
+                setPendingStageChange(null);
+                setSelectedLostReason('');
+              }}
+            >
+              İptal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmLostReason}
+              disabled={!selectedLostReason}
+            >
+              Kaybedildi Olarak İşaretle
             </Button>
           </DialogFooter>
         </DialogContent>

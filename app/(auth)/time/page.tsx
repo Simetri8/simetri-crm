@@ -103,8 +103,14 @@ export default function TimePage() {
   const handleUpdate = async (data: TimeEntryFormData) => {
     if (!user || !editingEntry) return;
     try {
-      await timeEntryService.update(editingEntry.id, data, user.uid);
-      toast.success('Zaman girişi güncellendi');
+      // Eger entry onaylanmis veya kilitlenmis ise correctLockedEntry kullan
+      if (editingEntry.status === 'approved' || editingEntry.status === 'locked') {
+        await timeEntryService.correctLockedEntry(editingEntry.id, data, user.uid);
+        toast.success('Onaylanmış zaman girişi düzeltildi');
+      } else {
+        await timeEntryService.update(editingEntry.id, data, user.uid);
+        toast.success('Zaman girişi güncellendi');
+      }
       setEditingEntry(null);
       loadEntries();
     } catch (error) {

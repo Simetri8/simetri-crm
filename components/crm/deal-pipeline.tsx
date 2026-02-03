@@ -57,9 +57,20 @@ export function DealPipeline({ deals, onStageChange }: DealPipelineProps) {
     const deal = kanbanData.find((d) => d.id === active.id);
     if (!deal) return;
 
-    const newStage = over.id as DealStage;
+    let newStage = over.id as string;
+
+    // Eger bir kartin uzerine birakildiysa, o kartin bulundugu kolonu (stage) al
+    const overDeal = kanbanData.find((d) => d.id === newStage);
+    if (overDeal) {
+      newStage = overDeal.column;
+    }
+
     if (deal.stage !== newStage) {
-      await onStageChange(deal.id, newStage);
+      // Valid stage kontrolu
+      const isValidStage = DEAL_STAGE_ORDER.includes(newStage as DealStage);
+      if (isValidStage) {
+        await onStageChange(deal.id, newStage as DealStage);
+      }
     }
   };
 

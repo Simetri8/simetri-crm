@@ -510,4 +510,82 @@ export const timeEntryService = {
 
     return { totalMinutes, billableMinutes };
   },
+
+  /**
+   * Onaylanmis/kilitli zaman girisini duzeltir
+   * Not: Bu method sadece yetkili kullanicilar tarafindan kullanilmalidir
+   */
+  correctLockedEntry: async (
+    id: string,
+    data: Partial<TimeEntryFormData>,
+    correctedBy: string
+  ): Promise<void> => {
+    const existing = await timeEntryService.getById(id);
+    if (!existing) {
+      throw new Error('Time entry not found');
+    }
+    if (existing.status !== 'approved' && existing.status !== 'locked') {
+      throw new Error('Only approved or locked entries can be corrected');
+    }
+
+    const docRef = doc(getCollection<TimeEntry>(COLLECTION), id);
+    const updateData: Record<string, unknown> = {
+      ...data,
+      updatedAt: serverTimestamp(),
+      updatedBy: correctedBy,
+    };
+
+    // Tarih degisti ise weekKey'i de guncelle
+    if (data.date) {
+      updateData.date = Timestamp.fromDate(data.date);
+      updateData.weekKey = getWeekKey(data.date);
+    }
+
+    // Work order degisti ise adini da guncelle
+    if (data.workOrderId !== undefined) {
+      if (data.workOrderId) {
+        const workOrderRef = doc(
+          getCollection<WorkOrder>('work_orders'),
+          data.workOrderId
+        );
+        const workOrderSnap = await getDoc(workOrderRef);
+        updateData.workOrderTitle = workOrderSnap.exists()
+          ? workOrderSnap.data().title
+          : null;
+      } else {
+        updateData.workOrderTitle = null;
+      }
+    }
+
+    // Deliverable degisti ise adini da guncelle
+    if (data.deliverableId !== undefined) {
+      if (data.deliverableId) {
+        const deliverableRef = doc(
+          getCollection<Deliverable>('deliverables'),
+          data.deliverableId
+        );
+        const deliverableSnap = await getDoc(deliverableRef);
+        updateData.deliverableTitle = deliverableSnap.exists()
+          ? deliverableSnap.data().title
+          : null;
+      } else {
+        updateData.deliverableTitle = null;
+      }
+    }
+
+    // Task degisti ise adini da guncelle
+    if (data.taskId !== undefined) {
+      if (data.taskId) {
+        const taskRef = doc(getCollection<Task>('tasks'), data.taskId);
+        const taskSnap = await getDoc(taskRef);
+        updateData.taskTitle = taskSnap.exists()
+          ? taskSnap.data().title
+          : null;
+      } else {
+        updateData.taskTitle = null;
+      }
+    }
+
+    await updateDoc(docRef, updateData);
+  },
 };

@@ -131,7 +131,7 @@ export function TimeEntryList({
         )}
       </TableCell>
       <TableCell>
-        {(onEdit || onDelete) && entry.status === 'draft' && (
+        {(onEdit || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -142,10 +142,10 @@ export function TimeEntryList({
               {onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(entry)}>
                   <Pencil className="mr-2 h-4 w-4" />
-                  Duzenle
+                  {entry.status === 'approved' || entry.status === 'locked' ? 'Duzelt' : 'Duzenle'}
                 </DropdownMenuItem>
               )}
-              {onDelete && (
+              {onDelete && entry.status === 'draft' && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

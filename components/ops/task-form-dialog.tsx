@@ -56,6 +56,15 @@ const formSchema = z.object({
   assigneeId: z.string().nullable().optional(),
   deliverableId: z.string().nullable().optional(),
   dueDate: z.date().nullable().optional(),
+}).refine((data) => {
+  // Eger status 'blocked' ise, blockedReason zorunlu
+  if (data.status === 'blocked' && !data.blockedReason) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Engellenmiş durum için bir neden seçmelisiniz',
+  path: ['blockedReason'],
 });
 
 type FormValues = z.infer<typeof formSchema>;
