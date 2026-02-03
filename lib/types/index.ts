@@ -276,12 +276,22 @@ export type Proposal = BaseEntity & {
   acceptanceNote: string | null;
 };
 
+export type ProposalFormDataItem = {
+  catalogItemId?: string | null;
+  title: string;
+  description?: string | null;
+  quantity: number;
+  unit: Unit;
+  unitPriceMinor: number;
+  taxRate: number;
+};
+
 export type ProposalFormData = {
   dealId: string;
   version?: number;
   currency?: Currency;
   pricesIncludeTax?: boolean;
-  items: Omit<ProposalItem, 'catalogItemId'> & { catalogItemId?: string | null }[];
+  items: ProposalFormDataItem[];
 };
 
 // =============================================================================

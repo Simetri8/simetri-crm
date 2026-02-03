@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/kibo-ui/table';
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

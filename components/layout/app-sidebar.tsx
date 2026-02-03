@@ -12,7 +12,7 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock } from "lucide-react"
+import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -42,6 +42,11 @@ const crmItems = [
         title: "Pipeline",
         url: "/crm/pipeline",
         icon: KanbanSquare,
+    },
+    {
+        title: "Katalog",
+        url: "/crm/catalog",
+        icon: Package,
     },
     {
         title: "Teklifler",

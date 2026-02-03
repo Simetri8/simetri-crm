@@ -49,7 +49,7 @@ const formSchema = z.object({
   title: z.string().min(1, 'Baslik zorunlu'),
   stage: z.enum(DEAL_STAGES),
   expectedCloseDate: z.date().optional().nullable(),
-  estimatedBudgetMinor: z.coerce.number().optional().nullable(),
+  estimatedBudgetMinor: z.number().optional().nullable(),
   currency: z.enum(CURRENCIES),
   nextAction: z.string().optional(),
   nextActionDate: z.date().optional().nullable(),
@@ -336,8 +336,14 @@ export function DealFormDialog({
                       <Input
                         type="number"
                         placeholder="50000"
-                        {...field}
                         value={field.value ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          field.onChange(val === '' ? null : parseFloat(val));
+                        }}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        ref={field.ref}
                       />
                     </FormControl>
                     <FormMessage />

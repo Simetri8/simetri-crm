@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import type { Deal, DealStage } from '@/lib/types';
 
 type KanbanDeal = Deal & {
+  name: string;
   column: string;
 };
 
@@ -32,6 +33,7 @@ export function DealPipeline({ deals, onStageChange }: DealPipelineProps) {
   const [kanbanData, setKanbanData] = useState<KanbanDeal[]>(() =>
     deals.map((deal) => ({
       ...deal,
+      name: deal.title,
       column: deal.stage,
     }))
   );
