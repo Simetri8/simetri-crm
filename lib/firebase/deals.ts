@@ -389,35 +389,52 @@ export const dealService = {
    * Pipeline ozet istatistiklerini hesaplar
    */
   getPipelineSummary: async (): Promise<PipelineStageSummary[]> => {
-    const q = query(
-      getCollection<Deal>(COLLECTION),
-      where('isArchived', '==', false)
-    );
-    const snapshot = await getDocs(q);
+    try {
+      const q = query(
+        getCollection<Deal>(COLLECTION),
+        where('isArchived', '==', false)
+      );
+      const snapshot = await getDocs(q);
 
-    const summaryMap: Record<DealStage, PipelineStageSummary> = {} as Record<
-      DealStage,
-      PipelineStageSummary
-    >;
+      const summaryMap: Record<DealStage, PipelineStageSummary> = {} as Record<
+        DealStage,
+        PipelineStageSummary
+      >;
 
-    // Initialize all stages
-    DEAL_STAGES.forEach((stage) => {
-      summaryMap[stage] = {
-        stage,
-        count: 0,
-        sumEstimatedBudgetMinor: 0,
-      };
-    });
+      // Initialize all stages
+      DEAL_STAGES.forEach((stage) => {
+        summaryMap[stage] = {
+          stage,
+          count: 0,
+          sumEstimatedBudgetMinor: 0,
+        };
+      });
 
-    // Aggregate
-    snapshot.docs.forEach((docSnap) => {
-      const deal = docSnap.data();
-      summaryMap[deal.stage].count += 1;
-      summaryMap[deal.stage].sumEstimatedBudgetMinor +=
-        deal.estimatedBudgetMinor ?? 0;
-    });
+      // Aggregate
+      snapshot.docs.forEach((docSnap) => {
+        const deal = docSnap.data();
+        
+        // Koruma: stage undefined veya geçersiz olabilir
+        if (!deal.stage) {
+          console.warn('Deal stage undefined:', deal.id, deal);
+          return;
+        }
+        
+        if (!summaryMap[deal.stage]) {
+          console.warn('Geçersiz deal stage:', deal.stage, 'Deal ID:', deal.id);
+          return;
+        }
+        
+        summaryMap[deal.stage].count += 1;
+        summaryMap[deal.stage].sumEstimatedBudgetMinor +=
+          deal.estimatedBudgetMinor ?? 0;
+      });
 
-    return DEAL_STAGES.map((stage) => summaryMap[stage]);
+      return DEAL_STAGES.map((stage) => summaryMap[stage]);
+    } catch (error) {
+      console.error('getPipelineSummary hatası:', error);
+      throw error;
+    }
   },
 
   /**

@@ -57,9 +57,9 @@ export function PipelineSummaryPanel({
         ACTIVE_STAGES.includes(s.stage)
     );
 
-    const totalDeals = activeSummary.reduce((sum, s) => sum + s.count, 0);
+    const totalDeals = activeSummary.reduce((sum, s) => sum + (s?.count ?? 0), 0);
     const totalBudget = activeSummary.reduce(
-        (sum, s) => sum + s.sumEstimatedBudgetMinor,
+        (sum, s) => sum + (s?.sumEstimatedBudgetMinor ?? 0),
         0
     );
 
@@ -99,7 +99,18 @@ export function PipelineSummaryPanel({
                         </p>
                     ) : (
                         activeSummary.map((item) => {
+                            // Koruma: item ve stage kontrolü
+                            if (!item || !item.stage) {
+                                console.warn('Geçersiz pipeline summary item:', item);
+                                return null;
+                            }
+
                             const config = DEAL_STAGE_CONFIG[item.stage];
+                            if (!config) {
+                                console.warn('Stage config bulunamadı:', item.stage);
+                                return null;
+                            }
+
                             return (
                                 <div
                                     key={item.stage}
@@ -112,10 +123,10 @@ export function PipelineSummaryPanel({
                                         >
                                             {config.label}
                                         </Badge>
-                                        <span className="text-sm font-medium">{item.count}</span>
+                                        <span className="text-sm font-medium">{item.count ?? 0}</span>
                                     </div>
                                     <span className="text-sm text-muted-foreground">
-                                        {formatMoney(item.sumEstimatedBudgetMinor, 'TRY')}
+                                        {formatMoney(item.sumEstimatedBudgetMinor ?? 0, 'TRY')}
                                     </span>
                                 </div>
                             );

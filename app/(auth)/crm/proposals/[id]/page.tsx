@@ -20,6 +20,7 @@ import {
   Package,
   Plus,
   Save,
+  Download,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -403,6 +404,93 @@ export default function ProposalDetailPage({
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!proposal) return;
+
+    try {
+      // Dynamic import to avoid SSR issues
+      const jsPDF = (await import('jspdf')).default;
+      const autoTable = (await import('jspdf-autotable')).default;
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let yPos = 20;
+
+      // Title
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TEKLIF', pageWidth / 2, yPos, { align: 'center' });
+      yPos += 15;
+
+      // Company and Deal Info
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Sirket: ${proposal.companyName}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Firsat: ${proposal.dealTitle}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Teklif No: ${proposal.id.substring(0, 8).toUpperCase()}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Tarih: ${format(proposal.createdAt.toDate(), 'dd MMMM yyyy', { locale: tr })}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Versiyon: ${proposal.version}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Durum: ${PROPOSAL_STATUS_CONFIG[proposal.status].label}`, 20, yPos);
+      yPos += 15;
+
+      // Items Table
+      const tableData = proposal.items.map((item, idx) => {
+        const unitPrice = item.unitPriceMinor / 100;
+        const totalPrice = (item.unitPriceMinor * item.quantity) / 100;
+        return [
+          (idx + 1).toString(),
+          item.title,
+          `${item.quantity} ${UNIT_LABELS[item.unit]}`,
+          formatMoney(unitPrice, proposal.currency),
+          `${item.taxRate}%`,
+          formatMoney(totalPrice, proposal.currency),
+        ];
+      });
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['#', 'Urun/Hizmet', 'Miktar', 'Birim Fiyat', 'KDV', 'Toplam']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [71, 85, 105] },
+        styles: { font: 'helvetica', fontSize: 10 },
+      });
+
+      yPos = (doc as any).lastAutoTable.finalY + 10;
+
+      // Totals
+      doc.setFontSize(11);
+      const rightX = pageWidth - 20;
+
+      const subtotal = proposal.subtotalMinor / 100;
+      const taxTotal = proposal.taxTotalMinor / 100;
+      const grandTotal = proposal.grandTotalMinor / 100;
+
+      doc.text(`Ara Toplam: ${formatMoney(subtotal, proposal.currency)}`, rightX, yPos, { align: 'right' });
+      yPos += 7;
+
+      doc.text(`KDV: ${formatMoney(taxTotal, proposal.currency)}`, rightX, yPos, { align: 'right' });
+      yPos += 10;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.text(`GENEL TOPLAM: ${formatMoney(grandTotal, proposal.currency)}`, rightX, yPos, { align: 'right' });
+
+      // Save PDF
+      const fileName = `Teklif_${proposal.id.substring(0, 8).toUpperCase()}_v${proposal.version}.pdf`;
+      doc.save(fileName);
+      toast.success('PDF indirildi');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('PDF olusturulamadi');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -490,6 +578,10 @@ export default function ProposalDetailPage({
               </Button>
             </>
           )}
+          <Button variant="outline" onClick={handleExportPDF}>
+            <Download className="mr-2 h-4 w-4" />
+            PDF İndir
+          </Button>
           <Button variant="outline" onClick={handleNewVersion} disabled={actionLoading}>
             <Copy className="mr-2 h-4 w-4" />
             Yeni Versiyon

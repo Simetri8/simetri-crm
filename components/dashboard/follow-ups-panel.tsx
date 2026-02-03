@@ -1,18 +1,33 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
+import { tr } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
     Building2,
     Handshake,
     CheckCircle2,
     Plus,
     AlertCircle,
+    Pencil,
+    Check,
+    X,
+    CalendarIcon,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { companyService } from '@/lib/firebase/companies';
+import { dealService } from '@/lib/firebase/deals';
+import { useAuth } from '@/components/auth/auth-provider';
+import { toast } from 'sonner';
 import type { FollowUpItem } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
 
@@ -46,12 +61,61 @@ function formatRelativeTime(timestamp: Timestamp | null): string {
 
 export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
     const router = useRouter();
+    const { user } = useAuth();
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editAction, setEditAction] = useState('');
+    const [editDate, setEditDate] = useState<Date | undefined>(undefined);
+    const [saving, setSaving] = useState(false);
 
     const handleItemClick = (item: FollowUpItem) => {
+        if (editingId) return; // Don't navigate if editing
         if (item.type === 'company') {
             router.push(`/crm/companies/${item.id}`);
         } else {
             router.push(`/crm/deals/${item.id}`);
+        }
+    };
+
+    const handleEditClick = (e: React.MouseEvent, item: FollowUpItem) => {
+        e.stopPropagation();
+        setEditingId(item.id);
+        setEditAction(item.nextAction || '');
+        setEditDate(item.nextActionDate?.toDate());
+    };
+
+    const handleCancelEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingId(null);
+        setEditAction('');
+        setEditDate(undefined);
+    };
+
+    const handleSaveEdit = async (e: React.MouseEvent, item: FollowUpItem) => {
+        e.stopPropagation();
+        if (!user) return;
+        if (!editAction.trim() || !editDate) {
+            toast.error('Aksiyon ve tarih zorunlu');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            if (item.type === 'company') {
+                await companyService.updateNextAction(item.id, editAction, editDate, user.uid);
+            } else {
+                await dealService.updateNextAction(item.id, editAction, editDate, user.uid);
+            }
+            toast.success('Aksiyon güncellendi');
+            setEditingId(null);
+            setEditAction('');
+            setEditDate(undefined);
+            // Refresh dashboard (parent component should handle this)
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating next action:', error);
+            toast.error('Aksiyon güncellenemedi');
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -108,58 +172,133 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {followUps.map((item) => (
-                                <button
-                                    key={`${item.type}-${item.id}`}
-                                    onClick={() => handleItemClick(item)}
-                                    className={`w-full text-left p-3 rounded-lg border transition-colors hover:bg-accent ${item.isOverdue
-                                            ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
-                                            : ''
+                            {followUps.map((item) => {
+                                const isEditing = editingId === item.id;
+                                return (
+                                    <div
+                                        key={`${item.type}-${item.id}`}
+                                        className={`w-full p-3 rounded-lg border transition-colors ${
+                                            isEditing ? 'border-primary bg-accent' :
+                                            item.isOverdue
+                                                ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
+                                                : 'hover:bg-accent cursor-pointer'
                                         }`}
-                                >
-                                    <div className="flex items-start gap-3">
-                                        <div
-                                            className={`p-2 rounded-full ${item.type === 'company'
-                                                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                                                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
-                                                }`}
-                                        >
-                                            {item.type === 'company' ? (
-                                                <Building2 className="h-4 w-4" />
-                                            ) : (
-                                                <Handshake className="h-4 w-4" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium truncate">{item.title}</span>
-                                                {item.isOverdue && (
-                                                    <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                                        onClick={() => !isEditing && handleItemClick(item)}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <div
+                                                className={`p-2 rounded-full ${item.type === 'company'
+                                                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+                                                        : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
+                                                    }`}
+                                            >
+                                                {item.type === 'company' ? (
+                                                    <Building2 className="h-4 w-4" />
+                                                ) : (
+                                                    <Handshake className="h-4 w-4" />
                                                 )}
                                             </div>
-                                            {item.nextAction && (
-                                                <p className="text-sm text-muted-foreground truncate mt-0.5">
-                                                    {item.nextAction}
-                                                </p>
-                                            )}
-                                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                                                <span>
-                                                    Tarih: {formatDate(item.nextActionDate)}
-                                                </span>
-                                                <span>
-                                                    Son aktivite: {formatRelativeTime(item.lastActivityAt)}
-                                                </span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium truncate">{item.title}</span>
+                                                    {item.isOverdue && !isEditing && (
+                                                        <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                                                    )}
+                                                </div>
+
+                                                {isEditing ? (
+                                                    <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+                                                        <Input
+                                                            placeholder="Sonraki aksiyon..."
+                                                            value={editAction}
+                                                            onChange={(e) => setEditAction(e.target.value)}
+                                                            className="text-sm"
+                                                        />
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className={cn(
+                                                                        'w-full justify-start text-left font-normal text-sm',
+                                                                        !editDate && 'text-muted-foreground'
+                                                                    )}
+                                                                >
+                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                                    {editDate
+                                                                        ? format(editDate, 'dd MMM yyyy', { locale: tr })
+                                                                        : 'Tarih seç'}
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                                <Calendar
+                                                                    mode="single"
+                                                                    selected={editDate}
+                                                                    onSelect={setEditDate}
+                                                                    locale={tr}
+                                                                    initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        <div className="flex gap-2">
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={(e) => handleSaveEdit(e, item)}
+                                                                disabled={saving}
+                                                                className="flex-1"
+                                                            >
+                                                                <Check className="mr-1 h-3 w-3" />
+                                                                Kaydet
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={handleCancelEdit}
+                                                                disabled={saving}
+                                                            >
+                                                                <X className="h-3 w-3" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        {item.nextAction && (
+                                                            <p className="text-sm text-muted-foreground truncate mt-0.5">
+                                                                {item.nextAction}
+                                                            </p>
+                                                        )}
+                                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                                            <span>
+                                                                Tarih: {formatDate(item.nextActionDate)}
+                                                            </span>
+                                                            <span>
+                                                                Son aktivite: {formatRelativeTime(item.lastActivityAt)}
+                                                            </span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Badge
+                                                    variant={item.isOverdue ? 'destructive' : 'secondary'}
+                                                    className="shrink-0"
+                                                >
+                                                    {item.type === 'company' ? 'Şirket' : 'Fırsat'}
+                                                </Badge>
+                                                {!isEditing && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-6 w-6"
+                                                        onClick={(e) => handleEditClick(e, item)}
+                                                    >
+                                                        <Pencil className="h-3 w-3" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </div>
-                                        <Badge
-                                            variant={item.isOverdue ? 'destructive' : 'secondary'}
-                                            className="shrink-0"
-                                        >
-                                            {item.type === 'company' ? 'Şirket' : 'Fırsat'}
-                                        </Badge>
                                     </div>
-                                </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </ScrollArea>

@@ -52,6 +52,7 @@ import { taskService } from '@/lib/firebase/tasks';
 import { companyService } from '@/lib/firebase/companies';
 import { dealService } from '@/lib/firebase/deals';
 import { userService } from '@/lib/firebase/users';
+import { activityService } from '@/lib/firebase/activities';
 import { useAuth } from '@/components/auth/auth-provider';
 import {
   WORK_ORDER_STATUSES,
@@ -76,6 +77,8 @@ import type {
   Company,
   Deal,
   User,
+  Activity,
+  ActivityFormData,
 } from '@/lib/types';
 
 type DeliverableWithTasks = Deliverable & { tasks: Task[] };
@@ -90,6 +93,7 @@ export default function WorkOrderDetailPage({
   const [workOrder, setWorkOrder] = useState<WorkOrder | null>(null);
   const [deliverables, setDeliverables] = useState<DeliverableWithTasks[]>([]);
   const [orphanTasks, setOrphanTasks] = useState<Task[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -104,6 +108,7 @@ export default function WorkOrderDetailPage({
   const [selectedDeliverableId, setSelectedDeliverableId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [deleteTask, setDeleteTask] = useState<Task | null>(null);
+  const [activityFormOpen, setActivityFormOpen] = useState(false);
 
   const loadWorkOrder = async () => {
     try {
@@ -148,6 +153,16 @@ export default function WorkOrderDetailPage({
     }
   };
 
+  const loadActivities = async () => {
+    try {
+      const data = await activityService.getByWorkOrderId(id, 50);
+      setActivities(data);
+    } catch (error) {
+      console.error('Error loading activities:', error);
+      toast.error('Aktiviteler yüklenemedi');
+    }
+  };
+
   const loadSupportData = async () => {
     try {
       const [companiesData, dealsData, usersData] = await Promise.all([
@@ -166,7 +181,7 @@ export default function WorkOrderDetailPage({
   useEffect(() => {
     const loadAll = async () => {
       setLoading(true);
-      await Promise.all([loadWorkOrder(), loadDeliverables(), loadSupportData()]);
+      await Promise.all([loadWorkOrder(), loadDeliverables(), loadActivities(), loadSupportData()]);
       setLoading(false);
     };
     loadAll();
@@ -318,6 +333,19 @@ export default function WorkOrderDetailPage({
     } catch (error) {
       console.error('Error deleting task:', error);
       toast.error('Görev silinemedi');
+    }
+  };
+
+  // Activity handlers
+  const handleCreateActivity = async (data: ActivityFormData) => {
+    if (!user) return;
+    try {
+      await activityService.add(data, user.uid);
+      toast.success('Aktivite eklendi');
+      loadActivities();
+    } catch (error) {
+      console.error('Error creating activity:', error);
+      toast.error('Aktivite eklenemedi');
     }
   };
 
@@ -608,6 +636,25 @@ export default function WorkOrderDetailPage({
         </Button>
       )}
 
+      {/* Activities */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Aktiviteler
+            </CardTitle>
+            <Button onClick={() => setActivityFormOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Aktivite Ekle
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <ActivityFeed activities={activities} showContext={false} emptyMessage="Henüz aktivite yok" />
+        </CardContent>
+      </Card>
+
       {/* Edit Work Order Dialog */}
       <WorkOrderFormDialog
         open={editWorkOrderOpen}
@@ -700,6 +747,14 @@ export default function WorkOrderDetailPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Activity Form Dialog */}
+      <ActivityFormDialog
+        open={activityFormOpen}
+        onOpenChange={setActivityFormOpen}
+        defaultWorkOrderId={id}
+        onSubmit={handleCreateActivity}
+      />
     </div>
   );
 }

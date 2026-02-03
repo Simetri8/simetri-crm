@@ -12,7 +12,7 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package } from "lucide-react"
+import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -63,6 +63,11 @@ const opsItems = [
         title: "Zaman Girişi",
         url: "/time",
         icon: Clock,
+    },
+    {
+        title: "Timesheet Onayları",
+        url: "/time/approve",
+        icon: CheckSquare,
     },
 ]
 
