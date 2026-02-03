@@ -46,7 +46,7 @@ export default function CatalogPage() {
       setItems(data);
     } catch (error) {
       console.error('Error loading catalog items:', error);
-      toast.error('Katalog yuklenemedi');
+      toast.error('Katalog yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -66,11 +66,11 @@ export default function CatalogPage() {
     if (!user) return;
     try {
       await catalogItemService.add(data, user.uid);
-      toast.success('Kalem olusturuldu');
+      toast.success('Kalem oluşturuldu');
       loadItems();
     } catch (error) {
       console.error('Error creating catalog item:', error);
-      toast.error('Kalem olusturulamadi');
+      toast.error('Kalem oluşturulamadı');
     }
   };
 
@@ -78,12 +78,12 @@ export default function CatalogPage() {
     if (!user || !editingItem) return;
     try {
       await catalogItemService.update(editingItem.id, data, user.uid);
-      toast.success('Kalem guncellendi');
+      toast.success('Kalem güncellendi');
       setEditingItem(null);
       loadItems();
     } catch (error) {
       console.error('Error updating catalog item:', error);
-      toast.error('Kalem guncellenemedi');
+      toast.error('Kalem güncellenemedi');
     }
   };
 
@@ -91,11 +91,11 @@ export default function CatalogPage() {
     if (!user) return;
     try {
       await catalogItemService.setActive(item.id, !item.isActive, user.uid);
-      toast.success(item.isActive ? 'Kalem pasif yapildi' : 'Kalem aktif yapildi');
+      toast.success(item.isActive ? 'Kalem pasif yapıldı' : 'Kalem aktif yapıldı');
       loadItems();
     } catch (error) {
       console.error('Error toggling catalog item:', error);
-      toast.error('Islem basarisiz');
+      toast.error('İşlem başarısız');
     }
   };
 
@@ -118,7 +118,7 @@ export default function CatalogPage() {
         <div>
           <h1 className="text-2xl font-semibold">Katalog</h1>
           <p className="text-muted-foreground">
-            Hizmet ve urun katalogunuzu yonetin
+            Hizmet ve ürün kataloğunuzu yönetin
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
@@ -142,10 +142,10 @@ export default function CatalogPage() {
           onValueChange={(v) => setTypeFilter(v as CatalogItemType | 'all')}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Tur filtrele" />
+            <SelectValue placeholder="Tür filtrele" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tum Turler</SelectItem>
+            <SelectItem value="all">Tüm Türler</SelectItem>
             {CATALOG_ITEM_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {CATALOG_ITEM_TYPE_LABELS[type]}
@@ -164,8 +164,8 @@ export default function CatalogPage() {
           <Package className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">
             {searchTerm || typeFilter !== 'all'
-              ? 'Arama kriterlerine uygun kalem bulunamadi'
-              : 'Henuz katalog kalemi yok'}
+              ? 'Arama kriterlerine uygun kalem bulunamadı'
+              : 'Henüz katalog kalemi yok'}
           </p>
           {!searchTerm && typeFilter === 'all' && (
             <Button
@@ -173,7 +173,7 @@ export default function CatalogPage() {
               className="mt-2"
               onClick={() => setFormOpen(true)}
             >
-              Ilk kalemi ekle
+              İlk kalemi ekle
             </Button>
           )}
         </div>
@@ -207,12 +207,12 @@ export default function CatalogPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Kalemi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteItem?.name} kalemini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteItem?.name} kalemini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>

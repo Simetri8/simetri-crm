@@ -39,10 +39,10 @@ import {
 import type { CatalogItem, CatalogItemFormData } from '@/lib/types';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Kalem adi zorunlu'),
+  name: z.string().min(1, 'Kalem adı zorunlu'),
   type: z.enum(CATALOG_ITEM_TYPES),
   unit: z.enum(UNITS),
-  defaultUnitPriceMinor: z.number().min(0, 'Fiyat 0 veya daha buyuk olmali'),
+  defaultUnitPriceMinor: z.number().min(0, 'Fiyat 0 veya daha büyük olmalı'),
   currency: z.enum(CURRENCIES),
   taxRate: z.number().min(0).max(100),
   isActive: z.boolean(),
@@ -127,7 +127,7 @@ export function CatalogItemFormDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Kalemi Duzenle' : 'Yeni Katalog Kalemi'}
+            {isEdit ? 'Kalemi Düzenle' : 'Yeni Katalog Kalemi'}
           </DialogTitle>
         </DialogHeader>
 
@@ -138,9 +138,9 @@ export function CatalogItemFormDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kalem Adi</FormLabel>
+                  <FormLabel>Kalem Adı</FormLabel>
                   <FormControl>
-                    <Input placeholder="Web Gelistirme Hizmeti" {...field} />
+                    <Input placeholder="Web Geliştirme Hizmeti" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,7 +153,7 @@ export function CatalogItemFormDialog({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tur</FormLabel>
+                    <FormLabel>Tür</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -270,10 +270,10 @@ export function CatalogItemFormDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aciklama (Opsiyonel)</FormLabel>
+                  <FormLabel>Açıklama (Opsiyonel)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Kalem hakkinda detaylar..."
+                      placeholder="Kalem hakkında detaylar..."
                       className="resize-none"
                       rows={2}
                       {...field}
@@ -292,7 +292,7 @@ export function CatalogItemFormDialog({
                   <div className="space-y-0.5">
                     <FormLabel>Aktif</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Pasif kalemler tekliflerde gorunmez
+                      Pasif kalemler tekliflerde görünmez
                     </p>
                   </div>
                   <FormControl>
@@ -311,11 +311,11 @@ export function CatalogItemFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

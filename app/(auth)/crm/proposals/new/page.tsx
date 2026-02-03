@@ -117,7 +117,7 @@ export default function NewProposalPage() {
         }
       } catch (error) {
         console.error('Error loading data:', error);
-        toast.error('Veriler yuklenemedi');
+        toast.error('Veriler yüklenemedi');
       } finally {
         setLoading(false);
       }
@@ -216,7 +216,7 @@ export default function NewProposalPage() {
 
     const invalidItems = items.filter((item) => !item.title || item.unitPriceMinor <= 0);
     if (invalidItems.length > 0) {
-      toast.error('Tum kalemlerin adi ve fiyati olmali');
+      toast.error('Tüm kalemlerin adı ve fiyatı olmalı');
       return;
     }
 
@@ -243,16 +243,16 @@ export default function NewProposalPage() {
       // Sistem aktivitesi ekle
       await activityService.addSystemActivity(
         'proposal_sent',
-        'Yeni teklif olusturuldu',
+        'Yeni teklif oluşturuldu',
         { dealId: selectedDealId, companyId: selectedDeal?.companyId },
         user.uid
       );
 
-      toast.success('Teklif olusturuldu');
+      toast.success('Teklif oluşturuldu');
       router.push(`/crm/proposals/${proposalId}`);
     } catch (error) {
       console.error('Error creating proposal:', error);
-      toast.error('Teklif olusturulamadi');
+      toast.error('Teklif oluşturulamadı');
     } finally {
       setSubmitting(false);
     }
@@ -278,7 +278,7 @@ export default function NewProposalPage() {
         <div>
           <h1 className="text-2xl font-semibold">Yeni Teklif</h1>
           <p className="text-muted-foreground">
-            Satis firsati icin yeni teklif olusturun
+            Satış fırsatı için yeni teklif oluşturun
           </p>
         </div>
       </div>
@@ -286,9 +286,9 @@ export default function NewProposalPage() {
       {/* Deal Selection */}
       <Card>
         <CardHeader>
-          <CardTitle>Firsat Secimi</CardTitle>
+          <CardTitle>Fırsat Seçimi</CardTitle>
           <CardDescription>
-            Teklifin bagli olacagi satis firsatini secin
+            Teklifin bağlı olacağı satış fırsatını seçin
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -304,16 +304,16 @@ export default function NewProposalPage() {
                     {selectedDeal.title} - {selectedDeal.companyName}
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">Firsat sec...</span>
+                  <span className="text-muted-foreground">Fırsat seç...</span>
                 )}
                 <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[400px] p-0" align="start">
               <Command>
-                <CommandInput placeholder="Firsat ara..." />
+                <CommandInput placeholder="Fırsat ara..." />
                 <CommandList>
-                  <CommandEmpty>Firsat bulunamadi</CommandEmpty>
+                  <CommandEmpty>Fırsat bulunamadı</CommandEmpty>
                   <CommandGroup>
                     {deals.map((deal) => (
                       <CommandItem
@@ -344,7 +344,7 @@ export default function NewProposalPage() {
       {/* Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Teklif Ayarlari</CardTitle>
+          <CardTitle>Teklif Ayarları</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -367,7 +367,7 @@ export default function NewProposalPage() {
               <div className="space-y-0.5">
                 <Label>Fiyatlar KDV Dahil</Label>
                 <p className="text-xs text-muted-foreground">
-                  KDV dahil mi haric mi?
+                  KDV dahil mi hariç mi?
                 </p>
               </div>
               <Switch
@@ -385,7 +385,7 @@ export default function NewProposalPage() {
           <div>
             <CardTitle>Teklif Kalemleri</CardTitle>
             <CardDescription>
-              Katalogdan veya ozel kalem ekleyin
+              Katalogdan veya özel kalem ekleyin
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -400,7 +400,7 @@ export default function NewProposalPage() {
                 <Command>
                   <CommandInput placeholder="Katalogda ara..." />
                   <CommandList>
-                    <CommandEmpty>Kalem bulunamadi</CommandEmpty>
+                    <CommandEmpty>Kalem bulunamadı</CommandEmpty>
                     <CommandGroup>
                       {catalogItems.map((item) => (
                         <CommandItem
@@ -424,7 +424,7 @@ export default function NewProposalPage() {
             </Popover>
             <Button variant="outline" size="sm" onClick={handleAddCustomItem}>
               <Plus className="mr-2 h-4 w-4" />
-              Ozel Kalem
+              Özel Kalem
             </Button>
           </div>
         </CardHeader>
@@ -433,7 +433,7 @@ export default function NewProposalPage() {
             <div className="flex flex-col items-center justify-center h-32 text-center border-2 border-dashed rounded-lg">
               <Package className="h-8 w-8 text-muted-foreground mb-2" />
               <p className="text-muted-foreground">
-                Henuz kalem eklenmedi
+                Henüz kalem eklenmedi
               </p>
             </div>
           ) : (
@@ -458,7 +458,7 @@ export default function NewProposalPage() {
                           onChange={(e) =>
                             handleUpdateItem(item.tempId, 'title', e.target.value)
                           }
-                          placeholder="Kalem adi"
+                          placeholder="Kalem adı"
                           className="h-8"
                         />
                         <Textarea
@@ -470,7 +470,7 @@ export default function NewProposalPage() {
                               e.target.value || null
                             )
                           }
-                          placeholder="Aciklama (opsiyonel)"
+                          placeholder="Açıklama (opsiyonel)"
                           className="h-14 resize-none text-xs"
                         />
                       </div>
@@ -586,14 +586,14 @@ export default function NewProposalPage() {
       {/* Actions */}
       <div className="flex justify-end gap-2">
         <Button variant="outline" asChild>
-          <Link href="/crm/proposals">Iptal</Link>
+          <Link href="/crm/proposals">İptal</Link>
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={submitting || !selectedDealId || items.length === 0}
         >
           {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Teklif Olustur
+          Teklif Oluştur
         </Button>
       </div>
     </div>

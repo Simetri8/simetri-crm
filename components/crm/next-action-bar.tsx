@@ -48,7 +48,7 @@ export function NextActionBar({
   };
 
   const handleComplete = async () => {
-    // Tamamlandi - kullanicidan yeni action istenecek
+    // Tamamlandı - kullanicidan yeni action istenecek
     setEditAction('');
     setEditDate(undefined);
     setIsEditing(true);
@@ -99,7 +99,7 @@ export function NextActionBar({
             setEditDate(nextActionDate?.toDate());
           }}
         >
-          Iptal
+          İptal
         </Button>
       </div>
     );
@@ -144,7 +144,7 @@ export function NextActionBar({
         {nextAction && (
           <Button size="sm" variant="ghost" onClick={handleComplete}>
             <CheckCircle2 className="h-4 w-4 mr-1" />
-            Tamamlandi
+            Tamamlandı
           </Button>
         )}
         <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>

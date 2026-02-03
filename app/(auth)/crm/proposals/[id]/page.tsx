@@ -157,7 +157,7 @@ export default function ProposalDetailPage({
         }
       } catch (error) {
         console.error('Error loading proposal:', error);
-        toast.error('Teklif yuklenemedi');
+        toast.error('Teklif yüklenemedi');
       } finally {
         setLoading(false);
       }
@@ -249,7 +249,7 @@ export default function ProposalDetailPage({
 
     const invalidItems = editItems.filter((item) => !item.title || item.unitPriceMinor <= 0);
     if (invalidItems.length > 0) {
-      toast.error('Tum kalemlerin adi ve fiyati olmali');
+      toast.error('Tüm kalemlerin adı ve fiyatı olmalı');
       return;
     }
 
@@ -272,14 +272,14 @@ export default function ProposalDetailPage({
         },
         user.uid
       );
-      toast.success('Teklif guncellendi');
+      toast.success('Teklif güncellendi');
       setIsEditing(false);
       // Reload proposal
       const updated = await proposalService.getById(proposal.id);
       setProposal(updated);
     } catch (error) {
       console.error('Error updating proposal:', error);
-      toast.error('Teklif guncellenemedi');
+      toast.error('Teklif güncellenemedi');
     } finally {
       setSaving(false);
     }
@@ -308,16 +308,16 @@ export default function ProposalDetailPage({
       await proposalService.markAsSent(proposal.id, user.uid);
       await activityService.addSystemActivity(
         'proposal_sent',
-        `Teklif gonderildi: v${proposal.version}`,
+        `Teklif gönderildi: v${proposal.version}`,
         { dealId: proposal.dealId, companyId: proposal.companyId },
         user.uid
       );
-      toast.success('Teklif gonderildi olarak isaretlendi');
+      toast.success('Teklif gönderildi olarak işaretlendi');
       const updated = await proposalService.getById(proposal.id);
       setProposal(updated);
     } catch (error) {
       console.error('Error sending proposal:', error);
-      toast.error('Islem basarisiz');
+      toast.error('İşlem başarısız');
     } finally {
       setActionLoading(false);
     }
@@ -339,13 +339,13 @@ export default function ProposalDetailPage({
         { dealId: proposal.dealId, companyId: proposal.companyId },
         user.uid
       );
-      toast.success('Teklif kabul edildi olarak isaretlendi');
+      toast.success('Teklif kabul edildi olarak işaretlendi');
       setShowAcceptDialog(false);
       const updated = await proposalService.getById(proposal.id);
       setProposal(updated);
     } catch (error) {
       console.error('Error accepting proposal:', error);
-      toast.error('Islem basarisiz');
+      toast.error('İşlem başarısız');
     } finally {
       setActionLoading(false);
     }
@@ -362,12 +362,12 @@ export default function ProposalDetailPage({
         { dealId: proposal.dealId, companyId: proposal.companyId },
         user.uid
       );
-      toast.success('Teklif reddedildi olarak isaretlendi');
+      toast.success('Teklif reddedildi olarak işaretlendi');
       const updated = await proposalService.getById(proposal.id);
       setProposal(updated);
     } catch (error) {
       console.error('Error rejecting proposal:', error);
-      toast.error('Islem basarisiz');
+      toast.error('İşlem başarısız');
     } finally {
       setActionLoading(false);
     }
@@ -378,11 +378,11 @@ export default function ProposalDetailPage({
     setActionLoading(true);
     try {
       const newId = await proposalService.createNewVersion(proposal.id, user.uid);
-      toast.success('Yeni versiyon olusturuldu');
+      toast.success('Yeni versiyon oluşturuldu');
       router.push(`/crm/proposals/${newId}`);
     } catch (error) {
       console.error('Error creating new version:', error);
-      toast.error('Yeni versiyon olusturulamadi');
+      toast.error('Yeni versiyon oluşturulamadı');
     } finally {
       setActionLoading(false);
     }
@@ -415,9 +415,9 @@ export default function ProposalDetailPage({
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-        <p className="text-muted-foreground">Teklif bulunamadi</p>
+        <p className="text-muted-foreground">Teklif bulunamadı</p>
         <Button asChild variant="link" className="mt-2">
-          <Link href="/crm/proposals">Tekliflere don</Link>
+          <Link href="/crm/proposals">Tekliflere dön</Link>
         </Button>
       </div>
     );
@@ -452,7 +452,7 @@ export default function ProposalDetailPage({
                 className="flex items-center gap-1 hover:text-primary"
               >
                 <Briefcase className="h-3 w-3" />
-                Firsata Git
+                Fırsata Git
               </Link>
             </div>
           </div>
@@ -462,7 +462,7 @@ export default function ProposalDetailPage({
             <>
               <Button variant="outline" onClick={() => setIsEditing(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
-                Duzenle
+                Düzenle
               </Button>
               <Button onClick={handleSend} disabled={actionLoading}>
                 {actionLoading ? (
@@ -470,7 +470,7 @@ export default function ProposalDetailPage({
                 ) : (
                   <Send className="mr-2 h-4 w-4" />
                 )}
-                Gonder
+                Gönder
               </Button>
             </>
           )}
@@ -546,12 +546,12 @@ export default function ProposalDetailPage({
           <CardContent>
             <div>
               <span className="text-sm">
-                Olusturuldu: {format(proposal.createdAt.toDate(), 'dd MMM yyyy', { locale: tr })}
+                Oluşturuldu: {format(proposal.createdAt.toDate(), 'dd MMM yyyy', { locale: tr })}
               </span>
             </div>
             {proposal.sentAt && (
               <div className="text-xs text-muted-foreground">
-                Gonderildi: {format(proposal.sentAt.toDate(), 'dd MMM yyyy', { locale: tr })}
+                Gönderildi: {format(proposal.sentAt.toDate(), 'dd MMM yyyy', { locale: tr })}
               </div>
             )}
             {proposal.acceptedAt && (
@@ -588,7 +588,7 @@ export default function ProposalDetailPage({
           <CardHeader>
             <CardTitle>Teklif Kalemleri</CardTitle>
             <CardDescription>
-              {proposal.pricesIncludeTax ? 'Fiyatlar KDV dahil' : 'Fiyatlar KDV haric'}
+              {proposal.pricesIncludeTax ? 'Fiyatlar KDV dahil' : 'Fiyatlar KDV hariç'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -641,9 +641,9 @@ export default function ProposalDetailPage({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Teklif Kalemlerini Duzenle</CardTitle>
+              <CardTitle>Teklif Kalemlerini Düzenle</CardTitle>
               <CardDescription>
-                Katalogdan veya ozel kalem ekleyin
+                Katalogdan veya özel kalem ekleyin
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -658,7 +658,7 @@ export default function ProposalDetailPage({
                   <Command>
                     <CommandInput placeholder="Katalogda ara..." />
                     <CommandList>
-                      <CommandEmpty>Kalem bulunamadi</CommandEmpty>
+                      <CommandEmpty>Kalem bulunamadı</CommandEmpty>
                       <CommandGroup>
                         {catalogItems.map((item) => (
                           <CommandItem
@@ -682,7 +682,7 @@ export default function ProposalDetailPage({
               </Popover>
               <Button variant="outline" size="sm" onClick={handleAddCustomItem}>
                 <Plus className="mr-2 h-4 w-4" />
-                Ozel Kalem
+                Özel Kalem
               </Button>
             </div>
           </CardHeader>
@@ -724,7 +724,7 @@ export default function ProposalDetailPage({
             {editItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 text-center border-2 border-dashed rounded-lg">
                 <Package className="h-8 w-8 text-muted-foreground mb-2" />
-                <p className="text-muted-foreground">Henuz kalem eklenmedi</p>
+                <p className="text-muted-foreground">Henüz kalem eklenmedi</p>
               </div>
             ) : (
               <Table>
@@ -748,7 +748,7 @@ export default function ProposalDetailPage({
                             onChange={(e) =>
                               handleUpdateItem(item.tempId, 'title', e.target.value)
                             }
-                            placeholder="Kalem adi"
+                            placeholder="Kalem adı"
                             className="h-8"
                           />
                           <Textarea
@@ -760,7 +760,7 @@ export default function ProposalDetailPage({
                                 e.target.value || null
                               )
                             }
-                            placeholder="Aciklama (opsiyonel)"
+                            placeholder="Açıklama (opsiyonel)"
                             className="h-14 resize-none text-xs"
                           />
                         </div>
@@ -874,7 +874,7 @@ export default function ProposalDetailPage({
             {/* Edit Actions */}
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={handleCancelEdit}>
-                Iptal
+                İptal
               </Button>
               <Button onClick={handleSaveEdits} disabled={saving}>
                 {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -892,11 +892,11 @@ export default function ProposalDetailPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Teklifi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu teklifi silmek istediginizden emin misiniz? Bu islem geri alinamaz.
+              Bu teklifi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
@@ -913,13 +913,13 @@ export default function ProposalDetailPage({
       <Dialog open={showAcceptDialog} onOpenChange={setShowAcceptDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Teklif Kabulu</DialogTitle>
+            <DialogTitle>Teklif Kabulü</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Onaylayan Kisi</Label>
+              <Label>Onaylayan Kişi</Label>
               <Input
-                placeholder="Musteri adi"
+                placeholder="Müşteri adı"
                 value={acceptedByName}
                 onChange={(e) => setAcceptedByName(e.target.value)}
               />
@@ -935,7 +935,7 @@ export default function ProposalDetailPage({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAcceptDialog(false)}>
-              Iptal
+              İptal
             </Button>
             <Button onClick={handleAccept} disabled={!acceptedByName || actionLoading}>
               {actionLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

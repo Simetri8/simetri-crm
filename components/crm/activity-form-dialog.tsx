@@ -51,7 +51,7 @@ const formSchema = z.object({
   companyId: z.string().optional(),
   dealId: z.string().optional(),
   type: z.enum(USER_ACTIVITY_TYPES as [string, ...string[]]),
-  summary: z.string().min(1, 'Ozet zorunlu'),
+  summary: z.string().min(1, 'Özet zorunlu'),
   details: z.string().optional(),
   nextAction: z.string().optional(),
   nextActionDate: z.date().optional().nullable(),
@@ -65,6 +65,7 @@ type ActivityFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   defaultCompanyId?: string;
   defaultDealId?: string;
+  defaultWorkOrderId?: string;
   onSubmit: (data: ActivityFormData) => Promise<void>;
 };
 
@@ -73,6 +74,7 @@ export function ActivityFormDialog({
   onOpenChange,
   defaultCompanyId,
   defaultDealId,
+  defaultWorkOrderId,
   onSubmit,
 }: ActivityFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,10 +126,10 @@ export function ActivityFormDialog({
         setLoadingCompanies(false);
       }
     };
-    if (open && !defaultCompanyId) {
+    if (open && !defaultCompanyId && !defaultWorkOrderId) {
       loadCompanies();
     }
-  }, [open, defaultCompanyId]);
+  }, [open, defaultCompanyId, defaultWorkOrderId]);
 
   // Sirket secildiginde deal'lari yukle
   useEffect(() => {
@@ -154,6 +156,7 @@ export function ActivityFormDialog({
       const data: ActivityFormData = {
         companyId: values.companyId || null,
         dealId: values.dealId || null,
+        workOrderId: defaultWorkOrderId || null,
         type: values.type as ActivityType,
         summary: values.summary,
         details: values.details || null,
@@ -179,14 +182,14 @@ export function ActivityFormDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {/* Sirket ve Deal secimi (eger default verilmediyse) */}
-            {!defaultCompanyId && !defaultDealId && (
+            {!defaultCompanyId && !defaultDealId && !defaultWorkOrderId && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="companyId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sirket</FormLabel>
+                      <FormLabel>Şirket</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -194,7 +197,7 @@ export function ActivityFormDialog({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Sirket sec..." />
+                            <SelectValue placeholder="Şirket seç..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -215,7 +218,7 @@ export function ActivityFormDialog({
                   name="dealId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Firsat (Opsiyonel)</FormLabel>
+                      <FormLabel>Fırsat (Opsiyonel)</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -223,7 +226,7 @@ export function ActivityFormDialog({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Firsat sec..." />
+                            <SelectValue placeholder="Fırsat seç..." />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -247,7 +250,7 @@ export function ActivityFormDialog({
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tur</FormLabel>
+                    <FormLabel>Tür</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -286,7 +289,7 @@ export function ActivityFormDialog({
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value
                               ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                              : 'Tarih sec'}
+                              : 'Tarih seç'}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -310,9 +313,9 @@ export function ActivityFormDialog({
               name="summary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ozet</FormLabel>
+                  <FormLabel>Özet</FormLabel>
                   <FormControl>
-                    <Input placeholder="Toplanti yapildi, teklif konusuldu..." {...field} />
+                    <Input placeholder="Toplantı yapıldı, teklif konuşuldu..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -327,7 +330,7 @@ export function ActivityFormDialog({
                   <FormLabel>Detaylar (Opsiyonel)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Aktivite detaylari..."
+                      placeholder="Aktivite detayları..."
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -339,16 +342,16 @@ export function ActivityFormDialog({
             />
 
             <div className="border-t pt-4">
-              <p className="text-sm font-medium mb-3">Sonraki Adim (Opsiyonel)</p>
+              <p className="text-sm font-medium mb-3">Sonraki Adım (Opsiyonel)</p>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="nextAction"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Yapilacak</FormLabel>
+                      <FormLabel>Yapılacak</FormLabel>
                       <FormControl>
-                        <Input placeholder="Teklif hazirla..." {...field} />
+                        <Input placeholder="Teklif hazırla..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -374,7 +377,7 @@ export function ActivityFormDialog({
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {field.value
                                 ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                                : 'Tarih sec'}
+                                : 'Tarih seç'}
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
@@ -400,7 +403,7 @@ export function ActivityFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

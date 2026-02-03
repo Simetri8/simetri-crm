@@ -132,7 +132,7 @@ export const dashboardService = {
   },
 
   /**
-   * En eski geciken takibin kac gun once oldugunu hesaplar
+   * En eski geciken takibin kaç gün önce olduğunu hesaplar
    */
   getOldestOverdueDays: async (): Promise<number | null> => {
     const [companies, deals] = await Promise.all([

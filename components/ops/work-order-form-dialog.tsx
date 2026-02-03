@@ -56,9 +56,9 @@ import type {
 } from '@/lib/types';
 
 const formSchema = z.object({
-  companyId: z.string().min(1, 'Sirket secimi zorunlu'),
+  companyId: z.string().min(1, 'Şirket seçimi zorunlu'),
   dealId: z.string().nullable().optional(),
-  title: z.string().min(1, 'Baslik zorunlu'),
+  title: z.string().min(1, 'Başlık zorunlu'),
   status: z.enum(WORK_ORDER_STATUSES),
   startDate: z.date().nullable().optional(),
   targetDeliveryDate: z.date({ error: 'Hedef teslim tarihi zorunlu' }),
@@ -154,7 +154,7 @@ export function WorkOrderFormDialog({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Is Emrini Duzenle' : 'Yeni Is Emri'}
+            {isEdit ? 'İş Emrini Düzenle' : 'Yeni İş Emri'}
           </DialogTitle>
         </DialogHeader>
 
@@ -166,7 +166,7 @@ export function WorkOrderFormDialog({
               name="companyId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Sirket</FormLabel>
+                  <FormLabel>Şirket</FormLabel>
                   <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -178,16 +178,16 @@ export function WorkOrderFormDialog({
                             !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {selectedCompany?.name || 'Sirket sec...'}
+                          {selectedCompany?.name || 'Şirket seç...'}
                           <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-[400px] p-0" align="start">
                       <Command>
-                        <CommandInput placeholder="Sirket ara..." />
+                        <CommandInput placeholder="Şirket ara..." />
                         <CommandList>
-                          <CommandEmpty>Sirket bulunamadi</CommandEmpty>
+                          <CommandEmpty>Şirket bulunamadı</CommandEmpty>
                           <CommandGroup>
                             {companies.map((company) => (
                               <CommandItem
@@ -219,7 +219,7 @@ export function WorkOrderFormDialog({
                 name="dealId"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Firsat (Opsiyonel)</FormLabel>
+                    <FormLabel>Fırsat (Opsiyonel)</FormLabel>
                     <Popover open={dealSearchOpen} onOpenChange={setDealSearchOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -231,16 +231,16 @@ export function WorkOrderFormDialog({
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {selectedDeal?.title || 'Firsat sec (opsiyonel)...'}
+                            {selectedDeal?.title || 'Fırsat seç (opsiyonel)...'}
                             <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent className="w-[400px] p-0" align="start">
                         <Command>
-                          <CommandInput placeholder="Firsat ara..." />
+                          <CommandInput placeholder="Fırsat ara..." />
                           <CommandList>
-                            <CommandEmpty>Firsat bulunamadi</CommandEmpty>
+                            <CommandEmpty>Fırsat bulunamadı</CommandEmpty>
                             <CommandGroup>
                               <CommandItem
                                 value="none"
@@ -249,7 +249,7 @@ export function WorkOrderFormDialog({
                                   setDealSearchOpen(false);
                                 }}
                               >
-                                <span className="text-muted-foreground">Firsat secme</span>
+                                <span className="text-muted-foreground">Fırsat seçme</span>
                               </CommandItem>
                               {filteredDeals.map((deal) => (
                                 <CommandItem
@@ -283,9 +283,9 @@ export function WorkOrderFormDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Baslik</FormLabel>
+                  <FormLabel>Başlık</FormLabel>
                   <FormControl>
-                    <Input placeholder="Is emri basligi" {...field} />
+                    <Input placeholder="İş emri başlığı" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -325,7 +325,7 @@ export function WorkOrderFormDialog({
                 name="paymentStatus"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Odeme Durumu</FormLabel>
+                    <FormLabel>Ödeme Durumu</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -353,7 +353,7 @@ export function WorkOrderFormDialog({
                 name="startDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Baslangic Tarihi</FormLabel>
+                    <FormLabel>Başlangıç Tarihi</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -366,7 +366,7 @@ export function WorkOrderFormDialog({
                           >
                             {field.value
                               ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                              : 'Tarih sec'}
+                              : 'Tarih seç'}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -404,7 +404,7 @@ export function WorkOrderFormDialog({
                           >
                             {field.value
                               ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                              : 'Tarih sec'}
+                              : 'Tarih seç'}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -430,10 +430,10 @@ export function WorkOrderFormDialog({
               name="scopeSummary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kapsam Ozeti (Opsiyonel)</FormLabel>
+                  <FormLabel>Kapsam Özeti (Opsiyonel)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Is kapsaminin kisa ozeti..."
+                      placeholder="İş kapsamının kısa özeti..."
                       className="resize-none"
                       rows={3}
                       value={field.value ?? ''}
@@ -451,11 +451,11 @@ export function WorkOrderFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

@@ -34,10 +34,10 @@ import { companyService } from '@/lib/firebase/companies';
 import type { Contact, ContactFormData, Company } from '@/lib/types';
 
 const formSchema = z.object({
-  companyId: z.string().min(1, 'Sirket secimi zorunlu'),
+  companyId: z.string().min(1, 'Şirket seçimi zorunlu'),
   fullName: z.string().min(1, 'Ad soyad zorunlu'),
   title: z.string().optional(),
-  email: z.string().email('Gecerli e-posta giriniz').optional().or(z.literal('')),
+  email: z.string().email('Geçerli e-posta giriniz').optional().or(z.literal('')),
   phone: z.string().optional(),
   isPrimary: z.boolean().optional(),
   notes: z.string().optional(),
@@ -93,7 +93,7 @@ export function ContactFormDialog({
     }
   }, [open, contact, defaultCompanyId, form]);
 
-  // Sirketleri yukle
+  // Şirketleri yükle
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -135,7 +135,7 @@ export function ContactFormDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Kisiyi Duzenle' : 'Yeni Kisi'}
+            {isEdit ? 'Kişiyi Düzenle' : 'Yeni Kişi'}
           </DialogTitle>
         </DialogHeader>
 
@@ -146,7 +146,7 @@ export function ContactFormDialog({
               name="companyId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sirket</FormLabel>
+                  <FormLabel>Şirket</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -154,7 +154,7 @@ export function ContactFormDialog({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Sirket sec..." />
+                        <SelectValue placeholder="Şirket seç..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -177,7 +177,7 @@ export function ContactFormDialog({
                 <FormItem>
                   <FormLabel>Ad Soyad</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ahmet Yilmaz" {...field} />
+                    <Input placeholder="Ahmet Yılmaz" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,7 +191,7 @@ export function ContactFormDialog({
                 <FormItem>
                   <FormLabel>Unvan</FormLabel>
                   <FormControl>
-                    <Input placeholder="Genel Mudur" {...field} />
+                    <Input placeholder="Genel Müdür" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -208,7 +208,7 @@ export function ContactFormDialog({
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="ahmet@sirket.com"
+                        placeholder="ahmet@şirket.com"
                         {...field}
                       />
                     </FormControl>
@@ -250,7 +250,7 @@ export function ContactFormDialog({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Birincil Kontak</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Bu kisi sirketin ana iletisim noktasidir
+                      Bu kişi şirketin ana iletişim noktasıdır
                     </p>
                   </div>
                 </FormItem>
@@ -265,7 +265,7 @@ export function ContactFormDialog({
                   <FormLabel>Notlar</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Kisi hakkinda notlar..."
+                      placeholder="Kişi hakkında notlar..."
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -282,11 +282,11 @@ export function ContactFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

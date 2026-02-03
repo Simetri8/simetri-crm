@@ -23,7 +23,7 @@ export default function PipelinePage() {
       setDeals(data);
     } catch (error) {
       console.error('Error loading deals:', error);
-      toast.error('Firsatlar yuklenemedi');
+      toast.error('Fırsatlar yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -37,11 +37,11 @@ export default function PipelinePage() {
     if (!user) return;
     try {
       await dealService.add(data, user.uid);
-      toast.success('Firsat olusturuldu');
+      toast.success('Fırsat oluşturuldu');
       loadDeals();
     } catch (error) {
       console.error('Error creating deal:', error);
-      toast.error('Firsat olusturulamadi');
+      toast.error('Fırsat oluşturulamadı');
     }
   };
 
@@ -56,16 +56,16 @@ export default function PipelinePage() {
       // Sistem aktivitesi ekle
       await activityService.addSystemActivity(
         'deal_stage_changed',
-        `Asama degisti: ${oldStage} -> ${newStage}`,
+        `Aşama değişti: ${oldStage} -> ${newStage}`,
         { dealId },
         user.uid
       );
 
-      toast.success('Asama guncellendi');
+      toast.success('Aşama güncellendi');
       loadDeals();
     } catch (error) {
       console.error('Error updating stage:', error);
-      toast.error('Asama guncellenemedi');
+      toast.error('Aşama güncellenemedi');
     }
   };
 
@@ -73,14 +73,14 @@ export default function PipelinePage() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-6 border-b">
         <div>
-          <h1 className="text-2xl font-semibold">Satis Pipeline</h1>
+          <h1 className="text-2xl font-semibold">Satış Pipeline</h1>
           <p className="text-muted-foreground">
-            Satis firsatlarini takip edin
+            Satış fırsatlarını takip edin
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Firsat
+          Yeni Fırsat
         </Button>
       </div>
 
@@ -91,13 +91,13 @@ export default function PipelinePage() {
           </div>
         ) : deals.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center">
-            <p className="text-muted-foreground">Pipeline bos</p>
+            <p className="text-muted-foreground">Pipeline boş</p>
             <Button
               variant="link"
               className="mt-2"
               onClick={() => setFormOpen(true)}
             >
-              Ilk firsati ekle
+              İlk fırsatı ekle
             </Button>
           </div>
         ) : (

@@ -44,9 +44,9 @@ import { contactService } from '@/lib/firebase/contacts';
 import type { Deal, DealFormData, Company, Contact, DealStage } from '@/lib/types';
 
 const formSchema = z.object({
-  companyId: z.string().min(1, 'Sirket secimi zorunlu'),
-  primaryContactId: z.string().min(1, 'Kontak secimi zorunlu'),
-  title: z.string().min(1, 'Baslik zorunlu'),
+  companyId: z.string().min(1, 'Şirket seçimi zorunlu'),
+  primaryContactId: z.string().min(1, 'Kontak seçimi zorunlu'),
+  title: z.string().min(1, 'Başlık zorunlu'),
   stage: z.enum(DEAL_STAGES),
   expectedCloseDate: z.date().optional().nullable(),
   estimatedBudgetMinor: z.number().optional().nullable(),
@@ -179,7 +179,7 @@ export function DealFormDialog({
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Firsati Duzenle' : 'Yeni Firsat'}
+            {isEdit ? 'Fırsatı Düzenle' : 'Yeni Fırsat'}
           </DialogTitle>
         </DialogHeader>
 
@@ -191,7 +191,7 @@ export function DealFormDialog({
                 name="companyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sirket</FormLabel>
+                    <FormLabel>Şirket</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -199,7 +199,7 @@ export function DealFormDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Sirket sec..." />
+                          <SelectValue placeholder="Şirket seç..." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -228,7 +228,7 @@ export function DealFormDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Kontak sec..." />
+                          <SelectValue placeholder="Kontak seç..." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -250,7 +250,7 @@ export function DealFormDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Baslik</FormLabel>
+                  <FormLabel>Başlık</FormLabel>
                   <FormControl>
                     <Input placeholder="Mobil Uygulama Projesi" {...field} />
                   </FormControl>
@@ -265,7 +265,7 @@ export function DealFormDialog({
                 name="stage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Asama</FormLabel>
+                    <FormLabel>Aşama</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -306,7 +306,7 @@ export function DealFormDialog({
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value
                               ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                              : 'Tarih sec'}
+                              : 'Tarih seç'}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -331,7 +331,7 @@ export function DealFormDialog({
                 name="estimatedBudgetMinor"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tahmini Butce</FormLabel>
+                    <FormLabel>Tahmini Bütçe</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -382,9 +382,9 @@ export function DealFormDialog({
               name="nextAction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sonraki Adim</FormLabel>
+                  <FormLabel>Sonraki Adım</FormLabel>
                   <FormControl>
-                    <Input placeholder="Teklif hazirla..." {...field} />
+                    <Input placeholder="Teklif hazırla..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -397,11 +397,11 @@ export function DealFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

@@ -16,8 +16,6 @@ import { Home, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clo
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
-import { ThemeSwitcher } from "@/components/kibo-ui/theme-switcher"
-import { useTheme } from "next-themes"
 
 const mainItems = [
     {
@@ -29,12 +27,12 @@ const mainItems = [
 
 const crmItems = [
     {
-        title: "Sirketler",
+        title: "Şirketler",
         url: "/crm/companies",
         icon: Building2,
     },
     {
-        title: "Kisiler",
+        title: "Kişiler",
         url: "/crm/contacts",
         icon: Contact,
     },
@@ -57,12 +55,12 @@ const crmItems = [
 
 const opsItems = [
     {
-        title: "Is Emirleri",
+        title: "İş Emirleri",
         url: "/ops/work-orders",
         icon: Briefcase,
     },
     {
-        title: "Zaman Girisi",
+        title: "Zaman Girişi",
         url: "/time",
         icon: Clock,
     },
@@ -70,7 +68,7 @@ const opsItems = [
 
 const settingsItems = [
     {
-        title: "Kullanicilar",
+        title: "Kullanıcılar",
         url: "/users",
         icon: Users,
     },
@@ -78,7 +76,6 @@ const settingsItems = [
 
 export function AppSidebar() {
     const { user } = useAuth();
-    const { theme, setTheme } = useTheme();
 
     const userData = {
         name: user?.displayName || user?.email?.split('@')[0] || "Kullanıcı",
@@ -92,7 +89,7 @@ export function AppSidebar() {
                 <h1 className="text-xl p-2 font-bold">Simetri CRM</h1>
             </SidebarHeader>
             <SidebarContent>
-                {/* Ana Menu */}
+                {/* Ana Menü */}
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
@@ -174,13 +171,6 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className="gap-4">
-                <div className="px-4 py-2 flex items-center justify-between border-t border-border/50">
-                    <span className="text-xs text-muted-foreground font-medium">Görünüm</span>
-                    <ThemeSwitcher
-                        value={theme as "light" | "dark" | "system"}
-                        onChange={(t) => setTheme(t)}
-                    />
-                </div>
                 <NavUser user={userData} />
             </SidebarFooter>
         </Sidebar>

@@ -498,7 +498,7 @@ export type WorkOrderRiskItem = {
   blockedDeliverables: number;
   paymentStatus: PaymentStatus;
   isOverdue: boolean;
-  isDueSoon: boolean; // 7 gun icinde
+  isDueSoon: boolean; // 7 gün içinde
 };
 
 export type TimesheetQueueItem = {

@@ -89,7 +89,7 @@ export default function CompanyDetailPage({
       setDeals(dealsData);
     } catch (error) {
       console.error('Error loading company:', error);
-      toast.error('Sirket yuklenemedi');
+      toast.error('Şirket yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -103,11 +103,11 @@ export default function CompanyDetailPage({
     if (!user) return;
     try {
       await companyService.update(id, data, user.uid);
-      toast.success('Sirket guncellendi');
+      toast.success('Şirket güncellendi');
       loadData();
     } catch (error) {
       console.error('Error updating company:', error);
-      toast.error('Sirket guncellenemedi');
+      toast.error('Şirket güncellenemedi');
     }
   };
 
@@ -115,11 +115,11 @@ export default function CompanyDetailPage({
     if (!user) return;
     try {
       await contactService.add({ ...data, companyId: id }, user.uid);
-      toast.success('Kisi olusturuldu');
+      toast.success('Kişi oluşturuldu');
       loadData();
     } catch (error) {
       console.error('Error creating contact:', error);
-      toast.error('Kisi olusturulamadi');
+      toast.error('Kişi oluşturulamadı');
     }
   };
 
@@ -127,12 +127,12 @@ export default function CompanyDetailPage({
     if (!user || !editingContact) return;
     try {
       await contactService.update(editingContact.id, data, user.uid);
-      toast.success('Kisi guncellendi');
+      toast.success('Kişi güncellendi');
       setEditingContact(null);
       loadData();
     } catch (error) {
       console.error('Error updating contact:', error);
-      toast.error('Kisi guncellenemedi');
+      toast.error('Kişi güncellenemedi');
     }
   };
 
@@ -140,12 +140,12 @@ export default function CompanyDetailPage({
     if (!user || !deleteContact) return;
     try {
       await contactService.delete(deleteContact.id);
-      toast.success('Kisi silindi');
+      toast.success('Kişi silindi');
       setDeleteContact(null);
       loadData();
     } catch (error) {
       console.error('Error deleting contact:', error);
-      toast.error('Kisi silinemedi');
+      toast.error('Kişi silinemedi');
     }
   };
 
@@ -172,10 +172,10 @@ export default function CompanyDetailPage({
   if (!company) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-muted-foreground">Sirket bulunamadi</p>
+        <p className="text-muted-foreground">Şirket bulunamadı</p>
         <Button variant="outline" onClick={() => router.push('/crm/companies')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Sirketlere Don
+          Şirketlere Dön
         </Button>
       </div>
     );
@@ -214,7 +214,7 @@ export default function CompanyDetailPage({
         </div>
         <Button variant="outline" onClick={() => setEditFormOpen(true)}>
           <Edit className="mr-2 h-4 w-4" />
-          Duzenle
+          Düzenle
         </Button>
       </div>
 
@@ -263,7 +263,7 @@ export default function CompanyDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Sonraki Adim
+              Sonraki Adım
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -278,7 +278,7 @@ export default function CompanyDetailPage({
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Planlanmamis</p>
+              <p className="text-sm text-muted-foreground">Planlanmamış</p>
             )}
           </CardContent>
         </Card>
@@ -287,23 +287,23 @@ export default function CompanyDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Istatistikler
+              İstatistikler
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Kisiler</span>
+                <span className="text-muted-foreground">Kişiler</span>
                 <span className="font-medium">{contacts.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Aktif Firsatlar</span>
+                <span className="text-muted-foreground">Aktif Fırsatlar</span>
                 <span className="font-medium">
                   {deals.filter((d) => d.stage !== 'won' && d.stage !== 'lost').length}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Kazanilan</span>
+                <span className="text-muted-foreground">Kazanılan</span>
                 <span className="font-medium text-green-600">
                   {deals.filter((d) => d.stage === 'won').length}
                 </span>
@@ -317,8 +317,8 @@ export default function CompanyDetailPage({
       <Tabs defaultValue="activities" className="flex-1">
         <TabsList>
           <TabsTrigger value="activities">Aktiviteler</TabsTrigger>
-          <TabsTrigger value="contacts">Kisiler ({contacts.length})</TabsTrigger>
-          <TabsTrigger value="deals">Firsatlar ({deals.length})</TabsTrigger>
+          <TabsTrigger value="contacts">Kişiler ({contacts.length})</TabsTrigger>
+          <TabsTrigger value="deals">Fırsatlar ({deals.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activities" className="mt-4">
@@ -334,21 +334,21 @@ export default function CompanyDetailPage({
 
         <TabsContent value="contacts" className="mt-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium">Kisiler</h2>
+            <h2 className="text-lg font-medium">Kişiler</h2>
             <Button onClick={() => setContactFormOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Kisi Ekle
+              Kişi Ekle
             </Button>
           </div>
           {contacts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-center">
-              <p className="text-muted-foreground">Henuz kisi yok</p>
+              <p className="text-muted-foreground">Henüz kişi yok</p>
               <Button
                 variant="link"
                 className="mt-2"
                 onClick={() => setContactFormOpen(true)}
               >
-                Ilk kisiyi ekle
+                İlk kişiyi ekle
               </Button>
             </div>
           ) : (
@@ -363,17 +363,17 @@ export default function CompanyDetailPage({
 
         <TabsContent value="deals" className="mt-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium">Firsatlar</h2>
+            <h2 className="text-lg font-medium">Fırsatlar</h2>
             <Button asChild>
               <Link href="/crm/pipeline">
                 <Plus className="mr-2 h-4 w-4" />
-                Yeni Firsat
+                Yeni Fırsat
               </Link>
             </Button>
           </div>
           {deals.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-center">
-              <p className="text-muted-foreground">Henuz firsat yok</p>
+              <p className="text-muted-foreground">Henüz fırsat yok</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -427,14 +427,14 @@ export default function CompanyDetailPage({
       <AlertDialog open={!!deleteContact} onOpenChange={(open) => !open && setDeleteContact(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Kisiyi Sil</AlertDialogTitle>
+            <AlertDialogTitle>Kişiyi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteContact?.fullName} kisisini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteContact?.fullName} kişisini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteContact} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>

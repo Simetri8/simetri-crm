@@ -83,7 +83,7 @@ export default function UsersPage() {
         <CardContent>
           <form onSubmit={handleAddUser} className="flex flex-col md:flex-row gap-4">
             <Input
-              placeholder="E-posta adresi (örn: personel@sirket.com)"
+              placeholder="E-posta adresi (örn: personel@şirket.com)"
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}

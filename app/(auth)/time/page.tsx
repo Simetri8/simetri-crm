@@ -60,7 +60,7 @@ export default function TimePage() {
       setEntries(data);
     } catch (error) {
       console.error('Error loading time entries:', error);
-      toast.error('Zaman girisleri yuklenemedi');
+      toast.error('Zaman girişleri yüklenemedi');
     }
   };
 
@@ -92,11 +92,11 @@ export default function TimePage() {
     if (!user) return;
     try {
       await timeEntryService.add(data, user.uid);
-      toast.success('Zaman girisi eklendi');
+      toast.success('Zaman girişi eklendi');
       loadEntries();
     } catch (error) {
       console.error('Error creating time entry:', error);
-      toast.error('Zaman girisi eklenemedi');
+      toast.error('Zaman girişi eklenemedi');
     }
   };
 
@@ -104,12 +104,12 @@ export default function TimePage() {
     if (!user || !editingEntry) return;
     try {
       await timeEntryService.update(editingEntry.id, data, user.uid);
-      toast.success('Zaman girisi guncellendi');
+      toast.success('Zaman girişi güncellendi');
       setEditingEntry(null);
       loadEntries();
     } catch (error) {
       console.error('Error updating time entry:', error);
-      toast.error('Zaman girisi guncellenemedi');
+      toast.error('Zaman girişi güncellenemedi');
     }
   };
 
@@ -117,12 +117,12 @@ export default function TimePage() {
     if (!deleteEntry) return;
     try {
       await timeEntryService.delete(deleteEntry.id);
-      toast.success('Zaman girisi silindi');
+      toast.success('Zaman girişi silindi');
       setDeleteEntry(null);
       loadEntries();
     } catch (error) {
       console.error('Error deleting time entry:', error);
-      toast.error('Zaman girisi silinemedi');
+      toast.error('Zaman girişi silinemedi');
     }
   };
 
@@ -130,12 +130,12 @@ export default function TimePage() {
     if (!user) return;
     try {
       await timeEntryService.submitWeek(user.uid, weekKey, user.uid);
-      toast.success('Haftalik girisler gonderildi');
+      toast.success('Haftalık girişler gönderildi');
       setSubmitWeekOpen(false);
       loadEntries();
     } catch (error) {
       console.error('Error submitting week:', error);
-      toast.error('Haftalik girisler gonderilemedi');
+      toast.error('Haftalık girişler gönderilemedi');
     }
   };
 
@@ -151,13 +151,13 @@ export default function TimePage() {
   // Filter entries by selected date
   const filteredEntries = selectedDate
     ? entries.filter((e) => {
-        const entryDate = e.date.toDate();
-        return (
-          entryDate.getFullYear() === selectedDate.getFullYear() &&
-          entryDate.getMonth() === selectedDate.getMonth() &&
-          entryDate.getDate() === selectedDate.getDate()
-        );
-      })
+      const entryDate = e.date.toDate();
+      return (
+        entryDate.getFullYear() === selectedDate.getFullYear() &&
+        entryDate.getMonth() === selectedDate.getMonth() &&
+        entryDate.getDate() === selectedDate.getDate()
+      );
+    })
     : entries;
 
   // Check if there are draft entries to submit
@@ -176,14 +176,14 @@ export default function TimePage() {
         <div>
           <h1 className="text-2xl font-semibold">Zaman Takibi</h1>
           <p className="text-muted-foreground">
-            Haftalik calisma surelerinizi takip edin
+            Haftalık çalışma sürelerinizi takip edin
           </p>
         </div>
         <div className="flex items-center gap-2">
           {hasDraftEntries && (
             <Button variant="outline" onClick={() => setSubmitWeekOpen(true)}>
               <Send className="mr-2 h-4 w-4" />
-              Haftayi Gonder ({draftEntries.length})
+              Haftayı Gönder ({draftEntries.length})
             </Button>
           )}
           <Button onClick={() => {
@@ -191,7 +191,7 @@ export default function TimePage() {
             setFormOpen(true);
           }}>
             <Plus className="mr-2 h-4 w-4" />
-            Zaman Girisi
+            Zaman Girişi
           </Button>
         </div>
       </div>
@@ -237,11 +237,11 @@ export default function TimePage() {
                 <CardTitle className="text-lg">
                   {selectedDate
                     ? format(selectedDate, 'dd MMMM yyyy, EEEE', { locale: tr })
-                    : 'Tum Girisler'}
+                    : 'Tüm Girişler'}
                 </CardTitle>
                 {selectedDate && (
                   <Button variant="ghost" size="sm" onClick={() => setSelectedDate(null)}>
-                    Tumunu Goster
+                    Tümünü Göster
                   </Button>
                 )}
               </div>
@@ -252,8 +252,8 @@ export default function TimePage() {
                   <Clock className="h-8 w-8 text-muted-foreground mb-2" />
                   <p className="text-muted-foreground">
                     {selectedDate
-                      ? 'Bu tarih icin zaman girisi yok'
-                      : 'Bu hafta icin zaman girisi yok'}
+                      ? 'Bu tarih için zaman girişi yok'
+                      : 'Bu hafta için zaman girişi yok'}
                   </p>
                   <Button
                     variant="link"
@@ -262,7 +262,7 @@ export default function TimePage() {
                       setFormOpen(true);
                     }}
                   >
-                    Ilk girisi ekle
+                    İlk girişi ekle
                   </Button>
                 </div>
               ) : (
@@ -307,19 +307,19 @@ export default function TimePage() {
       <AlertDialog open={!!deleteEntry} onOpenChange={(open) => !open && setDeleteEntry(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Zaman Girisini Sil</AlertDialogTitle>
+            <AlertDialogTitle>Zaman Girişini Sil</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteEntry && (
                 <>
                   {format(deleteEntry.date.toDate(), 'dd MMM yyyy', { locale: tr })} tarihli{' '}
-                  {formatDuration(deleteEntry.durationMinutes)} surelik girisi silmek istediginizden
+                  {formatDuration(deleteEntry.durationMinutes)} sürelik girişi silmek istediğinizden
                   emin misiniz?
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>
@@ -331,15 +331,15 @@ export default function TimePage() {
       <AlertDialog open={submitWeekOpen} onOpenChange={setSubmitWeekOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Haftayi Gonder</AlertDialogTitle>
+            <AlertDialogTitle>Haftayı Gönder</AlertDialogTitle>
             <AlertDialogDescription>
-              {weekKey} haftasindaki {draftEntries.length} taslak girisi onaya gondermek istediginizden
-              emin misiniz? Gonderilen girisler duzenlenemez.
+              {weekKey} haftasındaki {draftEntries.length} taslak girişi onaya göndermek istediğinizden
+              emin misiniz? Gönderilen girişler düzenlenemez.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSubmitWeek}>Gonder</AlertDialogAction>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSubmitWeek}>Gönder</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

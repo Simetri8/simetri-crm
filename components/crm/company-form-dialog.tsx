@@ -42,7 +42,7 @@ import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
 import type { Company, CompanyFormData } from '@/lib/types';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'Sirket adi zorunlu'),
+  name: z.string().min(1, 'Şirket adı zorunlu'),
   status: z.enum(['active', 'inactive']),
   tags: z.string(),
   nextAction: z.string().optional(),
@@ -117,7 +117,7 @@ export function CompanyFormDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Sirketi Duzenle' : 'Yeni Sirket'}
+            {isEdit ? 'Şirketi Düzenle' : 'Yeni Şirket'}
           </DialogTitle>
         </DialogHeader>
 
@@ -128,7 +128,7 @@ export function CompanyFormDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sirket Adi</FormLabel>
+                  <FormLabel>Şirket Adı</FormLabel>
                   <FormControl>
                     <Input placeholder="ABC Teknoloji" {...field} />
                   </FormControl>
@@ -169,7 +169,7 @@ export function CompanyFormDialog({
                 <FormItem>
                   <FormLabel>Etiketler</FormLabel>
                   <FormControl>
-                    <Input placeholder="yazilim, fintech, startup" {...field} />
+                    <Input placeholder="yazılım, fintech, startup" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,9 +181,9 @@ export function CompanyFormDialog({
               name="nextAction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sonraki Adim</FormLabel>
+                  <FormLabel>Sonraki Adım</FormLabel>
                   <FormControl>
-                    <Input placeholder="Teklif gonder..." {...field} />
+                    <Input placeholder="Teklif gönder..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -195,7 +195,7 @@ export function CompanyFormDialog({
               name="nextActionDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Sonraki Adim Tarihi</FormLabel>
+                  <FormLabel>Sonraki Adım Tarihi</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -209,7 +209,7 @@ export function CompanyFormDialog({
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {field.value
                             ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                            : 'Tarih sec'}
+                            : 'Tarih seç'}
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -233,11 +233,11 @@ export function CompanyFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

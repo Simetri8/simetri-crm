@@ -11,26 +11,54 @@ import {
   Building2,
   User,
   Calendar,
+  CalendarIcon,
   Edit,
   Plus,
   BadgeDollarSign,
   TrendingUp,
   TrendingDown,
+  FileText,
+  Loader2,
+  ClipboardList,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { DealFormDialog } from '@/components/crm/deal-form-dialog';
 import { ActivityFeed } from '@/components/crm/activity-feed';
 import { ActivityFormDialog } from '@/components/crm/activity-form-dialog';
 import { StatusBadge } from '@/components/crm/status-badge';
 import { dealService } from '@/lib/firebase/deals';
 import { activityService } from '@/lib/firebase/activities';
+import { proposalService } from '@/lib/firebase/proposals';
+import { workOrderService } from '@/lib/firebase/work-orders';
 import { useAuth } from '@/components/auth/auth-provider';
-import { DEAL_STAGE_CONFIG, DEAL_STAGE_ORDER, formatMoney, LOST_REASON_LABELS } from '@/lib/utils/status';
-import type { Deal, DealFormData, Activity, ActivityFormData, DealStage } from '@/lib/types';
+import {
+  DEAL_STAGE_CONFIG,
+  DEAL_STAGE_ORDER,
+  formatMoney,
+  LOST_REASON_LABELS,
+  PROPOSAL_STATUS_CONFIG,
+} from '@/lib/utils/status';
+import type { Deal, DealFormData, Activity, ActivityFormData, DealStage, Proposal } from '@/lib/types';
 import {
   Select,
   SelectContent,
@@ -50,23 +78,30 @@ export default function DealDetailPage({
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialog states
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [activityFormOpen, setActivityFormOpen] = useState(false);
+  const [showCreateWorkOrderDialog, setShowCreateWorkOrderDialog] = useState(false);
+  const [targetDeliveryDate, setTargetDeliveryDate] = useState<Date | undefined>(undefined);
+  const [createWorkOrderLoading, setCreateWorkOrderLoading] = useState(false);
+  const [pendingStageChange, setPendingStageChange] = useState<DealStage | null>(null);
 
   const loadData = async () => {
     try {
-      const [dealData, activitiesData] = await Promise.all([
+      const [dealData, activitiesData, proposalsData] = await Promise.all([
         dealService.getById(id),
         activityService.getByDealId(id, 20),
+        proposalService.getByDealId(id),
       ]);
       setDeal(dealData);
       setActivities(activitiesData);
+      setProposals(proposalsData);
     } catch (error) {
       console.error('Error loading deal:', error);
-      toast.error('Firsat yuklenemedi');
+      toast.error('Fırsat yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -80,15 +115,29 @@ export default function DealDetailPage({
     if (!user) return;
     try {
       await dealService.update(id, data, user.uid);
-      toast.success('Firsat guncellendi');
+      toast.success('Fırsat güncellendi');
       loadData();
     } catch (error) {
       console.error('Error updating deal:', error);
-      toast.error('Firsat guncellenemedi');
+      toast.error('Fırsat güncellenemedi');
     }
   };
 
   const handleStageChange = async (newStage: DealStage) => {
+    if (!user || !deal) return;
+
+    // Eger "won" secildiyse, once is emri olusturma dialogunu goster
+    if (newStage === 'won' && deal.stage !== 'won') {
+      setPendingStageChange(newStage);
+      setTargetDeliveryDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)); // 30 gün sonra default
+      setShowCreateWorkOrderDialog(true);
+      return;
+    }
+
+    await executeStageChange(newStage);
+  };
+
+  const executeStageChange = async (newStage: DealStage) => {
     if (!user || !deal) return;
     try {
       const oldStage = deal.stage;
@@ -97,17 +146,50 @@ export default function DealDetailPage({
       // Sistem aktivitesi ekle
       await activityService.addSystemActivity(
         'deal_stage_changed',
-        `Asama degisti: ${DEAL_STAGE_CONFIG[oldStage].label} -> ${DEAL_STAGE_CONFIG[newStage].label}`,
+        `Aşama değişti: ${DEAL_STAGE_CONFIG[oldStage].label} -> ${DEAL_STAGE_CONFIG[newStage].label}`,
         { dealId: id },
         user.uid
       );
 
-      toast.success('Asama guncellendi');
+      toast.success('Aşama güncellendi');
       loadData();
     } catch (error) {
       console.error('Error updating stage:', error);
-      toast.error('Asama guncellenemedi');
+      toast.error('Aşama güncellenemedi');
     }
+  };
+
+  const handleCreateWorkOrder = async () => {
+    if (!user || !pendingStageChange || !targetDeliveryDate) return;
+
+    setCreateWorkOrderLoading(true);
+    try {
+      // Asamayi degistir
+      await executeStageChange(pendingStageChange);
+
+      // Is emri olustur
+      const workOrderId = await workOrderService.createFromDeal(id, targetDeliveryDate, user.uid);
+
+      toast.success('İş emri oluşturuldu');
+      setShowCreateWorkOrderDialog(false);
+      setPendingStageChange(null);
+
+      // Is emri sayfasina yonlendir
+      router.push(`/ops/work-orders/${workOrderId}`);
+    } catch (error) {
+      console.error('Error creating work order:', error);
+      toast.error('İş emri oluşturulamadı');
+    } finally {
+      setCreateWorkOrderLoading(false);
+    }
+  };
+
+  const handleSkipWorkOrder = async () => {
+    if (!pendingStageChange) return;
+
+    await executeStageChange(pendingStageChange);
+    setShowCreateWorkOrderDialog(false);
+    setPendingStageChange(null);
   };
 
   const handleCreateActivity = async (data: ActivityFormData) => {
@@ -133,10 +215,10 @@ export default function DealDetailPage({
   if (!deal) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-muted-foreground">Firsat bulunamadi</p>
+        <p className="text-muted-foreground">Fırsat bulunamadı</p>
         <Button variant="outline" onClick={() => router.push('/crm/pipeline')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Pipeline'a Don
+          Pipeline&apos;a Dön
         </Button>
       </div>
     );
@@ -203,7 +285,7 @@ export default function DealDetailPage({
           </Select>
           <Button variant="outline" onClick={() => setEditFormOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
-            Duzenle
+            Düzenle
           </Button>
         </div>
       </div>
@@ -211,24 +293,23 @@ export default function DealDetailPage({
       {/* Won/Lost Banner */}
       {!isActive && (
         <div
-          className={`flex items-center gap-3 p-4 rounded-lg ${
-            deal.stage === 'won'
-              ? 'bg-green-50 border border-green-200'
-              : 'bg-red-50 border border-red-200'
-          }`}
+          className={`flex items-center gap-3 p-4 rounded-lg ${deal.stage === 'won'
+            ? 'bg-green-50 border border-green-200'
+            : 'bg-red-50 border border-red-200'
+            }`}
         >
           {deal.stage === 'won' ? (
             <>
               <TrendingUp className="h-5 w-5 text-green-600" />
               <span className="font-medium text-green-700">
-                Bu firsat kazanildi
+                Bu fırsat kazanıldı
               </span>
             </>
           ) : (
             <>
               <TrendingDown className="h-5 w-5 text-red-600" />
               <span className="font-medium text-red-700">
-                Bu firsat kaybedildi
+                Bu fırsat kaybedildi
                 {deal.lostReason && ` - ${LOST_REASON_LABELS[deal.lostReason]}`}
               </span>
             </>
@@ -242,7 +323,7 @@ export default function DealDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Tahmini Butce
+              Tahmini Bütçe
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -284,7 +365,7 @@ export default function DealDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Sonraki Adim
+              Sonraki Adım
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -299,7 +380,7 @@ export default function DealDetailPage({
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Planlanmamis</p>
+              <p className="text-sm text-muted-foreground">Planlanmamış</p>
             )}
           </CardContent>
         </Card>
@@ -325,7 +406,7 @@ export default function DealDetailPage({
 
         <TabsContent value="proposals" className="mt-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium">Teklifler</h2>
+            <h2 className="text-lg font-medium">Teklifler ({proposals.length})</h2>
             <Button asChild>
               <Link href={`/crm/proposals/new?dealId=${id}`}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -333,11 +414,51 @@ export default function DealDetailPage({
               </Link>
             </Button>
           </div>
-          <div className="flex flex-col items-center justify-center h-32 text-center">
-            <p className="text-muted-foreground">
-              Teklif modulu henuz hazir degil
-            </p>
-          </div>
+          {proposals.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-32 text-center border rounded-lg">
+              <FileText className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-muted-foreground">Henüz teklif yok</p>
+              <Button variant="link" asChild className="mt-2">
+                <Link href={`/crm/proposals/new?dealId=${id}`}>
+                  İlk teklifi oluştur
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {proposals.map((proposal) => (
+                <Link
+                  key={proposal.id}
+                  href={`/crm/proposals/${proposal.id}`}
+                  className="block p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Versiyon {proposal.version}</span>
+                          <StatusBadge config={PROPOSAL_STATUS_CONFIG[proposal.status]} />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {format(proposal.createdAt.toDate(), 'dd MMM yyyy', { locale: tr })}
+                          {proposal.sentAt && ` • Gönderildi: ${format(proposal.sentAt.toDate(), 'dd MMM yyyy', { locale: tr })}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">
+                        {formatMoney(proposal.grandTotalMinor, proposal.currency)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {proposal.items.length} kalem
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -356,6 +477,77 @@ export default function DealDetailPage({
         defaultCompanyId={deal.companyId}
         onSubmit={handleCreateActivity}
       />
+
+      {/* Create Work Order Dialog */}
+      <Dialog open={showCreateWorkOrderDialog} onOpenChange={setShowCreateWorkOrderDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardList className="h-5 w-5" />
+              İş Emri Oluştur
+            </DialogTitle>
+            <DialogDescription>
+              Fırsat kazanıldı! Bu fırsat için otomatik bir iş emri oluşturmak ister misiniz?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Hedef Teslim Tarihi</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !targetDeliveryDate && 'text-muted-foreground'
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {targetDeliveryDate
+                      ? format(targetDeliveryDate, 'dd MMMM yyyy', { locale: tr })
+                      : 'Tarih seç'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={targetDeliveryDate}
+                    onSelect={setTargetDeliveryDate}
+                    locale={tr}
+                    disabled={(date) => date < new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="rounded-lg bg-muted p-3 text-sm">
+              <p className="font-medium mb-1">Oluşturulacak İş Emri:</p>
+              <ul className="text-muted-foreground space-y-1">
+                <li>• Başlık: {deal.title}</li>
+                <li>• Şirket: {deal.companyName}</li>
+                {proposals.some((p) => p.status === 'accepted') && (
+                  <li>• Kabul edilen teklif bağlanacak</li>
+                )}
+              </ul>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleSkipWorkOrder}
+              disabled={createWorkOrderLoading}
+            >
+              Atla
+            </Button>
+            <Button
+              onClick={handleCreateWorkOrder}
+              disabled={!targetDeliveryDate || createWorkOrderLoading}
+            >
+              {createWorkOrderLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              İş Emri Oluştur
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

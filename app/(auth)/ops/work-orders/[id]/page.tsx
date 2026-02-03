@@ -14,6 +14,8 @@ import {
   Clock,
   AlertTriangle,
   Pencil,
+  Plus,
+  MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -37,6 +39,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { StatusBadge } from '@/components/crm/status-badge';
+import { ActivityFeed } from '@/components/crm/activity-feed';
+import { ActivityFormDialog } from '@/components/crm/activity-form-dialog';
 import { DeliverableList } from '@/components/ops/deliverable-list';
 import { DeliverableFormDialog } from '@/components/ops/deliverable-form-dialog';
 import { TaskList } from '@/components/ops/task-list';
@@ -107,7 +111,7 @@ export default function WorkOrderDetailPage({
       setWorkOrder(wo);
     } catch (error) {
       console.error('Error loading work order:', error);
-      toast.error('Is emri yuklenemedi');
+      toast.error('İş emri yüklenemedi');
     }
   };
 
@@ -140,7 +144,7 @@ export default function WorkOrderDetailPage({
       setOrphanTasks(orphans);
     } catch (error) {
       console.error('Error loading deliverables:', error);
-      toast.error('Teslimatlar yuklenemedi');
+      toast.error('Teslimatlar yüklenemedi');
     }
   };
 
@@ -173,11 +177,11 @@ export default function WorkOrderDetailPage({
     if (!user || !workOrder) return;
     try {
       await workOrderService.update(workOrder.id, data, user.uid);
-      toast.success('Is emri guncellendi');
+      toast.success('İş emri güncellendi');
       loadWorkOrder();
     } catch (error) {
       console.error('Error updating work order:', error);
-      toast.error('Is emri guncellenemedi');
+      toast.error('İş emri güncellenemedi');
     }
   };
 
@@ -185,11 +189,11 @@ export default function WorkOrderDetailPage({
     if (!user || !workOrder) return;
     try {
       await workOrderService.updateStatus(workOrder.id, status, user.uid);
-      toast.success('Durum guncellendi');
+      toast.success('Durum güncellendi');
       loadWorkOrder();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Durum guncellenemedi');
+      toast.error('Durum güncellenemedi');
     }
   };
 
@@ -197,11 +201,11 @@ export default function WorkOrderDetailPage({
     if (!user || !workOrder) return;
     try {
       await workOrderService.updatePaymentStatus(workOrder.id, paymentStatus, user.uid);
-      toast.success('Odeme durumu guncellendi');
+      toast.success('Ödeme durumu güncellendi');
       loadWorkOrder();
     } catch (error) {
       console.error('Error updating payment status:', error);
-      toast.error('Odeme durumu guncellenemedi');
+      toast.error('Ödeme durumu güncellenemedi');
     }
   };
 
@@ -222,12 +226,12 @@ export default function WorkOrderDetailPage({
     if (!user || !editingDeliverable) return;
     try {
       await deliverableService.update(editingDeliverable.id, data, user.uid);
-      toast.success('Teslimat guncellendi');
+      toast.success('Teslimat güncellendi');
       setEditingDeliverable(null);
       loadDeliverables();
     } catch (error) {
       console.error('Error updating deliverable:', error);
-      toast.error('Teslimat guncellenemedi');
+      toast.error('Teslimat güncellenemedi');
     }
   };
 
@@ -238,11 +242,11 @@ export default function WorkOrderDetailPage({
     if (!user) return;
     try {
       await deliverableService.updateStatus(deliverable.id, status, user.uid);
-      toast.success('Durum guncellendi');
+      toast.success('Durum güncellendi');
       loadDeliverables();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Durum guncellenemedi');
+      toast.error('Durum güncellenemedi');
     }
   };
 
@@ -264,12 +268,12 @@ export default function WorkOrderDetailPage({
     if (!user) return;
     try {
       await taskService.add(data, user.uid);
-      toast.success('Gorev eklendi');
+      toast.success('Görev eklendi');
       setSelectedDeliverableId(null);
       loadDeliverables();
     } catch (error) {
       console.error('Error creating task:', error);
-      toast.error('Gorev eklenemedi');
+      toast.error('Görev eklenemedi');
     }
   };
 
@@ -277,12 +281,12 @@ export default function WorkOrderDetailPage({
     if (!user || !editingTask) return;
     try {
       await taskService.update(editingTask.id, data, user.uid);
-      toast.success('Gorev guncellendi');
+      toast.success('Görev güncellendi');
       setEditingTask(null);
       loadDeliverables();
     } catch (error) {
       console.error('Error updating task:', error);
-      toast.error('Gorev guncellenemedi');
+      toast.error('Görev güncellenemedi');
     }
   };
 
@@ -290,11 +294,11 @@ export default function WorkOrderDetailPage({
     if (!user) return;
     try {
       await taskService.updateStatus(task.id, status, user.uid);
-      toast.success('Durum guncellendi');
+      toast.success('Durum güncellendi');
       loadDeliverables();
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('Durum guncellenemedi');
+      toast.error('Durum güncellenemedi');
     }
   };
 
@@ -308,12 +312,12 @@ export default function WorkOrderDetailPage({
     if (!deleteTask) return;
     try {
       await taskService.delete(deleteTask.id);
-      toast.success('Gorev silindi');
+      toast.success('Görev silindi');
       setDeleteTask(null);
       loadDeliverables();
     } catch (error) {
       console.error('Error deleting task:', error);
-      toast.error('Gorev silinemedi');
+      toast.error('Görev silinemedi');
     }
   };
 
@@ -329,9 +333,9 @@ export default function WorkOrderDetailPage({
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <Briefcase className="h-12 w-12 text-muted-foreground mb-4" />
-        <p className="text-muted-foreground">Is emri bulunamadi</p>
+        <p className="text-muted-foreground">İş emri bulunamadı</p>
         <Link href="/ops/work-orders">
-          <Button variant="link">Is emirlerine don</Button>
+          <Button variant="link">İş emirlerine dön</Button>
         </Link>
       </div>
     );
@@ -385,7 +389,7 @@ export default function WorkOrderDetailPage({
         </div>
         <Button variant="outline" onClick={() => setEditWorkOrderOpen(true)}>
           <Pencil className="mr-2 h-4 w-4" />
-          Duzenle
+          Düzenle
         </Button>
       </div>
 
@@ -413,7 +417,7 @@ export default function WorkOrderDetailPage({
 
               {/* Payment Status */}
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Odeme:</span>
+                <span className="text-sm font-medium">Ödeme:</span>
                 <Select value={workOrder.paymentStatus} onValueChange={handlePaymentStatusChange}>
                   <SelectTrigger className="w-[160px] h-8">
                     <SelectValue />
@@ -436,14 +440,14 @@ export default function WorkOrderDetailPage({
                 isOverdue
                   ? 'bg-red-100 text-red-800'
                   : daysUntilDue <= 7
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-green-100 text-green-800'
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-green-100 text-green-800'
               )}
             >
               <Calendar className="h-4 w-4" />
               <span>
                 {format(targetDate, 'dd MMM yyyy', { locale: tr })}
-                {isOverdue ? ' (Gecikti!)' : daysUntilDue <= 0 ? ' (Bugun!)' : ` (${daysUntilDue} gun)`}
+                {isOverdue ? ' (Gecikti!)' : daysUntilDue <= 0 ? ' (Bugün!)' : ` (${daysUntilDue} gün)`}
               </span>
             </div>
           </div>
@@ -487,7 +491,7 @@ export default function WorkOrderDetailPage({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Gorevler</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Görevler</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
@@ -519,7 +523,7 @@ export default function WorkOrderDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Genel Ilerleme
+              Genel İlerleme
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -532,7 +536,7 @@ export default function WorkOrderDetailPage({
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {workOrder.scopeSummary || 'Kapsam ozeti eklenmemis'}
+              {workOrder.scopeSummary || 'Kapsam özeti eklenmemiş'}
             </p>
           </CardContent>
         </Card>
@@ -572,7 +576,7 @@ export default function WorkOrderDetailPage({
       {orphanTasks.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Teslimata Atanmamis Gorevler</CardTitle>
+            <CardTitle className="text-lg">Teslimata Atanmamış Görevler</CardTitle>
           </CardHeader>
           <CardContent>
             <TaskList
@@ -600,7 +604,7 @@ export default function WorkOrderDetailPage({
             setTaskFormOpen(true);
           }}
         >
-          Teslimatsiz Gorev Ekle
+          Teslimatsız Görev Ekle
         </Button>
       )}
 
@@ -638,14 +642,14 @@ export default function WorkOrderDetailPage({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Teslimati Sil</AlertDialogTitle>
+            <AlertDialogTitle>Teslimatı Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteDeliverable?.title} teslimatini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteDeliverable?.title} teslimatını silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteDeliverable}
               className="bg-red-600 hover:bg-red-700"
@@ -682,14 +686,14 @@ export default function WorkOrderDetailPage({
       <AlertDialog open={!!deleteTask} onOpenChange={(open) => !open && setDeleteTask(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Gorevi Sil</AlertDialogTitle>
+            <AlertDialogTitle>Görevi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteTask?.title} gorevini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteTask?.title} görevini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteTask} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>

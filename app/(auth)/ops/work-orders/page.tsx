@@ -59,7 +59,7 @@ export default function WorkOrdersPage() {
       setDeals(dealsData);
     } catch (error) {
       console.error('Error loading data:', error);
-      toast.error('Veriler yuklenemedi');
+      toast.error('Veriler yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -81,11 +81,11 @@ export default function WorkOrdersPage() {
     if (!user) return;
     try {
       await workOrderService.add(data, user.uid);
-      toast.success('Is emri olusturuldu');
+      toast.success('İş emri oluşturuldu');
       loadData();
     } catch (error) {
       console.error('Error creating work order:', error);
-      toast.error('Is emri olusturulamadi');
+      toast.error('İş emri oluşturulamadı');
     }
   };
 
@@ -93,12 +93,12 @@ export default function WorkOrdersPage() {
     if (!user || !editingWorkOrder) return;
     try {
       await workOrderService.update(editingWorkOrder.id, data, user.uid);
-      toast.success('Is emri guncellendi');
+      toast.success('İş emri güncellendi');
       setEditingWorkOrder(null);
       loadData();
     } catch (error) {
       console.error('Error updating work order:', error);
-      toast.error('Is emri guncellenemedi');
+      toast.error('İş emri güncellenemedi');
     }
   };
 
@@ -106,12 +106,12 @@ export default function WorkOrdersPage() {
     if (!user || !archiveWorkOrder) return;
     try {
       await workOrderService.archive(archiveWorkOrder.id, user.uid);
-      toast.success('Is emri arsivlendi');
+      toast.success('İş emri arşivlendi');
       setArchiveWorkOrder(null);
       loadData();
     } catch (error) {
       console.error('Error archiving work order:', error);
-      toast.error('Is emri arsivlenemedi');
+      toast.error('İş emri arşivlenemedi');
     }
   };
 
@@ -119,12 +119,12 @@ export default function WorkOrdersPage() {
     if (!user || !deleteWorkOrder) return;
     try {
       await workOrderService.delete(deleteWorkOrder.id);
-      toast.success('Is emri silindi');
+      toast.success('İş emri silindi');
       setDeleteWorkOrder(null);
       loadData();
     } catch (error) {
       console.error('Error deleting work order:', error);
-      toast.error('Is emri silinemedi');
+      toast.error('İş emri silinemedi');
     }
   };
 
@@ -132,14 +132,14 @@ export default function WorkOrdersPage() {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Is Emirleri</h1>
+          <h1 className="text-2xl font-semibold">İş Emirleri</h1>
           <p className="text-muted-foreground">
-            Aktif is emirlerinizi yonetin
+            Aktif iş emirlerinizi yönetin
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Is Emri
+          Yeni İş Emri
         </Button>
       </div>
 
@@ -147,7 +147,7 @@ export default function WorkOrdersPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Is emri veya sirket ara..."
+            placeholder="İş emri veya şirket ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -161,7 +161,7 @@ export default function WorkOrdersPage() {
             <SelectValue placeholder="Durum filtrele" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tum Durumlar</SelectItem>
+            <SelectItem value="all">Tüm Durumlar</SelectItem>
             {WORK_ORDER_STATUSES.map((status) => (
               <SelectItem key={status} value={status}>
                 {WORK_ORDER_STATUS_CONFIG[status].label}
@@ -180,8 +180,8 @@ export default function WorkOrdersPage() {
           <Briefcase className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">
             {searchTerm || statusFilter !== 'all'
-              ? 'Arama kriterlerine uygun is emri bulunamadi'
-              : 'Henuz is emri yok'}
+              ? 'Arama kriterlerine uygun iş emri bulunamadı'
+              : 'Henüz iş emri yok'}
           </p>
           {!searchTerm && statusFilter === 'all' && (
             <Button
@@ -189,7 +189,7 @@ export default function WorkOrdersPage() {
               className="mt-2"
               onClick={() => setFormOpen(true)}
             >
-              Ilk is emrini olustur
+              İlk iş emrini oluştur
             </Button>
           )}
         </div>
@@ -225,15 +225,15 @@ export default function WorkOrdersPage() {
       <AlertDialog open={!!archiveWorkOrder} onOpenChange={(open) => !open && setArchiveWorkOrder(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Is Emrini Arsivle</AlertDialogTitle>
+            <AlertDialogTitle>İş Emrini Arşivle</AlertDialogTitle>
             <AlertDialogDescription>
-              {archiveWorkOrder?.title} is emrini arsivlemek istediginizden emin misiniz?
+              {archiveWorkOrder?.title} iş emrini arşivlemek istediğinizden emin misiniz?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleArchive}>
-              Arsivle
+              Arşivle
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -243,14 +243,14 @@ export default function WorkOrdersPage() {
       <AlertDialog open={!!deleteWorkOrder} onOpenChange={(open) => !open && setDeleteWorkOrder(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Is Emrini Sil</AlertDialogTitle>
+            <AlertDialogTitle>İş Emrini Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteWorkOrder?.title} is emrini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteWorkOrder?.title} iş emrini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>

@@ -60,8 +60,8 @@ const formSchema = z.object({
   deliverableId: z.string().nullable().optional(),
   taskId: z.string().nullable().optional(),
   date: z.date({ error: 'Tarih zorunlu' }),
-  hours: z.number().min(0, 'Saat 0 veya daha buyuk olmali').max(24, 'Saat 24 den buyuk olamaz'),
-  minutes: z.number().min(0, 'Dakika 0 veya daha buyuk olmali').max(59, 'Dakika 59 dan buyuk olamaz'),
+  hours: z.number().min(0, 'Saat 0 veya daha büyük olmalı').max(24, 'Saat 24\'ten büyük olamaz'),
+  minutes: z.number().min(0, 'Dakika 0 veya daha büyük olmalı').max(59, 'Dakika 59\'dan büyük olamaz'),
   billable: z.boolean(),
   note: z.string().nullable().optional(),
 });
@@ -166,7 +166,7 @@ export function TimeEntryFormDialog({
     try {
       const durationMinutes = values.hours * 60 + values.minutes;
       if (durationMinutes === 0) {
-        form.setError('hours', { message: 'Sure 0 olamaz' });
+        form.setError('hours', { message: 'Süre 0 olamaz' });
         return;
       }
 
@@ -192,7 +192,7 @@ export function TimeEntryFormDialog({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? 'Zaman Girisini Duzenle' : 'Yeni Zaman Girisi'}
+            {isEdit ? 'Zaman Girişini Düzenle' : 'Yeni Zaman Girişi'}
           </DialogTitle>
         </DialogHeader>
 
@@ -204,7 +204,7 @@ export function TimeEntryFormDialog({
               name="workOrderId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Is Emri (Opsiyonel)</FormLabel>
+                  <FormLabel>İş Emri (Opsiyonel)</FormLabel>
                   <Popover open={workOrderSearchOpen} onOpenChange={setWorkOrderSearchOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -216,16 +216,16 @@ export function TimeEntryFormDialog({
                             !field.value && 'text-muted-foreground'
                           )}
                         >
-                          {selectedWorkOrder?.title || 'Is emri sec...'}
+                          {selectedWorkOrder?.title || 'İş emri seç...'}
                           <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-[400px] p-0" align="start">
                       <Command>
-                        <CommandInput placeholder="Is emri ara..." />
+                        <CommandInput placeholder="İş emri ara..." />
                         <CommandList>
-                          <CommandEmpty>Is emri bulunamadi</CommandEmpty>
+                          <CommandEmpty>İş emri bulunamadı</CommandEmpty>
                           <CommandGroup>
                             <CommandItem
                               value="none"
@@ -234,7 +234,7 @@ export function TimeEntryFormDialog({
                                 setWorkOrderSearchOpen(false);
                               }}
                             >
-                              <span className="text-muted-foreground">Is emri secme</span>
+                              <span className="text-muted-foreground">İş emri seçme</span>
                             </CommandItem>
                             {workOrders.map((wo) => (
                               <CommandItem
@@ -277,11 +277,11 @@ export function TimeEntryFormDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Teslimat sec" />
+                          <SelectValue placeholder="Teslimat seç" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">Teslimat secme</SelectItem>
+                        <SelectItem value="none">Teslimat seçme</SelectItem>
                         {filteredDeliverables.map((d) => (
                           <SelectItem key={d.id} value={d.id}>
                             {d.title}
@@ -302,18 +302,18 @@ export function TimeEntryFormDialog({
                 name="taskId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Gorev (Opsiyonel)</FormLabel>
+                    <FormLabel>Görev (Opsiyonel)</FormLabel>
                     <Select
                       onValueChange={(v) => field.onChange(v === 'none' ? null : v)}
                       value={field.value ?? 'none'}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Gorev sec" />
+                          <SelectValue placeholder="Görev seç" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="none">Gorev secme</SelectItem>
+                        <SelectItem value="none">Görev seçme</SelectItem>
                         {filteredTasks.map((t) => (
                           <SelectItem key={t.id} value={t.id}>
                             {t.title}
@@ -346,7 +346,7 @@ export function TimeEntryFormDialog({
                         >
                           {field.value
                             ? format(field.value, 'dd MMM yyyy, EEEE', { locale: tr })
-                            : 'Tarih sec'}
+                            : 'Tarih seç'}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -419,7 +419,7 @@ export function TimeEntryFormDialog({
                   <div className="space-y-0.5">
                     <FormLabel>Faturalanabilir</FormLabel>
                     <p className="text-xs text-muted-foreground">
-                      Bu sure musteriye faturalanabilir mi?
+                      Bu süre müşteriye faturalanabilir mi?
                     </p>
                   </div>
                   <FormControl>
@@ -441,7 +441,7 @@ export function TimeEntryFormDialog({
                   <FormLabel>Not (Opsiyonel)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Yapilan isler hakkinda kisa not..."
+                      placeholder="Yapılan işler hakkında kısa not..."
                       className="resize-none"
                       rows={2}
                       value={field.value ?? ''}
@@ -459,11 +459,11 @@ export function TimeEntryFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Iptal
+                İptal
               </Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Guncelle' : 'Olustur'}
+                {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
             </div>
           </form>

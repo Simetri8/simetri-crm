@@ -36,7 +36,7 @@ export default function ContactsPage() {
       setContacts(data);
     } catch (error) {
       console.error('Error loading contacts:', error);
-      toast.error('Kisiler yuklenemedi');
+      toast.error('Kişiler yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -57,11 +57,11 @@ export default function ContactsPage() {
     if (!user) return;
     try {
       await contactService.add(data, user.uid);
-      toast.success('Kisi olusturuldu');
+      toast.success('Kişi oluşturuldu');
       loadContacts();
     } catch (error) {
       console.error('Error creating contact:', error);
-      toast.error('Kisi olusturulamadi');
+      toast.error('Kişi oluşturulamadı');
     }
   };
 
@@ -69,12 +69,12 @@ export default function ContactsPage() {
     if (!user || !editingContact) return;
     try {
       await contactService.update(editingContact.id, data, user.uid);
-      toast.success('Kisi guncellendi');
+      toast.success('Kişi güncellendi');
       setEditingContact(null);
       loadContacts();
     } catch (error) {
       console.error('Error updating contact:', error);
-      toast.error('Kisi guncellenemedi');
+      toast.error('Kişi güncellenemedi');
     }
   };
 
@@ -82,12 +82,12 @@ export default function ContactsPage() {
     if (!user || !deleteContact) return;
     try {
       await contactService.delete(deleteContact.id);
-      toast.success('Kisi silindi');
+      toast.success('Kişi silindi');
       setDeleteContact(null);
       loadContacts();
     } catch (error) {
       console.error('Error deleting contact:', error);
-      toast.error('Kisi silinemedi');
+      toast.error('Kişi silinemedi');
     }
   };
 
@@ -95,14 +95,14 @@ export default function ContactsPage() {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Kisiler</h1>
+          <h1 className="text-2xl font-semibold">Kişiler</h1>
           <p className="text-muted-foreground">
-            Musteri kisilerini yonetin
+            Müşteri kişilerini yönetin
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Kisi
+          Yeni Kişi
         </Button>
       </div>
 
@@ -110,7 +110,7 @@ export default function ContactsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Kisi, sirket veya e-posta ara..."
+            placeholder="Kişi, şirket veya e-posta ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -124,13 +124,13 @@ export default function ContactsPage() {
         </div>
       ) : filteredContacts.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground">Henuz kisi yok</p>
+          <p className="text-muted-foreground">Henüz kişi yok</p>
           <Button
             variant="link"
             className="mt-2"
             onClick={() => setFormOpen(true)}
           >
-            Ilk kisiyi ekle
+            İlk kişiyi ekle
           </Button>
         </div>
       ) : (
@@ -160,14 +160,14 @@ export default function ContactsPage() {
       <AlertDialog open={!!deleteContact} onOpenChange={(open) => !open && setDeleteContact(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Kisiyi Sil</AlertDialogTitle>
+            <AlertDialogTitle>Kişiyi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteContact?.fullName} kisisini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteContact?.fullName} kişisini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>

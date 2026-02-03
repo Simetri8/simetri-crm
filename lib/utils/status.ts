@@ -60,7 +60,7 @@ export const LOST_REASON_LABELS: Record<LostReason, string> = {
   timing: 'Zamanlama',
   competitor: 'Rakip',
   'no-response': 'Donus Yok',
-  cancelled: 'Iptal Edildi',
+  cancelled: 'İptal Edildi',
   other: 'Diger',
 };
 
@@ -82,8 +82,8 @@ export const PROPOSAL_STATUS_CONFIG: Record<ProposalStatus, StatusConfig> = {
 export const WORK_ORDER_STATUS_CONFIG: Record<WorkOrderStatus, StatusConfig> = {
   active: { label: 'Aktif', color: 'text-green-700', bgColor: 'bg-green-100' },
   'on-hold': { label: 'Beklemede', color: 'text-amber-700', bgColor: 'bg-amber-100' },
-  completed: { label: 'Tamamlandi', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  cancelled: { label: 'Iptal', color: 'text-red-700', bgColor: 'bg-red-100' },
+  completed: { label: 'Tamamlandı', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  cancelled: { label: 'İptal', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
 
 // =============================================================================
@@ -118,7 +118,7 @@ export const TASK_STATUS_CONFIG: Record<TaskStatus, StatusConfig> = {
   backlog: { label: 'Beklemede', color: 'text-gray-500', bgColor: 'bg-gray-100' },
   'in-progress': { label: 'Devam Ediyor', color: 'text-blue-700', bgColor: 'bg-blue-100' },
   blocked: { label: 'Engellendi', color: 'text-red-700', bgColor: 'bg-red-100' },
-  done: { label: 'Tamamlandi', color: 'text-green-700', bgColor: 'bg-green-100' },
+  done: { label: 'Tamamlandı', color: 'text-green-700', bgColor: 'bg-green-100' },
 };
 
 // =============================================================================
@@ -185,7 +185,7 @@ export const CHANGE_REQUEST_STATUS_CONFIG: Record<ChangeRequestStatus, StatusCon
 
 export const CATALOG_ITEM_TYPE_LABELS: Record<CatalogItemType, string> = {
   service: 'Hizmet',
-  product: 'Urun',
+  product: 'Ürün',
   license: 'Lisans',
 };
 
@@ -195,7 +195,7 @@ export const CATALOG_ITEM_TYPE_LABELS: Record<CatalogItemType, string> = {
 
 export const UNIT_LABELS: Record<Unit, string> = {
   hour: 'Saat',
-  day: 'Gun',
+  day: 'Gün',
   month: 'Ay',
   piece: 'Adet',
   project: 'Proje',
@@ -206,8 +206,8 @@ export const UNIT_LABELS: Record<Unit, string> = {
 // =============================================================================
 
 export const CURRENCY_CONFIG: Record<Currency, { label: string; symbol: string }> = {
-  TRY: { label: 'Turk Lirasi', symbol: '₺' },
-  USD: { label: 'ABD Dolari', symbol: '$' },
+  TRY: { label: 'Türk Lirası', symbol: '₺' },
+  USD: { label: 'ABD Doları', symbol: '$' },
   EUR: { label: 'Euro', symbol: '€' },
 };
 

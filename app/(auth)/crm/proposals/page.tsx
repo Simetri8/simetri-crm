@@ -59,7 +59,7 @@ export default function ProposalsPage() {
       setProposals(data);
     } catch (error) {
       console.error('Error loading proposals:', error);
-      toast.error('Teklifler yuklenemedi');
+      toast.error('Teklifler yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -85,16 +85,16 @@ export default function ProposalsPage() {
       // Sistem aktivitesi ekle
       await activityService.addSystemActivity(
         'proposal_sent',
-        `Teklif gonderildi: v${proposal.version}`,
+        `Teklif gönderildi: v${proposal.version}`,
         { dealId: proposal.dealId, companyId: proposal.companyId },
         user.uid
       );
 
-      toast.success('Teklif gonderildi olarak isaretlendi');
+      toast.success('Teklif gönderildi olarak işaretlendi');
       loadProposals();
     } catch (error) {
       console.error('Error sending proposal:', error);
-      toast.error('Islem basarisiz');
+      toast.error('İşlem başarısız');
     }
   };
 
@@ -116,7 +116,7 @@ export default function ProposalsPage() {
         user.uid
       );
 
-      toast.success('Teklif kabul edildi olarak isaretlendi');
+      toast.success('Teklif kabul edildi olarak işaretlendi');
       setAcceptProposal(null);
       setAcceptedByName('');
       setAcceptanceNote('');
@@ -140,7 +140,7 @@ export default function ProposalsPage() {
         user.uid
       );
 
-      toast.success('Teklif reddedildi olarak isaretlendi');
+      toast.success('Teklif reddedildi olarak işaretlendi');
       loadProposals();
     } catch (error) {
       console.error('Error rejecting proposal:', error);
@@ -152,12 +152,12 @@ export default function ProposalsPage() {
     if (!user) return;
     try {
       const newId = await proposalService.createNewVersion(proposal.id, user.uid);
-      toast.success('Yeni versiyon olusturuldu');
+      toast.success('Yeni versiyon oluşturuldu');
       // Yeni versiyona yonlendir
       window.location.href = `/crm/proposals/${newId}`;
     } catch (error) {
       console.error('Error creating new version:', error);
-      toast.error('Yeni versiyon olusturulamadi');
+      toast.error('Yeni versiyon oluşturulamadı');
     }
   };
 
@@ -180,7 +180,7 @@ export default function ProposalsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Teklifler</h1>
           <p className="text-muted-foreground">
-            Satis tekliflerinizi yonetin
+            Satış tekliflerinizi yönetin
           </p>
         </div>
         <Button asChild>
@@ -195,7 +195,7 @@ export default function ProposalsPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Teklif veya sirket ara..."
+            placeholder="Teklif veya şirket ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -209,7 +209,7 @@ export default function ProposalsPage() {
             <SelectValue placeholder="Durum filtrele" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tum Durumlar</SelectItem>
+            <SelectItem value="all">Tüm Durumlar</SelectItem>
             {PROPOSAL_STATUSES.map((status) => (
               <SelectItem key={status} value={status}>
                 {PROPOSAL_STATUS_CONFIG[status].label}
@@ -228,12 +228,12 @@ export default function ProposalsPage() {
           <FileText className="h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-muted-foreground">
             {searchTerm || statusFilter !== 'all'
-              ? 'Arama kriterlerine uygun teklif bulunamadi'
-              : 'Henuz teklif yok'}
+              ? 'Arama kriterlerine uygun teklif bulunamadı'
+              : 'Henüz teklif yok'}
           </p>
           {!searchTerm && statusFilter === 'all' && (
             <Button asChild variant="link" className="mt-2">
-              <Link href="/crm/proposals/new">Ilk teklifi olustur</Link>
+              <Link href="/crm/proposals/new">İlk teklifi oluştur</Link>
             </Button>
           )}
         </div>
@@ -254,12 +254,12 @@ export default function ProposalsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Teklifi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              Bu teklifi silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              Bu teklifi silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>
@@ -271,13 +271,13 @@ export default function ProposalsPage() {
       <Dialog open={!!acceptProposal} onOpenChange={(open) => !open && setAcceptProposal(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Teklif Kabulu</DialogTitle>
+            <DialogTitle>Teklif Kabulü</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Onaylayan Kisi</Label>
+              <Label>Onaylayan Kişi</Label>
               <Input
-                placeholder="Musteri adi"
+                placeholder="Müşteri adı"
                 value={acceptedByName}
                 onChange={(e) => setAcceptedByName(e.target.value)}
               />
@@ -293,7 +293,7 @@ export default function ProposalsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAcceptProposal(null)}>
-              Iptal
+              İptal
             </Button>
             <Button onClick={handleAccept} disabled={!acceptedByName}>
               Onayla

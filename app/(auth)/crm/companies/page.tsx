@@ -36,7 +36,7 @@ export default function CompaniesPage() {
       setCompanies(data);
     } catch (error) {
       console.error('Error loading companies:', error);
-      toast.error('Sirketler yuklenemedi');
+      toast.error('Şirketler yüklenemedi');
     } finally {
       setLoading(false);
     }
@@ -54,11 +54,11 @@ export default function CompaniesPage() {
     if (!user) return;
     try {
       await companyService.add(data, user.uid);
-      toast.success('Sirket olusturuldu');
+      toast.success('Şirket oluşturuldu');
       loadCompanies();
     } catch (error) {
       console.error('Error creating company:', error);
-      toast.error('Sirket olusturulamadi');
+      toast.error('Şirket oluşturulamadı');
     }
   };
 
@@ -66,12 +66,12 @@ export default function CompaniesPage() {
     if (!user || !editingCompany) return;
     try {
       await companyService.update(editingCompany.id, data, user.uid);
-      toast.success('Sirket guncellendi');
+      toast.success('Şirket güncellendi');
       setEditingCompany(null);
       loadCompanies();
     } catch (error) {
       console.error('Error updating company:', error);
-      toast.error('Sirket guncellenemedi');
+      toast.error('Şirket güncellenemedi');
     }
   };
 
@@ -79,12 +79,12 @@ export default function CompaniesPage() {
     if (!user || !deleteCompany) return;
     try {
       await companyService.archive(deleteCompany.id, user.uid);
-      toast.success('Sirket silindi');
+      toast.success('Şirket silindi');
       setDeleteCompany(null);
       loadCompanies();
     } catch (error) {
       console.error('Error deleting company:', error);
-      toast.error('Sirket silinemedi');
+      toast.error('Şirket silinemedi');
     }
   };
 
@@ -92,14 +92,14 @@ export default function CompaniesPage() {
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Sirketler</h1>
+          <h1 className="text-2xl font-semibold">Şirketler</h1>
           <p className="text-muted-foreground">
-            Musteri sirketlerini yonetin
+            Müşteri şirketlerini yönetin
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Yeni Sirket
+          Yeni Şirket
         </Button>
       </div>
 
@@ -107,7 +107,7 @@ export default function CompaniesPage() {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Sirket ara..."
+            placeholder="Şirket ara..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -121,13 +121,13 @@ export default function CompaniesPage() {
         </div>
       ) : filteredCompanies.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground">Henuz sirket yok</p>
+          <p className="text-muted-foreground">Henüz şirket yok</p>
           <Button
             variant="link"
             className="mt-2"
             onClick={() => setFormOpen(true)}
           >
-            Ilk sirketi ekle
+            İlk şirketi ekle
           </Button>
         </div>
       ) : (
@@ -157,14 +157,14 @@ export default function CompaniesPage() {
       <AlertDialog open={!!deleteCompany} onOpenChange={(open) => !open && setDeleteCompany(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sirketi Sil</AlertDialogTitle>
+            <AlertDialogTitle>Şirketi Sil</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteCompany?.name} sirketini silmek istediginizden emin misiniz?
-              Bu islem geri alinamaz.
+              {deleteCompany?.name} şirketini silmek istediğinizden emin misiniz?
+              Bu işlem geri alınamaz.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Iptal</AlertDialogCancel>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Sil
             </AlertDialogAction>
