@@ -47,6 +47,11 @@ const formSchema = z.object({
   tags: z.string(),
   nextAction: z.string().optional(),
   nextActionDate: z.date().optional().nullable(),
+  logoUrl: z
+    .string()
+    .url('Geçerli bir URL girin')
+    .or(z.literal(''))
+    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -75,6 +80,7 @@ export function CompanyFormDialog({
       tags: company?.tags?.join(', ') ?? '',
       nextAction: company?.nextAction ?? '',
       nextActionDate: company?.nextActionDate?.toDate() ?? null,
+      logoUrl: company?.logoUrl ?? '',
     },
   });
 
@@ -87,6 +93,7 @@ export function CompanyFormDialog({
         tags: company?.tags?.join(', ') ?? '',
         nextAction: company?.nextAction ?? '',
         nextActionDate: company?.nextActionDate?.toDate() ?? null,
+        logoUrl: company?.logoUrl ?? '',
       });
     }
   }, [open, company, form]);
@@ -103,6 +110,7 @@ export function CompanyFormDialog({
           .filter(Boolean),
         nextAction: values.nextAction || null,
         nextActionDate: values.nextActionDate ?? null,
+        logoUrl: values.logoUrl ? values.logoUrl : null,
       };
       await onSubmit(data);
       onOpenChange(false);
@@ -131,6 +139,23 @@ export function CompanyFormDialog({
                   <FormLabel>Şirket Adı</FormLabel>
                   <FormControl>
                     <Input placeholder="ABC Teknoloji" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="logoUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Logo URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://.../logo.png"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -246,3 +271,4 @@ export function CompanyFormDialog({
     </Dialog>
   );
 }
+

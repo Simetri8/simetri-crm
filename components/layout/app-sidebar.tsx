@@ -32,6 +32,16 @@ const mainItems = [
 
 const crmItems = [
     {
+        title: "Pipeline",
+        url: "/crm/pipeline",
+        icon: KanbanSquare,
+    },
+    {
+        title: "Teklifler",
+        url: "/crm/proposals",
+        icon: FileText,
+    },
+    {
         title: "Şirketler",
         url: "/crm/companies",
         icon: Building2,
@@ -42,20 +52,10 @@ const crmItems = [
         icon: Contact,
     },
     {
-        title: "Pipeline",
-        url: "/crm/pipeline",
-        icon: KanbanSquare,
-    },
-    {
         title: "Katalog",
         url: "/crm/catalog",
         icon: Package,
-    },
-    {
-        title: "Teklifler",
-        url: "/crm/proposals",
-        icon: FileText,
-    },
+    }
 ]
 
 const opsItems = [

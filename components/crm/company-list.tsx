@@ -11,6 +11,11 @@ import {
   Trash2,
   CalendarClock,
 } from 'lucide-react';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   TableProvider,
@@ -47,15 +52,34 @@ export function CompanyList({ companies, onEdit, onDelete }: CompanyListProps) {
       header: ({ column }) => (
         <TableColumnHeader column={column} title="Şirket" />
       ),
-      cell: ({ row }) => (
-        <Link
-          href={`/crm/companies/${row.original.id}`}
-          className="flex items-center gap-2 font-medium hover:text-primary"
-        >
-          <Building2 className="h-4 w-4 text-muted-foreground" />
-          {row.original.name}
-        </Link>
-      ),
+      cell: ({ row }) => {
+        const company = row.original;
+        const initials = company.name
+          ? company.name
+              .split(' ')
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((word) => word[0]?.toUpperCase() ?? '')
+              .join('')
+          : '';
+
+        return (
+          <Link
+            href={`/crm/companies/${company.id}`}
+            className="flex items-center gap-2 font-medium hover:text-primary"
+          >
+            <Avatar className="h-8 w-8">
+              {company.logoUrl && (
+                <AvatarImage src={company.logoUrl} alt={company.name} />
+              )}
+              <AvatarFallback>
+                {initials || <Building2 className="h-4 w-4" />}
+              </AvatarFallback>
+            </Avatar>
+            {company.name}
+          </Link>
+        );
+      },
     },
     {
       accessorKey: 'status',

@@ -80,6 +80,7 @@ import type {
   Activity,
   ActivityFormData,
 } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 type DeliverableWithTasks = Deliverable & { tasks: Task[] };
 
@@ -392,18 +393,20 @@ export default function WorkOrderDetailPage({
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/ops/work-orders">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-semibold">{workOrder.title}</h1>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Building2 className="h-4 w-4" />
+      <PageHeader
+        title={workOrder.title}
+        description={workOrder.companyName}
+      />
+
+      <div className="flex flex-col gap-3 rounded-md border bg-background px-3 py-2 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Link href="/ops/work-orders">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <span>{workOrder.companyName}</span>
               {workOrder.dealTitle && (
                 <>
@@ -414,11 +417,15 @@ export default function WorkOrderDetailPage({
               )}
             </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditWorkOrderOpen(true)}
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Düzenle
+          </Button>
         </div>
-        <Button variant="outline" onClick={() => setEditWorkOrderOpen(true)}>
-          <Pencil className="mr-2 h-4 w-4" />
-          Düzenle
-        </Button>
       </div>
 
       {/* Status Bar */}

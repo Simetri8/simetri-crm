@@ -71,6 +71,7 @@ import type {
   Unit,
   ProposalFormDataItem,
 } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 type LineItem = ProposalFormDataItem & {
   tempId: string; // UI icin gecici ID
@@ -267,20 +268,19 @@ export default function NewProposalPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4">
+    <div className="mx-auto flex flex-col gap-6">
+      <PageHeader
+        title="Yeni Teklif"
+        description="Satış fırsatı için yeni teklif oluşturun"
+      />
+
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/crm/proposals">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl font-semibold">Yeni Teklif</h1>
-          <p className="text-muted-foreground">
-            Satış fırsatı için yeni teklif oluşturun
-          </p>
-        </div>
+        <span>Teklif listesine dön</span>
       </div>
 
       {/* Deal Selection */}

@@ -101,6 +101,7 @@ import type {
   Unit,
   ProposalFormDataItem,
 } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 type LineItem = ProposalFormDataItem & {
   tempId: string;
@@ -512,22 +513,21 @@ export default function ProposalDetailPage({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/crm/proposals">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold">{proposal.dealTitle}</h1>
-              <Badge variant="outline">v{proposal.version}</Badge>
-              <StatusBadge config={PROPOSAL_STATUS_CONFIG[proposal.status]} />
-            </div>
-            <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+    <div className="mx-auto flex flex-col gap-6">
+      <PageHeader
+        title={proposal.dealTitle}
+        description={proposal.companyName}
+      />
+
+      <div className="flex flex-col gap-3 bg-background text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/crm/proposals">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <Link
                 href={`/crm/companies/${proposal.companyId}`}
                 className="flex items-center gap-1 hover:text-primary"
@@ -542,60 +542,74 @@ export default function ProposalDetailPage({
                 <Briefcase className="h-3 w-3" />
                 Fırsata Git
               </Link>
+              <Badge variant="outline">v{proposal.version}</Badge>
+              <StatusBadge config={PROPOSAL_STATUS_CONFIG[proposal.status]} />
             </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          {proposal.status === 'draft' && !isEditing && (
-            <>
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Düzenle
-              </Button>
-              <Button onClick={handleSend} disabled={actionLoading}>
-                {actionLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="mr-2 h-4 w-4" />
-                )}
-                Gönder
-              </Button>
-            </>
-          )}
-          {proposal.status === 'sent' && (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => setShowAcceptDialog(true)}
-                disabled={actionLoading}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Kabul Edildi
-              </Button>
-              <Button variant="outline" onClick={handleReject} disabled={actionLoading}>
-                <XCircle className="mr-2 h-4 w-4" />
-                Reddedildi
-              </Button>
-            </>
-          )}
-          <Button variant="outline" onClick={handleExportPDF}>
-            <Download className="mr-2 h-4 w-4" />
-            PDF İndir
-          </Button>
-          <Button variant="outline" onClick={handleNewVersion} disabled={actionLoading}>
-            <Copy className="mr-2 h-4 w-4" />
-            Yeni Versiyon
-          </Button>
-          {proposal.status === 'draft' && (
+          <div className="flex flex-wrap items-center gap-2">
+            {proposal.status === 'draft' && !isEditing && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Düzenle
+                </Button>
+                <Button size="sm" onClick={handleSend} disabled={actionLoading}>
+                  {actionLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="mr-2 h-4 w-4" />
+                  )}
+                  Gönder
+                </Button>
+              </>
+            )}
+            {proposal.status === 'sent' && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAcceptDialog(true)}
+                  disabled={actionLoading}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Kabul Edildi
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReject}
+                  disabled={actionLoading}
+                >
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reddedildi
+                </Button>
+              </>
+            )}
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              PDF İndir
+            </Button>
             <Button
               variant="outline"
-              className="text-red-500 hover:text-red-600"
-              onClick={() => setShowDeleteDialog(true)}
+              size="sm"
+              onClick={handleNewVersion}
               disabled={actionLoading}
             >
-              <Trash2 className="h-4 w-4" />
+              <Copy className="mr-2 h-4 w-4" />
+              Yeni Versiyon
             </Button>
-          )}
+            {proposal.status === 'draft' && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="text-red-500 hover:text-red-600"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={actionLoading}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

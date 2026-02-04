@@ -53,7 +53,7 @@ export function AppHeader() {
 
   return (
     <div className="mb-0 flex justify-between">
-      <div className="flex min-w-0  gap-2">
+      <div className="flex min-w-0 pb-2 gap-2">
         <SidebarTrigger />
         {header.title && (
           <div className="min-w-0">

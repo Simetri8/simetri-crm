@@ -150,6 +150,7 @@ export type Company = BaseEntity &
     name: string;
     status: CompanyStatus;
     tags: string[];
+    logoUrl: string | null;
   };
 
 export type CompanyFormData = {
@@ -159,6 +160,7 @@ export type CompanyFormData = {
   nextAction?: string | null;
   nextActionDate?: Date | null;
   ownerId?: string | null;
+  logoUrl?: string | null;
 };
 
 // =============================================================================

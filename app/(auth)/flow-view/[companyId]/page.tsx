@@ -74,23 +74,7 @@ export default function CompanyFlowPage() {
         description="İş Akışı Görünümü"
       />
 
-      <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/flow-view">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <span className="hidden text-xs text-muted-foreground sm:inline">
-            Şirket listesine dön
-          </span>
-        </div>
-        <div>
-          {nodes.length} nesne • {edges.length} bağlantı
-        </div>
-      </div>
-
-      <div className="h-[70vh] rounded-md border">
+      <div >
         <FlowContainer initialNodes={nodes} initialEdges={edges} />
       </div>
     </div>

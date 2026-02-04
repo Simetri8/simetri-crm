@@ -21,6 +21,7 @@ import { DeliverableNode } from './nodes/deliverable-node';
 import { TaskNode } from './nodes/task-node';
 import { getLayoutedElements } from '@/lib/flow/layout';
 import {
+  fetchDealProposalsAndWorkOrders,
   fetchDeliverableTasks,
   fetchWorkOrderDeliverables,
 } from '@/lib/flow/data-fetcher';
@@ -54,6 +55,7 @@ export function FlowContainer({
   const [selectedDeliverableId, setSelectedDeliverableId] = useState<
     string | null
   >(null);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
   const [loadingChildren, setLoadingChildren] = useState(false);
 
   useEffect(() => {
@@ -115,6 +117,33 @@ export function FlowContainer({
   const handleNodeClick = useCallback(
     async (_: unknown, node: Node) => {
       if (loadingChildren) return;
+
+      if (node.type === 'deal') {
+        if (selectedDealId === node.id) return;
+
+        setLoadingChildren(true);
+        setSelectedDealId(node.id);
+        setSelectedWorkOrderId(null);
+        setSelectedDeliverableId(null);
+
+        try {
+          // Remove previously loaded proposal/workOrder/deliverable/task nodes before loading the new deal subtree.
+          const { nextNodes, nextEdges } = removeNodesByType(
+            new Set(['proposal', 'workOrder', 'deliverable', 'task']),
+            nodes,
+            edges
+          );
+
+          const dealData = await fetchDealProposalsAndWorkOrders(node.id);
+          const mergedNodes = [...nextNodes, ...dealData.nodes];
+          const mergedEdges = [...nextEdges, ...dealData.edges];
+          layoutAndSet(mergedNodes, mergedEdges);
+        } catch (err) {
+          console.error('Error loading deal subtree:', err);
+        } finally {
+          setLoadingChildren(false);
+        }
+      }
 
       if (node.type === 'workOrder') {
         if (selectedWorkOrderId === node.id) return;
@@ -178,11 +207,13 @@ export function FlowContainer({
     },
     [
       edges,
+      fetchDealProposalsAndWorkOrders,
       layoutAndSet,
       loadingChildren,
       nodeById,
       nodes,
       removeNodesByType,
+      selectedDealId,
       selectedDeliverableId,
       selectedWorkOrderId,
     ]

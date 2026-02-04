@@ -71,56 +71,6 @@ export async function fetchCompanyFlowData(companyId: string): Promise<{
       type: 'smoothstep',
       animated: deal.stage !== 'won' && deal.stage !== 'lost',
     });
-
-    // 3. Proposals for this deal
-    const proposals = await proposalService.getAll({ dealId: deal.id });
-    console.log(`Deal ${deal.id}: Found ${proposals.length} proposals`);
-    proposals.forEach((proposal) => {
-      nodes.push({
-        id: proposal.id,
-        type: 'proposal',
-        position: { x: 0, y: 0 },
-        data: {
-          label: `Teklif v${proposal.version}`,
-          subtitle: `${PROPOSAL_STATUS_CONFIG[proposal.status].label} • ${formatMoney(proposal.grandTotalMinor, proposal.currency)}`,
-          status: proposal.status,
-          metadata: proposal,
-        },
-      });
-      edges.push({
-        id: `${deal.id}-${proposal.id}`,
-        source: deal.id,
-        target: proposal.id,
-        type: 'smoothstep',
-      });
-    });
-
-    // 4. Work Orders for this deal (only if won)
-    if (deal.stage === 'won') {
-      const workOrders = await workOrderService.getAll({
-        dealId: deal.id,
-        isArchived: false,
-      });
-      console.log(`Deal ${deal.id} (won): Found ${workOrders.length} work orders`);
-
-      for (const wo of workOrders) {
-        addWorkOrderNode(wo, deal.id, nodes, edges);
-      }
-    } else {
-      console.log(`Deal ${deal.id}: Stage is ${deal.stage}, skipping work orders`);
-    }
-  }
-
-  // 5. Standalone Work Orders (no dealId)
-  const allWorkOrders = await workOrderService.getAll({
-    companyId,
-    isArchived: false,
-  });
-  const standaloneWOs = allWorkOrders.filter((w) => !w.dealId);
-  console.log(`Company ${companyId}: Found ${standaloneWOs.length} standalone work orders (total: ${allWorkOrders.length})`);
-
-  for (const wo of standaloneWOs) {
-    addWorkOrderNode(wo, company.id, nodes, edges);
   }
 
   console.log(`Total: ${nodes.length} nodes, ${edges.length} edges`);
@@ -128,6 +78,44 @@ export async function fetchCompanyFlowData(companyId: string): Promise<{
     acc[n.type || 'unknown'] = (acc[n.type || 'unknown'] || 0) + 1;
     return acc;
   }, {} as Record<string, number>));
+
+  return { nodes, edges };
+}
+
+export async function fetchDealProposalsAndWorkOrders(dealId: string): Promise<{
+  nodes: FlowNode[];
+  edges: FlowEdge[];
+}> {
+  const nodes: FlowNode[] = [];
+  const edges: FlowEdge[] = [];
+
+  const proposals = await proposalService.getAll({ dealId, isArchived: false });
+  console.log(`Deal ${dealId}: Found ${proposals.length} proposals`);
+  for (const proposal of proposals) {
+    nodes.push({
+      id: proposal.id,
+      type: 'proposal',
+      position: { x: 0, y: 0 },
+      data: {
+        label: `Teklif v${proposal.version}`,
+        subtitle: `${PROPOSAL_STATUS_CONFIG[proposal.status].label} • ${formatMoney(proposal.grandTotalMinor, proposal.currency)}`,
+        status: proposal.status,
+        metadata: proposal,
+      },
+    });
+    edges.push({
+      id: `${dealId}-${proposal.id}`,
+      source: dealId,
+      target: proposal.id,
+      type: 'smoothstep',
+    });
+  }
+
+  const workOrders = await workOrderService.getAll({ dealId, isArchived: false });
+  console.log(`Deal ${dealId}: Found ${workOrders.length} work orders`);
+  for (const wo of workOrders) {
+    addWorkOrderNode(wo, dealId, nodes, edges);
+  }
 
   return { nodes, edges };
 }

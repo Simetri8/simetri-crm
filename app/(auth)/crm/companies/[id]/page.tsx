@@ -52,6 +52,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function CompanyDetailPage({
   params,
@@ -189,37 +190,40 @@ export default function CompanyDetailPage({
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/crm/companies')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <Building2 className="h-6 w-6 text-muted-foreground" />
-              <h1 className="text-2xl font-semibold">{company.name}</h1>
+      <PageHeader
+        title={company.name}
+        description="Şirket detayları, kişiler ve fırsatlar"
+      />
+
+      <div className="flex flex-col gap-3 rounded-md border bg-background px-3 py-2 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/crm/companies')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-muted-foreground" />
               <StatusBadge config={COMPANY_STATUS_CONFIG[company.status]} />
+              {company.tags && company.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {company.tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
-            {company.tags && company.tags.length > 0 && (
-              <div className="flex gap-1 mt-2">
-                {company.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
+          <Button variant="outline" size="sm" onClick={() => setEditFormOpen(true)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Düzenle
+          </Button>
         </div>
-        <Button variant="outline" onClick={() => setEditFormOpen(true)}>
-          <Edit className="mr-2 h-4 w-4" />
-          Düzenle
-        </Button>
       </div>
 
       {/* Overview Cards */}

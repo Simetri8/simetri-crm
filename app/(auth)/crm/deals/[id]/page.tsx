@@ -66,6 +66,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function DealDetailPage({
   params,
@@ -271,23 +272,23 @@ export default function DealDetailPage({
   const isActive = deal.stage !== 'won' && deal.stage !== 'lost';
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push('/crm/pipeline')}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <Briefcase className="h-6 w-6 text-muted-foreground" />
-              <h1 className="text-2xl font-semibold">{deal.title}</h1>
-            </div>
-            <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title={deal.title}
+        description={deal.companyName}
+      />
+
+      <div className="flex flex-col gap-3 bg-background text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push('/crm/pipeline')}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <Link
                 href={`/crm/companies/${deal.companyId}`}
                 className="flex items-center gap-1 hover:text-primary"
@@ -295,42 +296,41 @@ export default function DealDetailPage({
                 <Building2 className="h-4 w-4" />
                 {deal.companyName}
               </Link>
-              <span>|</span>
+              <span>•</span>
               <div className="flex items-center gap-1">
                 <User className="h-4 w-4" />
                 {deal.primaryContactName}
               </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Stage Selector */}
-          <Select
-            value={deal.stage}
-            onValueChange={(value) => handleStageChange(value as DealStage)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue>
-                <StatusBadge config={DEAL_STAGE_CONFIG[deal.stage]} />
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {DEAL_STAGE_ORDER.map((stage) => (
-                <SelectItem key={stage} value={stage}>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-2 h-2 rounded-full ${DEAL_STAGE_CONFIG[stage].bgColor}`}
-                    />
-                    {DEAL_STAGE_CONFIG[stage].label}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={() => setEditFormOpen(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Düzenle
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={deal.stage}
+              onValueChange={(value) => handleStageChange(value as DealStage)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue>
+                  <StatusBadge config={DEAL_STAGE_CONFIG[deal.stage]} />
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {DEAL_STAGE_ORDER.map((stage) => (
+                  <SelectItem key={stage} value={stage}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-2 h-2 rounded-full ${DEAL_STAGE_CONFIG[stage].bgColor}`}
+                      />
+                      {DEAL_STAGE_CONFIG[stage].label}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" onClick={() => setEditFormOpen(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Düzenle
+            </Button>
+          </div>
         </div>
       </div>
 
