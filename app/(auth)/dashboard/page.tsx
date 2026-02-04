@@ -10,20 +10,18 @@ import {
 } from '@/components/dashboard';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertCircle } from 'lucide-react';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function DashboardPage() {
     const { data, loading, error, refresh } = useDashboard();
 
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-                    <p className="text-muted-foreground">
-                        Bugün neyi unutmamalıyım?
-                    </p>
-                </div>
+            <PageHeader
+                title="Dashboard"
+                description="Bugün neyi unutmamalıyım?"
+            />
+            <div className="flex items-center justify-end">
                 <Button
                     variant="outline"
                     size="sm"

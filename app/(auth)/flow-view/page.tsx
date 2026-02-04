@@ -12,6 +12,7 @@ import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import type { Company } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function FlowViewPage() {
   const { user } = useAuth();
@@ -55,39 +56,42 @@ export default function FlowViewPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">İş Akışı Görünümü</h1>
-        <p className="text-muted-foreground">
-          Şirket seçerek müşteri temaslarından task kapatmaya kadar tüm akışı görselleştirin
-        </p>
-      </div>
+    <div className="flex flex-col gap-6 p-6">
+      <PageHeader
+        title="İş Akışı Görünümü"
+        description="Şirket seçerek müşteri temaslarından task kapatmaya kadar tüm akışı görselleştirin"
+      />
 
       {process.env.NODE_ENV === 'development' && (
-        <div className="mb-6">
-          <Button
-            onClick={handleSeed}
-            disabled={isSeeding}
-            variant="outline"
-            className="w-full md:w-auto"
-          >
-            <Sprout className="mr-2 h-4 w-4" />
-            {isSeeding ? 'Test Verisi Oluşturuluyor...' : 'Test Verisi Oluştur (Tüm Senaryolar)'}
-          </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            Her nesne türünün her durumu için en az 2 kayıt oluşturur
-          </p>
+        <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="text-sm text-muted-foreground">
+            Geliştirme ortamında örnek bir şirket ve tam akış senaryolarını hızlıca oluşturabilirsiniz.
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleSeed}
+              disabled={isSeeding}
+              variant="outline"
+              className="w-full md:w-auto"
+            >
+              <Sprout className="mr-2 h-4 w-4" />
+              {isSeeding ? 'Test Verisi Oluşturuluyor...' : 'Test Verisi Oluştur (Tüm Senaryolar)'}
+            </Button>
+            <p className="hidden text-xs text-muted-foreground md:block">
+              Her nesne türünün her durumu için en az 2 kayıt oluşturur.
+            </p>
+          </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {companies.map((company) => {
           const statusConfig = COMPANY_STATUS_CONFIG[company.status];
           return (

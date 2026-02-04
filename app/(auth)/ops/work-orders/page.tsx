@@ -31,6 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function WorkOrdersPage() {
   const { user } = useAuth();
@@ -130,45 +131,43 @@ export default function WorkOrdersPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">İş Emirleri</h1>
-          <p className="text-muted-foreground">
-            Aktif iş emirlerinizi yönetin
-          </p>
+      <PageHeader
+        title="İş Emirleri"
+        description="Aktif iş emirlerinizi yönetin"
+      />
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="İş emri veya şirket ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as WorkOrderStatus | 'all')}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Durum filtrele" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tüm Durumlar</SelectItem>
+              {WORK_ORDER_STATUSES.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {WORK_ORDER_STATUS_CONFIG[status].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Yeni İş Emri
         </Button>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="İş emri veya şirket ara..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v as WorkOrderStatus | 'all')}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Durum filtrele" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tüm Durumlar</SelectItem>
-            {WORK_ORDER_STATUSES.map((status) => (
-              <SelectItem key={status} value={status}>
-                {WORK_ORDER_STATUS_CONFIG[status].label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {loading ? (

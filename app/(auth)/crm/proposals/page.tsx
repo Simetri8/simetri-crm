@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function ProposalsPage() {
   const { user } = useAuth();
@@ -176,12 +177,38 @@ export default function ProposalsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Teklifler</h1>
-          <p className="text-muted-foreground">
-            Satış tekliflerinizi yönetin
-          </p>
+      <PageHeader
+        title="Teklifler"
+        description="Satış tekliflerinizi yönetin"
+      />
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Teklif veya şirket ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as ProposalStatus | 'all')}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Durum filtrele" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tüm Durumlar</SelectItem>
+              {PROPOSAL_STATUSES.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {PROPOSAL_STATUS_CONFIG[status].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Button asChild>
           <Link href="/crm/proposals/new">
@@ -189,34 +216,6 @@ export default function ProposalsPage() {
             Yeni Teklif
           </Link>
         </Button>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Teklif veya şirket ara..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select
-          value={statusFilter}
-          onValueChange={(v) => setStatusFilter(v as ProposalStatus | 'all')}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Durum filtrele" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tüm Durumlar</SelectItem>
-            {PROPOSAL_STATUSES.map((status) => (
-              <SelectItem key={status} value={status}>
-                {PROPOSAL_STATUS_CONFIG[status].label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {loading ? (

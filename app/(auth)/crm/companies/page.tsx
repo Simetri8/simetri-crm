@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function CompaniesPage() {
   const { user } = useAuth();
@@ -90,29 +91,27 @@ export default function CompaniesPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Şirketler</h1>
-          <p className="text-muted-foreground">
-            Müşteri şirketlerini yönetin
-          </p>
+      <PageHeader
+        title="Şirketler"
+        description="Müşteri şirketlerini yönetin"
+      />
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Şirket ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Yeni Şirket
         </Button>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Şirket ara..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
       </div>
 
       {loading ? (

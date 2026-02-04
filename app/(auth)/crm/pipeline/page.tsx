@@ -10,6 +10,7 @@ import { dealService } from '@/lib/firebase/deals';
 import { activityService } from '@/lib/firebase/activities';
 import { useAuth } from '@/components/auth/auth-provider';
 import type { Deal, DealFormData, DealStage } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function PipelinePage() {
   const { user } = useAuth();
@@ -86,24 +87,28 @@ export default function PipelinePage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-6 border-b">
-        <div>
-          <h1 className="text-2xl font-semibold">Satış Pipeline</h1>
-          <p className="text-muted-foreground">
-            Satış fırsatlarını takip edin
-          </p>
+    <div className="flex flex-col h-full p-6 gap-6">
+      <PageHeader
+        title="Satış Pipeline"
+        description="Satış fırsatlarını takip edin"
+      />
+
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Aktif fırsatlarınızı kolon bazında sürükleyip bırakabilirsiniz.
         </div>
-        <Button onClick={() => {
-          setEditingDeal(null);
-          setFormOpen(true);
-        }}>
+        <Button
+          onClick={() => {
+            setEditingDeal(null);
+            setFormOpen(true);
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           Yeni Fırsat
         </Button>
       </div>
 
-      <div className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 overflow-auto">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

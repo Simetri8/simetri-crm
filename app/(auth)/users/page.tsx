@@ -11,6 +11,7 @@ import { Trash2, UserPlus, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -66,12 +67,10 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Kullanıcı Yönetimi</h2>
-        <p className="text-muted-foreground">
-          Sisteme giriş yapabilecek yetkili e-posta adreslerini buradan yönetebilirsiniz.
-        </p>
-      </div>
+      <PageHeader
+        title="Kullanıcı Yönetimi"
+        description="Sisteme giriş yapabilecek yetkili e-posta adreslerini buradan yönetebilirsiniz."
+      />
 
       <Card>
         <CardHeader>

@@ -28,6 +28,7 @@ import { timeEntryService } from '@/lib/firebase/time-entries';
 import { useAuth } from '@/components/auth/auth-provider';
 import { formatDuration } from '@/lib/utils/status';
 import type { TimeEntry, TimesheetQueueItem } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function TimeApprovalPage() {
   const { user } = useAuth();
@@ -131,13 +132,10 @@ export default function TimeApprovalPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold">Timesheet Onayları</h1>
-        <p className="text-muted-foreground">
-          Onay bekleyen haftalık zaman girişleri
-        </p>
-      </div>
+      <PageHeader
+        title="Timesheet Onayları"
+        description="Onay bekleyen haftalık zaman girişleri"
+      />
 
       {/* Queue */}
       {queue.length === 0 ? (

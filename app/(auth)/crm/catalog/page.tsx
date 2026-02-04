@@ -29,6 +29,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function CatalogPage() {
   const { user } = useAuth();
@@ -114,45 +115,43 @@ export default function CatalogPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Katalog</h1>
-          <p className="text-muted-foreground">
-            Hizmet ve ürün kataloğunuzu yönetin
-          </p>
+      <PageHeader
+        title="Katalog"
+        description="Hizmet ve ürün kataloğunuzu yönetin"
+      />
+
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-1 items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Kalem ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select
+            value={typeFilter}
+            onValueChange={(v) => setTypeFilter(v as CatalogItemType | 'all')}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Tür filtrele" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tüm Türler</SelectItem>
+              {CATALOG_ITEM_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {CATALOG_ITEM_TYPE_LABELS[type]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Yeni Kalem
         </Button>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Kalem ara..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select
-          value={typeFilter}
-          onValueChange={(v) => setTypeFilter(v as CatalogItemType | 'all')}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Tür filtrele" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tüm Türler</SelectItem>
-            {CATALOG_ITEM_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {CATALOG_ITEM_TYPE_LABELS[type]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {loading ? (

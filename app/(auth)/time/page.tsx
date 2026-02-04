@@ -33,6 +33,7 @@ import type {
   Deliverable,
   Task,
 } from '@/lib/types';
+import { PageHeader } from '@/components/layout/app-header';
 
 export default function TimePage() {
   const { user } = useAuth();
@@ -177,13 +178,14 @@ export default function TimePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
+      <PageHeader
+        title="Zaman Takibi"
+        description="Haftalık çalışma sürelerinizi takip edin"
+      />
+
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Zaman Takibi</h1>
-          <p className="text-muted-foreground">
-            Haftalık çalışma sürelerinizi takip edin
-          </p>
+        <div className="text-sm text-muted-foreground">
+          Girişleri haftalık bazda kaydedip onaya gönderebilirsiniz.
         </div>
         <div className="flex items-center gap-2">
           {hasDraftEntries && (
@@ -192,10 +194,12 @@ export default function TimePage() {
               Haftayı Gönder ({draftEntries.length})
             </Button>
           )}
-          <Button onClick={() => {
-            setDefaultDate(new Date());
-            setFormOpen(true);
-          }}>
+          <Button
+            onClick={() => {
+              setDefaultDate(new Date());
+              setFormOpen(true);
+            }}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Zaman Girişi
           </Button>
