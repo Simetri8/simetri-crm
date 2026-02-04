@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       title,
       body,
       url: url || '/',
-      icon: '/icon-192x192.png'
+      icon: '/crm-icon.png'
     });
 
     await webpush.sendNotification(userData.pushSubscription, payload);
