@@ -4,8 +4,17 @@ import { Timestamp } from 'firebase/firestore';
 // ENUMS - Status, Stage, Reason vb.
 // =============================================================================
 
-export const COMPANY_STATUS = ['active', 'inactive'] as const;
+export const COMPANY_STATUS = ['prospect', 'active', 'inactive', 'churned'] as const;
 export type CompanyStatus = (typeof COMPANY_STATUS)[number];
+
+export const COMPANY_SOURCES = ['event', 'referral', 'inbound', 'outbound', 'other'] as const;
+export type CompanySource = (typeof COMPANY_SOURCES)[number];
+
+export const CONTACT_STAGES = ['new', 'networking', 'warm', 'prospect', 'client', 'inactive'] as const;
+export type ContactStage = (typeof CONTACT_STAGES)[number];
+
+export const CONTACT_SOURCES = ['event', 'referral', 'inbound', 'outbound', 'linkedin', 'other'] as const;
+export type ContactSource = (typeof CONTACT_SOURCES)[number];
 
 export const DEAL_STAGES = [
   'lead',
@@ -80,6 +89,7 @@ export const ACTIVITY_TYPES = [
   'note',
   'file',
   'decision',
+  'networking',
   'system',
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
@@ -96,11 +106,30 @@ export const SYSTEM_EVENTS = [
   'proposal_rejected',
   'work_order_status_changed',
   'deliverable_status_changed',
+  'request_created',
+  'request_completed',
+  'contact_stage_changed',
 ] as const;
 export type SystemEvent = (typeof SYSTEM_EVENTS)[number];
 
 export const TIME_ENTRY_STATUSES = ['draft', 'submitted', 'approved', 'locked'] as const;
 export type TimeEntryStatus = (typeof TIME_ENTRY_STATUSES)[number];
+
+export const REQUEST_TYPES = [
+  'technical-assessment',
+  'demo-setup',
+  'cost-estimate',
+  'design',
+  'content',
+  'other',
+] as const;
+export type RequestType = (typeof REQUEST_TYPES)[number];
+
+export const REQUEST_PRIORITIES = ['low', 'normal', 'urgent'] as const;
+export type RequestPriority = (typeof REQUEST_PRIORITIES)[number];
+
+export const REQUEST_STATUSES = ['open', 'in-progress', 'done', 'cancelled'] as const;
+export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
 export const CHANGE_REQUEST_IMPACTS = ['low', 'medium', 'high'] as const;
 export type ChangeRequestImpact = (typeof CHANGE_REQUEST_IMPACTS)[number];
@@ -149,6 +178,8 @@ export type Company = BaseEntity &
   NextActionFields & {
     name: string;
     status: CompanyStatus;
+    source: CompanySource | null;
+    sourceDetail: string | null;
     tags: string[];
     logoUrl: string | null;
   };
@@ -156,6 +187,8 @@ export type Company = BaseEntity &
 export type CompanyFormData = {
   name: string;
   status: CompanyStatus;
+  source?: CompanySource | null;
+  sourceDetail?: string | null;
   tags: string[];
   nextAction?: string | null;
   nextActionDate?: Date | null;
@@ -164,28 +197,40 @@ export type CompanyFormData = {
 };
 
 // =============================================================================
-// CONTACT (Kisiler)
+// CONTACT (Kisiler - Birinci Sinif Varlik)
 // =============================================================================
 
-export type Contact = Omit<BaseEntity, 'isArchived'> & {
-  companyId: string;
-  companyName: string; // Denormalized
-  fullName: string;
-  title: string | null;
-  email: string | null;
-  phone: string | null;
-  isPrimary: boolean;
-  notes: string | null;
-};
+export type Contact = Omit<BaseEntity, 'isArchived'> &
+  NextActionFields & {
+    companyId: string | null;
+    companyName: string | null; // Denormalized
+    fullName: string;
+    title: string | null;
+    email: string | null;
+    phone: string | null;
+    stage: ContactStage;
+    source: ContactSource | null;
+    sourceDetail: string | null;
+    isPrimary: boolean;
+    notes: string | null;
+    tags: string[];
+  };
 
 export type ContactFormData = {
-  companyId: string;
+  companyId?: string | null;
   fullName: string;
   title?: string | null;
   email?: string | null;
   phone?: string | null;
+  stage?: ContactStage;
+  source?: ContactSource | null;
+  sourceDetail?: string | null;
   isPrimary?: boolean;
   notes?: string | null;
+  tags?: string[];
+  nextAction?: string | null;
+  nextActionDate?: Date | null;
+  ownerId?: string | null;
 };
 
 // =============================================================================
@@ -381,12 +426,16 @@ export type TaskFormData = {
 // =============================================================================
 
 export type Activity = Omit<BaseEntity, 'isArchived' | 'updatedAt' | 'updatedBy'> & {
+  contactId: string | null;
+  contactName: string | null; // Denormalized
   companyId: string | null;
   companyName: string | null; // Denormalized
   dealId: string | null;
   dealTitle: string | null; // Denormalized
   workOrderId: string | null;
   workOrderTitle: string | null; // Denormalized
+  requestId: string | null;
+  requestTitle: string | null; // Denormalized
   type: ActivityType;
   source: ActivitySource;
   systemEvent: SystemEvent | null;
@@ -398,15 +447,56 @@ export type Activity = Omit<BaseEntity, 'isArchived' | 'updatedAt' | 'updatedBy'
 };
 
 export type ActivityFormData = {
+  contactId?: string | null;
   companyId?: string | null;
   dealId?: string | null;
   workOrderId?: string | null;
+  requestId?: string | null;
   type: ActivityType;
   summary: string;
   details?: string | null;
   nextAction?: string | null;
   nextActionDate?: Date | null;
   occurredAt?: Date;
+};
+
+// =============================================================================
+// REQUEST (Ic Talepler)
+// =============================================================================
+
+export type Request = BaseEntity & {
+  title: string;
+  description: string | null;
+  type: RequestType;
+  priority: RequestPriority;
+  status: RequestStatus;
+  requesterId: string;
+  requesterName: string; // Denormalized
+  assigneeId: string | null;
+  assigneeName: string | null; // Denormalized
+  contactId: string | null;
+  contactName: string | null; // Denormalized
+  companyId: string | null;
+  companyName: string | null; // Denormalized
+  dealId: string | null;
+  dealTitle: string | null; // Denormalized
+  workOrderId: string | null;
+  workOrderTitle: string | null; // Denormalized
+  dueDate: Timestamp | null;
+  resolution: string | null;
+};
+
+export type RequestFormData = {
+  title: string;
+  description?: string | null;
+  type: RequestType;
+  priority?: RequestPriority;
+  assigneeId?: string | null;
+  contactId?: string | null;
+  companyId?: string | null;
+  dealId?: string | null;
+  workOrderId?: string | null;
+  dueDate?: Date | null;
 };
 
 // =============================================================================
@@ -471,10 +561,12 @@ export type DashboardKPIs = {
   todayNextActions: number;
   openWorkOrders: number;
   pendingTimesheets: number;
+  openRequests: number;
+  newContacts: number;
 };
 
 export type FollowUpItem = {
-  type: 'company' | 'deal';
+  type: 'company' | 'deal' | 'contact';
   id: string;
   title: string;
   nextAction: string | null;
@@ -483,6 +575,32 @@ export type FollowUpItem = {
   ownerName: string | null;
   lastActivityAt: Timestamp | null;
   isOverdue: boolean;
+};
+
+export type NetworkingItem = {
+  id: string;
+  fullName: string;
+  companyName: string | null;
+  stage: ContactStage;
+  source: ContactSource | null;
+  sourceDetail: string | null;
+  nextAction: string | null;
+  nextActionDate: Timestamp | null;
+  lastActivityAt: Timestamp | null;
+  createdAt: Timestamp;
+};
+
+export type RequestSummaryItem = {
+  id: string;
+  title: string;
+  type: RequestType;
+  priority: RequestPriority;
+  status: RequestStatus;
+  requesterName: string;
+  assigneeName: string | null;
+  companyName: string | null;
+  dueDate: Timestamp | null;
+  createdAt: Timestamp;
 };
 
 export type PipelineStageSummary = {

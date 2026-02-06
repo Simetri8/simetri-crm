@@ -200,6 +200,7 @@ export const proposalService = {
       items?: ProposalFormData['items'];
       pricesIncludeTax?: boolean;
       currency?: Proposal['currency'];
+      status?: ProposalStatus;
     },
     userId: string
   ): Promise<void> => {
@@ -225,6 +226,9 @@ export const proposalService = {
     }
     if (data.pricesIncludeTax !== undefined) {
       updateData.pricesIncludeTax = data.pricesIncludeTax;
+    }
+    if (data.status !== undefined) {
+      updateData.status = data.status;
     }
 
     if (data.items !== undefined) {

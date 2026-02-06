@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { tr } from 'date-fns/locale';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -29,18 +31,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 import { companyService } from '@/lib/firebase/companies';
+import { CONTACT_STAGES, CONTACT_SOURCES } from '@/lib/types';
+import { CONTACT_STAGE_CONFIG, CONTACT_SOURCE_LABELS } from '@/lib/utils/status';
 import type { Contact, ContactFormData, Company } from '@/lib/types';
 
+const NONE_VALUE = '__none__';
+
 const formSchema = z.object({
-  companyId: z.string().min(1, 'Şirket seçimi zorunlu'),
+  companyId: z.string().optional(),
   fullName: z.string().min(1, 'Ad soyad zorunlu'),
   title: z.string().optional(),
   email: z.string().email('Geçerli e-posta giriniz').optional().or(z.literal('')),
   phone: z.string().optional(),
+  stage: z.enum(['new', 'networking', 'warm', 'prospect', 'client', 'inactive']),
+  source: z.string().optional(),
+  sourceDetail: z.string().optional(),
   isPrimary: z.boolean().optional(),
   notes: z.string().optional(),
+  tags: z.string().optional(),
+  nextAction: z.string().optional(),
+  nextActionDate: z.date().optional().nullable(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -65,35 +84,33 @@ export function ContactFormDialog({
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const isEdit = !!contact;
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      companyId: contact?.companyId ?? defaultCompanyId ?? '',
-      fullName: contact?.fullName ?? '',
-      title: contact?.title ?? '',
-      email: contact?.email ?? '',
-      phone: contact?.phone ?? '',
-      isPrimary: contact?.isPrimary ?? false,
-      notes: contact?.notes ?? '',
-    },
+  const getDefaults = (): FormValues => ({
+    companyId: contact?.companyId ?? defaultCompanyId ?? '',
+    fullName: contact?.fullName ?? '',
+    title: contact?.title ?? '',
+    email: contact?.email ?? '',
+    phone: contact?.phone ?? '',
+    stage: contact?.stage ?? 'new',
+    source: contact?.source ?? '',
+    sourceDetail: contact?.sourceDetail ?? '',
+    isPrimary: contact?.isPrimary ?? false,
+    notes: contact?.notes ?? '',
+    tags: contact?.tags?.join(', ') ?? '',
+    nextAction: contact?.nextAction ?? '',
+    nextActionDate: contact?.nextActionDate?.toDate() ?? null,
   });
 
-  // Form reset when contact changes
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getDefaults(),
+  });
+
   useEffect(() => {
     if (open) {
-      form.reset({
-        companyId: contact?.companyId ?? defaultCompanyId ?? '',
-        fullName: contact?.fullName ?? '',
-        title: contact?.title ?? '',
-        email: contact?.email ?? '',
-        phone: contact?.phone ?? '',
-        isPrimary: contact?.isPrimary ?? false,
-        notes: contact?.notes ?? '',
-      });
+      form.reset(getDefaults());
     }
   }, [open, contact, defaultCompanyId, form]);
 
-  // Şirketleri yükle
   useEffect(() => {
     const loadCompanies = async () => {
       try {
@@ -114,13 +131,21 @@ export function ContactFormDialog({
     setIsSubmitting(true);
     try {
       const data: ContactFormData = {
-        companyId: values.companyId,
+        companyId: values.companyId || null,
         fullName: values.fullName,
         title: values.title || null,
         email: values.email || null,
         phone: values.phone || null,
+        stage: values.stage,
+        source: (values.source as ContactFormData['source']) || null,
+        sourceDetail: values.sourceDetail || null,
         isPrimary: values.isPrimary ?? false,
         notes: values.notes || null,
+        tags: values.tags
+          ? values.tags.split(',').map((t) => t.trim()).filter(Boolean)
+          : [],
+        nextAction: values.nextAction || null,
+        nextActionDate: values.nextActionDate ?? null,
       };
       await onSubmit(data);
       onOpenChange(false);
@@ -132,7 +157,7 @@ export function ContactFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Kişiyi Düzenle' : 'Yeni Kişi'}
@@ -143,13 +168,97 @@ export function ContactFormDialog({
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ad Soyad</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ahmet Yılmaz" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="stage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Aşama</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CONTACT_STAGES.map((stage) => (
+                          <SelectItem key={stage} value={stage}>
+                            {CONTACT_STAGE_CONFIG[stage].label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="source"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kaynak</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                      defaultValue={field.value || NONE_VALUE}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seç..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={NONE_VALUE}>Belirtilmedi</SelectItem>
+                        {CONTACT_SOURCES.map((source) => (
+                          <SelectItem key={source} value={source}>
+                            {CONTACT_SOURCE_LABELS[source]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="sourceDetail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kaynak Detayı</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Etkinlik adı, referans kişi vb." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="companyId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Şirket</FormLabel>
+                  <FormLabel>Şirket (opsiyonel)</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                    defaultValue={field.value || NONE_VALUE}
                     disabled={loadingCompanies || !!defaultCompanyId}
                   >
                     <FormControl>
@@ -158,6 +267,7 @@ export function ContactFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value={NONE_VALUE}>Şirket yok</SelectItem>
                       {companies.map((company) => (
                         <SelectItem key={company.id} value={company.id}>
                           {company.name}
@@ -165,20 +275,6 @@ export function ContactFormDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ad Soyad</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ahmet Yılmaz" {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -208,7 +304,7 @@ export function ContactFormDialog({
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="ahmet@şirket.com"
+                        placeholder="ahmet@sirket.com"
                         {...field}
                       />
                     </FormControl>
@@ -235,6 +331,71 @@ export function ContactFormDialog({
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etiketler</FormLabel>
+                  <FormControl>
+                    <Input placeholder="fintech, karar-verici, etkinlik" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nextAction"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sonraki Adım</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Kahve daveti gönder..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nextActionDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Sonraki Adım Tarihi</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value
+                            ? format(field.value, 'dd MMM yyyy', { locale: tr })
+                            : 'Tarih seç'}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ?? undefined}
+                        onSelect={field.onChange}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

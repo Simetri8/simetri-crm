@@ -1,20 +1,25 @@
 'use client';
 
-import { useOverviewDashboard } from '@/hooks/use-overview-dashboard';
-import { KPICards } from '@/components/dashboard';
-import { DashboardNavCards } from '@/components/dashboard/dashboard-nav-cards';
+import { useOpsDashboard } from '@/hooks/use-ops-dashboard';
+import {
+    KPICards,
+    WorkOrderRisksPanel,
+    TimesheetPanel,
+} from '@/components/dashboard';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertCircle } from 'lucide-react';
 import { PageHeader } from '@/components/layout/app-header';
 
-export default function DashboardPage() {
-    const { data, loading, error, refresh } = useOverviewDashboard();
+const OPS_KPI_CARDS = ['openWorkOrders', 'pendingTimesheets'];
+
+export default function OpsDashboardPage() {
+    const { data, loading, error, refresh } = useOpsDashboard();
 
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Dashboard"
-                description="Bugün neyi unutmamalıyım?"
+                title="Operasyon Dashboard"
+                description="İş emirleri ve zaman yönetimi"
             />
             <div className="flex items-center justify-end">
                 <Button
@@ -56,11 +61,22 @@ export default function DashboardPage() {
             <KPICards
                 kpis={data.kpis}
                 loading={loading}
-                oldestOverdueDays={data.oldestOverdueDays}
+                oldestOverdueDays={null}
                 thisWeekDeliveryCount={data.thisWeekDeliveryCount}
+                visibleCards={OPS_KPI_CARDS}
             />
 
-            <DashboardNavCards />
+            <div className="grid gap-4 md:grid-cols-2 auto-rows-min">
+                {/* Work Order Risks */}
+                <div className="md:col-span-1">
+                    <WorkOrderRisksPanel risks={data.workOrderRisks} loading={loading} />
+                </div>
+
+                {/* Timesheet Panel */}
+                <div className="md:col-span-1">
+                    <TimesheetPanel queue={data.timesheetQueue} loading={loading} />
+                </div>
+            </div>
         </div>
     );
 }

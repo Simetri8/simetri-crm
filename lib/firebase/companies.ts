@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { getCollection } from './firestore';
-import type { Company, CompanyFormData, CompanyStatus } from '@/lib/types';
+import type { Company, CompanyFormData, CompanyStatus, CompanySource } from '@/lib/types';
 
 const COLLECTION = 'companies';
 
@@ -67,6 +67,8 @@ export const companyService = {
     const now = serverTimestamp() as Timestamp;
     const docRef = await addDoc(getCollection<Company>(COLLECTION), {
       ...data,
+      source: data.source ?? null,
+      sourceDetail: data.sourceDetail ?? null,
       nextAction: data.nextAction ?? null,
       nextActionDate: data.nextActionDate
         ? Timestamp.fromDate(data.nextActionDate)

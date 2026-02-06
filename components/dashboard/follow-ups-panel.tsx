@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import {
     Building2,
     Handshake,
+    UserCircle,
     CheckCircle2,
     Plus,
     AlertCircle,
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { companyService } from '@/lib/firebase/companies';
+import { contactService } from '@/lib/firebase/contacts';
 import { dealService } from '@/lib/firebase/deals';
 import { useAuth } from '@/components/auth/auth-provider';
 import { toast } from 'sonner';
@@ -71,6 +73,8 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
         if (editingId) return; // Don't navigate if editing
         if (item.type === 'company') {
             router.push(`/crm/companies/${item.id}`);
+        } else if (item.type === 'contact') {
+            router.push(`/crm/contacts`);
         } else {
             router.push(`/crm/deals/${item.id}`);
         }
@@ -102,6 +106,8 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
         try {
             if (item.type === 'company') {
                 await companyService.updateNextAction(item.id, editAction, editDate, user.uid);
+            } else if (item.type === 'contact') {
+                await contactService.updateNextAction(item.id, editAction, editDate, user.uid);
             } else {
                 await dealService.updateNextAction(item.id, editAction, editDate, user.uid);
             }
@@ -186,13 +192,18 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                     >
                                         <div className="flex items-start gap-3">
                                             <div
-                                                className={`p-2 rounded-full ${item.type === 'company'
-                                                    ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                                                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
-                                                    }`}
+                                                className={`p-2 rounded-full ${
+                                                    item.type === 'company'
+                                                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+                                                        : item.type === 'contact'
+                                                        ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
+                                                        : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
+                                                }`}
                                             >
                                                 {item.type === 'company' ? (
                                                     <Building2 className="h-4 w-4" />
+                                                ) : item.type === 'contact' ? (
+                                                    <UserCircle className="h-4 w-4" />
                                                 ) : (
                                                     <Handshake className="h-4 w-4" />
                                                 )}
@@ -281,7 +292,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                                     variant={item.isOverdue ? 'destructive' : 'secondary'}
                                                     className="shrink-0"
                                                 >
-                                                    {item.type === 'company' ? 'Company' : 'Deal'}
+                                                    {item.type === 'company' ? 'Company' : item.type === 'contact' ? 'Contact' : 'Deal'}
                                                 </Badge>
                                                 {!isEditing && (
                                                     <Button

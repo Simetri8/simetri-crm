@@ -15,6 +15,9 @@ import {
   Briefcase,
   ArrowRight,
   Calendar,
+  UserCircle,
+  Handshake,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ACTIVITY_TYPE_CONFIG } from '@/lib/utils/status';
@@ -27,19 +30,20 @@ const ACTIVITY_ICONS: Record<ActivityType, typeof Phone> = {
   note: PenLine,
   file: FileText,
   decision: CheckSquare,
+  networking: Handshake,
   system: Settings,
 };
 
 type ActivityFeedProps = {
   activities: Activity[];
-  showContext?: boolean; // Şirket/Deal linklerini goster
+  showContext?: boolean;
   emptyMessage?: string;
 };
 
 export function ActivityFeed({
   activities,
   showContext = true,
-  emptyMessage = 'Henuz aktivite yok',
+  emptyMessage = 'Henüz aktivite yok',
 }: ActivityFeedProps) {
   if (activities.length === 0) {
     return (
@@ -87,15 +91,24 @@ export function ActivityFeed({
                   </span>
                   {/* Context Links */}
                   {showContext && (
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground flex-wrap">
+                      {activity.contactName && (
+                        <span className="flex items-center gap-1">
+                          <UserCircle className="h-3 w-3" />
+                          {activity.contactName}
+                        </span>
+                      )}
                       {activity.companyName && (
-                        <Link
-                          href={`/crm/companies/${activity.companyId}`}
-                          className="flex items-center gap-1 hover:text-primary"
-                        >
-                          <Building2 className="h-3 w-3" />
-                          {activity.companyName}
-                        </Link>
+                        <>
+                          {activity.contactName && <ArrowRight className="h-3 w-3" />}
+                          <Link
+                            href={`/crm/companies/${activity.companyId}`}
+                            className="flex items-center gap-1 hover:text-primary"
+                          >
+                            <Building2 className="h-3 w-3" />
+                            {activity.companyName}
+                          </Link>
+                        </>
                       )}
                       {activity.dealTitle && (
                         <>
@@ -119,6 +132,15 @@ export function ActivityFeed({
                             <Briefcase className="h-3 w-3" />
                             {activity.workOrderTitle}
                           </Link>
+                        </>
+                      )}
+                      {activity.requestTitle && (
+                        <>
+                          <ArrowRight className="h-3 w-3" />
+                          <span className="flex items-center gap-1">
+                            <ClipboardList className="h-3 w-3" />
+                            {activity.requestTitle}
+                          </span>
                         </>
                       )}
                     </div>

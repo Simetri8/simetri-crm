@@ -1,15 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ContactList } from '@/components/crm/contact-list';
 import { ContactFormDialog } from '@/components/crm/contact-form-dialog';
 import { contactService } from '@/lib/firebase/contacts';
 import { useAuth } from '@/components/auth/auth-provider';
-import type { Contact, ContactFormData } from '@/lib/types';
+import { CONTACT_STAGES } from '@/lib/types';
+import { CONTACT_STAGE_CONFIG } from '@/lib/utils/status';
+import type { Contact, ContactFormData, ContactStage } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +31,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { PageHeader } from '@/components/layout/app-header';
 
+const ALL_STAGES_VALUE = '__all__';
+
 export default function ContactsPage() {
   const { user } = useAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [stageFilter, setStageFilter] = useState<string>(ALL_STAGES_VALUE);
   const [formOpen, setFormOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [deleteContact, setDeleteContact] = useState<Contact | null>(null);
@@ -47,12 +59,18 @@ export default function ContactsPage() {
     loadContacts();
   }, []);
 
-  const filteredContacts = contacts.filter(
-    (contact) =>
+  const filteredContacts = contacts.filter((contact) => {
+    const matchesSearch =
+      !searchTerm ||
       contact.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      (contact.companyName ?? '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.email?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStage =
+      stageFilter === ALL_STAGES_VALUE || contact.stage === stageFilter;
+
+    return matchesSearch && matchesStage;
+  });
 
   const handleCreate = async (data: ContactFormData) => {
     if (!user) return;
@@ -96,7 +114,7 @@ export default function ContactsPage() {
     <div className="flex flex-col gap-6 p-6">
       <PageHeader
         title="Kişiler"
-        description="Müşteri kişilerini yönetin"
+        description="Tüm kişilerinizi yönetin"
       />
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -110,6 +128,23 @@ export default function ContactsPage() {
               className="pl-9"
             />
           </div>
+          <Select
+            value={stageFilter}
+            onValueChange={setStageFilter}
+          >
+            <SelectTrigger className="w-[160px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Aşama" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_STAGES_VALUE}>Tüm Aşamalar</SelectItem>
+              {CONTACT_STAGES.map((stage) => (
+                <SelectItem key={stage} value={stage}>
+                  {CONTACT_STAGE_CONFIG[stage].label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />

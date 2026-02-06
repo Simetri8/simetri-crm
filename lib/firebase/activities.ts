@@ -19,9 +19,11 @@ import type {
   ActivityType,
   ActivitySource,
   SystemEvent,
+  Contact,
   Company,
   Deal,
   WorkOrder,
+  Request,
 } from '@/lib/types';
 
 const COLLECTION = 'activities';
@@ -31,9 +33,11 @@ export const activityService = {
    * Tum aktiviteleri getirir
    */
   getAll: async (options?: {
+    contactId?: string;
     companyId?: string;
     dealId?: string;
     workOrderId?: string;
+    requestId?: string;
     type?: ActivityType;
     source?: ActivitySource;
     limitCount?: number;
@@ -43,6 +47,9 @@ export const activityService = {
       orderBy('occurredAt', 'desc')
     );
 
+    if (options?.contactId) {
+      q = query(q, where('contactId', '==', options.contactId));
+    }
     if (options?.companyId) {
       q = query(q, where('companyId', '==', options.companyId));
     }
@@ -51,6 +58,9 @@ export const activityService = {
     }
     if (options?.workOrderId) {
       q = query(q, where('workOrderId', '==', options.workOrderId));
+    }
+    if (options?.requestId) {
+      q = query(q, where('requestId', '==', options.requestId));
     }
     if (options?.type) {
       q = query(q, where('type', '==', options.type));
@@ -67,7 +77,17 @@ export const activityService = {
   },
 
   /**
-   * Şirketin aktivitelerini getirir
+   * Kisinin aktivitelerini getirir
+   */
+  getByContactId: async (
+    contactId: string,
+    limitCount?: number
+  ): Promise<Activity[]> => {
+    return activityService.getAll({ contactId, limitCount });
+  },
+
+  /**
+   * Sirketin aktivitelerini getirir
    */
   getByCompanyId: async (
     companyId: string,
@@ -87,7 +107,7 @@ export const activityService = {
   },
 
   /**
-   * İş Emrinin aktivitelerini getirir
+   * Is Emrinin aktivitelerini getirir
    */
   getByWorkOrderId: async (
     workOrderId: string,
@@ -106,17 +126,33 @@ export const activityService = {
   },
 
   /**
-   * Kullanici aktivitesi ekler (call, meeting, email, note, file, decision)
+   * Kullanici aktivitesi ekler (call, meeting, email, note, file, decision, networking)
    */
   add: async (data: ActivityFormData, userId: string): Promise<string> => {
     const batch = writeBatch(db);
 
     // Denormalize alanlar icin veri topla
+    let contactName: string | null = null;
     let companyName: string | null = null;
     let dealTitle: string | null = null;
     let workOrderTitle: string | null = null;
+    let requestTitle: string | null = null;
 
-    if (data.companyId) {
+    if (data.contactId) {
+      const contactRef = doc(getCollection<Contact>('contacts'), data.contactId);
+      const contactSnap = await getDoc(contactRef);
+      if (contactSnap.exists()) {
+        const contact = contactSnap.data();
+        contactName = contact.fullName;
+        // Contact'tan company bilgisini de al (eger companyId verilmediyse)
+        if (!data.companyId && contact.companyId) {
+          data.companyId = contact.companyId;
+          companyName = contact.companyName;
+        }
+      }
+    }
+
+    if (data.companyId && !companyName) {
       const companyRef = doc(getCollection<Company>('companies'), data.companyId);
       const companySnap = await getDoc(companyRef);
       companyName = companySnap.exists() ? companySnap.data().name : null;
@@ -128,7 +164,6 @@ export const activityService = {
       if (dealSnap.exists()) {
         const deal = dealSnap.data();
         dealTitle = deal.title;
-        // Deal'den company bilgisini de al (eger companyId verilmediyse)
         if (!data.companyId) {
           data.companyId = deal.companyId;
           companyName = deal.companyName;
@@ -145,12 +180,17 @@ export const activityService = {
       if (workOrderSnap.exists()) {
         const workOrder = workOrderSnap.data();
         workOrderTitle = workOrder.title;
-        // Work order'dan company bilgisini de al (eger companyId verilmediyse)
         if (!data.companyId) {
           data.companyId = workOrder.companyId;
           companyName = workOrder.companyName;
         }
       }
+    }
+
+    if (data.requestId) {
+      const requestRef = doc(getCollection<Request>('requests'), data.requestId);
+      const requestSnap = await getDoc(requestRef);
+      requestTitle = requestSnap.exists() ? requestSnap.data().title : null;
     }
 
     const now = serverTimestamp() as Timestamp;
@@ -162,12 +202,16 @@ export const activityService = {
     const activityRef = doc(getCollection<Activity>(COLLECTION));
     batch.set(activityRef, {
       id: activityRef.id,
+      contactId: data.contactId ?? null,
+      contactName,
       companyId: data.companyId ?? null,
       companyName,
       dealId: data.dealId ?? null,
       dealTitle,
       workOrderId: data.workOrderId ?? null,
       workOrderTitle,
+      requestId: data.requestId ?? null,
+      requestTitle,
       type: data.type,
       source: 'user' as ActivitySource,
       systemEvent: null,
@@ -182,7 +226,12 @@ export const activityService = {
       createdBy: userId,
     } as Activity);
 
-    // lastActivityAt güncelle
+    // lastActivityAt guncelle
+    if (data.contactId) {
+      batch.update(doc(db, 'contacts', data.contactId), {
+        lastActivityAt: now,
+      });
+    }
     if (data.companyId) {
       batch.update(doc(db, 'companies', data.companyId), {
         lastActivityAt: now,
@@ -199,9 +248,14 @@ export const activityService = {
       });
     }
 
-    // Eger nextAction belirlendiyse, ilgili kaydi güncelle
+    // Eger nextAction belirlendiyse, ilgili kaydi guncelle
     if (data.nextAction && data.nextActionDate) {
-      if (data.dealId) {
+      if (data.contactId) {
+        batch.update(doc(db, 'contacts', data.contactId), {
+          nextAction: data.nextAction,
+          nextActionDate: Timestamp.fromDate(data.nextActionDate),
+        });
+      } else if (data.dealId) {
         batch.update(doc(db, 'deals', data.dealId), {
           nextAction: data.nextAction,
           nextActionDate: Timestamp.fromDate(data.nextActionDate),
@@ -225,9 +279,11 @@ export const activityService = {
     systemEvent: SystemEvent,
     summary: string,
     options: {
+      contactId?: string;
       companyId?: string;
       dealId?: string;
       workOrderId?: string;
+      requestId?: string;
       details?: string;
     },
     userId: string
@@ -235,10 +291,24 @@ export const activityService = {
     const batch = writeBatch(db);
 
     // Denormalize alanlar icin veri topla
+    let contactName: string | null = null;
     let companyName: string | null = null;
     let dealTitle: string | null = null;
     let workOrderTitle: string | null = null;
+    let requestTitle: string | null = null;
+    let contactId = options.contactId ?? null;
     let companyId = options.companyId ?? null;
+
+    if (contactId) {
+      const contactRef = doc(getCollection<Contact>('contacts'), contactId);
+      const contactSnap = await getDoc(contactRef);
+      if (contactSnap.exists()) {
+        const contact = contactSnap.data();
+        contactName = contact.fullName;
+        companyId = companyId ?? contact.companyId;
+        companyName = contact.companyName;
+      }
+    }
 
     if (options.dealId) {
       const dealRef = doc(getCollection<Deal>('deals'), options.dealId);
@@ -247,7 +317,7 @@ export const activityService = {
         const deal = dealSnap.data();
         dealTitle = deal.title;
         companyId = companyId ?? deal.companyId;
-        companyName = deal.companyName;
+        companyName = companyName ?? deal.companyName;
       }
     }
 
@@ -265,6 +335,12 @@ export const activityService = {
       }
     }
 
+    if (options.requestId) {
+      const requestRef = doc(getCollection<Request>('requests'), options.requestId);
+      const requestSnap = await getDoc(requestRef);
+      requestTitle = requestSnap.exists() ? requestSnap.data().title : null;
+    }
+
     if (companyId && !companyName) {
       const companyRef = doc(getCollection<Company>('companies'), companyId);
       const companySnap = await getDoc(companyRef);
@@ -277,12 +353,16 @@ export const activityService = {
     const activityRef = doc(getCollection<Activity>(COLLECTION));
     batch.set(activityRef, {
       id: activityRef.id,
+      contactId,
+      contactName,
       companyId,
       companyName,
       dealId: options.dealId ?? null,
       dealTitle,
       workOrderId: options.workOrderId ?? null,
       workOrderTitle,
+      requestId: options.requestId ?? null,
+      requestTitle,
       type: 'system' as ActivityType,
       source: 'system' as ActivitySource,
       systemEvent,
@@ -295,7 +375,12 @@ export const activityService = {
       createdBy: userId,
     } as Activity);
 
-    // lastActivityAt güncelle
+    // lastActivityAt guncelle
+    if (contactId) {
+      batch.update(doc(db, 'contacts', contactId), {
+        lastActivityAt: now,
+      });
+    }
     if (companyId) {
       batch.update(doc(db, 'companies', companyId), {
         lastActivityAt: now,
@@ -343,6 +428,7 @@ export const activityService = {
   getAfterDate: async (
     date: Date,
     options?: {
+      contactId?: string;
       companyId?: string;
       dealId?: string;
       workOrderId?: string;
@@ -354,6 +440,9 @@ export const activityService = {
       orderBy('occurredAt', 'desc')
     );
 
+    if (options?.contactId) {
+      q = query(q, where('contactId', '==', options.contactId));
+    }
     if (options?.companyId) {
       q = query(q, where('companyId', '==', options.companyId));
     }

@@ -41,13 +41,17 @@ import { cn } from '@/lib/utils';
 import { ACTIVITY_TYPES } from '@/lib/types';
 import { ACTIVITY_TYPE_CONFIG } from '@/lib/utils/status';
 import { companyService } from '@/lib/firebase/companies';
+import { contactService } from '@/lib/firebase/contacts';
 import { dealService } from '@/lib/firebase/deals';
-import type { ActivityFormData, ActivityType, Company, Deal } from '@/lib/types';
+import type { ActivityFormData, ActivityType, Company, Contact, Deal } from '@/lib/types';
+
+const NONE_VALUE = '__none__';
 
 // Sadece kullanici aktivite tipleri (system haric)
 const USER_ACTIVITY_TYPES = ACTIVITY_TYPES.filter((t) => t !== 'system');
 
 const formSchema = z.object({
+  contactId: z.string().optional(),
   companyId: z.string().optional(),
   dealId: z.string().optional(),
   type: z.enum(USER_ACTIVITY_TYPES as [string, ...string[]]),
@@ -63,6 +67,7 @@ type FormValues = z.infer<typeof formSchema>;
 type ActivityFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultContactId?: string;
   defaultCompanyId?: string;
   defaultDealId?: string;
   defaultWorkOrderId?: string;
@@ -72,19 +77,23 @@ type ActivityFormDialogProps = {
 export function ActivityFormDialog({
   open,
   onOpenChange,
+  defaultContactId,
   defaultCompanyId,
   defaultDealId,
   defaultWorkOrderId,
   onSubmit,
 }: ActivityFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(true);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      contactId: defaultContactId ?? '',
       companyId: defaultCompanyId ?? '',
       dealId: defaultDealId ?? '',
       type: 'note',
@@ -102,6 +111,7 @@ export function ActivityFormDialog({
   useEffect(() => {
     if (open) {
       form.reset({
+        contactId: defaultContactId ?? '',
         companyId: defaultCompanyId ?? '',
         dealId: defaultDealId ?? '',
         type: 'note',
@@ -112,26 +122,33 @@ export function ActivityFormDialog({
         occurredAt: new Date(),
       });
     }
-  }, [open, defaultCompanyId, defaultDealId, form]);
+  }, [open, defaultContactId, defaultCompanyId, defaultDealId, form]);
 
-  // Şirketleri yukle
+  // Kisileri ve sirketleri yukle
   useEffect(() => {
-    const loadCompanies = async () => {
+    const loadData = async () => {
       try {
-        const data = await companyService.getAll({ isArchived: false });
-        setCompanies(data);
+        const [contactsData, companiesData] = await Promise.all([
+          defaultContactId ? Promise.resolve([]) : contactService.getAll(),
+          defaultCompanyId || defaultWorkOrderId
+            ? Promise.resolve([])
+            : companyService.getAll({ isArchived: false }),
+        ]);
+        setContacts(contactsData);
+        setCompanies(companiesData);
       } catch (error) {
-        console.error('Error loading companies:', error);
+        console.error('Error loading data:', error);
       } finally {
+        setLoadingContacts(false);
         setLoadingCompanies(false);
       }
     };
-    if (open && !defaultCompanyId && !defaultWorkOrderId) {
-      loadCompanies();
+    if (open) {
+      loadData();
     }
-  }, [open, defaultCompanyId, defaultWorkOrderId]);
+  }, [open, defaultContactId, defaultCompanyId, defaultWorkOrderId]);
 
-  // Şirket secildiginde deal'lari yukle
+  // Sirket secildiginde deal'lari yukle
   useEffect(() => {
     const loadDeals = async () => {
       if (!selectedCompanyId) {
@@ -154,6 +171,7 @@ export function ActivityFormDialog({
     setIsSubmitting(true);
     try {
       const data: ActivityFormData = {
+        contactId: values.contactId || null,
         companyId: values.companyId || null,
         dealId: values.dealId || null,
         workOrderId: defaultWorkOrderId || null,
@@ -172,27 +190,64 @@ export function ActivityFormDialog({
     }
   };
 
+  // Baglam secicileri gosterilecek mi?
+  const showContextSelectors = !defaultCompanyId && !defaultDealId && !defaultWorkOrderId;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Yeni Aktivite</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            {/* Şirket ve Deal secimi (eger default verilmediyse) */}
-            {!defaultCompanyId && !defaultDealId && !defaultWorkOrderId && (
+            {/* Kisi secimi */}
+            {!defaultContactId && showContextSelectors && (
+              <FormField
+                control={form.control}
+                name="contactId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kişi (Opsiyonel)</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                      defaultValue={field.value || NONE_VALUE}
+                      disabled={loadingContacts}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Kişi seç..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={NONE_VALUE}>Kişi yok</SelectItem>
+                        {contacts.map((contact) => (
+                          <SelectItem key={contact.id} value={contact.id}>
+                            {contact.fullName}
+                            {contact.companyName ? ` (${contact.companyName})` : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Sirket ve Deal secimi */}
+            {showContextSelectors && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="companyId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Şirket</FormLabel>
+                      <FormLabel>Şirket (Opsiyonel)</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                        defaultValue={field.value || NONE_VALUE}
                         disabled={loadingCompanies}
                       >
                         <FormControl>
@@ -201,6 +256,7 @@ export function ActivityFormDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value={NONE_VALUE}>Şirket yok</SelectItem>
                           {companies.map((company) => (
                             <SelectItem key={company.id} value={company.id}>
                               {company.name}
@@ -220,8 +276,8 @@ export function ActivityFormDialog({
                     <FormItem>
                       <FormLabel>Fırsat (Opsiyonel)</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                        defaultValue={field.value || NONE_VALUE}
                         disabled={!selectedCompanyId || deals.length === 0}
                       >
                         <FormControl>
@@ -230,6 +286,7 @@ export function ActivityFormDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                          <SelectItem value={NONE_VALUE}>Fırsat yok</SelectItem>
                           {deals.map((deal) => (
                             <SelectItem key={deal.id} value={deal.id}>
                               {deal.title}

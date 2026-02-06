@@ -12,7 +12,7 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare } from "lucide-react"
+import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -22,6 +22,16 @@ const mainItems = [
         title: "Dashboard",
         url: "/dashboard",
         icon: Home,
+    },
+    {
+        title: "CRM Dashboard",
+        url: "/dashboard/crm",
+        icon: BarChart3,
+    },
+    {
+        title: "Ops Dashboard",
+        url: "/dashboard/ops",
+        icon: Briefcase,
     },
     {
         title: "İş Akışı",
@@ -50,6 +60,11 @@ const crmItems = [
         title: "Kişiler",
         url: "/crm/contacts",
         icon: Contact,
+    },
+    {
+        title: "Talepler",
+        url: "/crm/requests",
+        icon: ClipboardList,
     },
     {
         title: "Katalog",

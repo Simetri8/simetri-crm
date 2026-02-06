@@ -37,13 +37,17 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { COMPANY_STATUS } from '@/lib/types';
-import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
+import { COMPANY_STATUS, COMPANY_SOURCES } from '@/lib/types';
+import { COMPANY_STATUS_CONFIG, COMPANY_SOURCE_LABELS } from '@/lib/utils/status';
 import type { Company, CompanyFormData } from '@/lib/types';
+
+const NONE_VALUE = '__none__';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Şirket adı zorunlu'),
-  status: z.enum(['active', 'inactive']),
+  status: z.enum(['prospect', 'active', 'inactive', 'churned']),
+  source: z.string().optional(),
+  sourceDetail: z.string().optional(),
   tags: z.string(),
   nextAction: z.string().optional(),
   nextActionDate: z.date().optional().nullable(),
@@ -76,7 +80,9 @@ export function CompanyFormDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: company?.name ?? '',
-      status: company?.status ?? 'active',
+      status: company?.status ?? 'prospect',
+      source: company?.source ?? '',
+      sourceDetail: company?.sourceDetail ?? '',
       tags: company?.tags?.join(', ') ?? '',
       nextAction: company?.nextAction ?? '',
       nextActionDate: company?.nextActionDate?.toDate() ?? null,
@@ -89,7 +95,9 @@ export function CompanyFormDialog({
     if (open) {
       form.reset({
         name: company?.name ?? '',
-        status: company?.status ?? 'active',
+        status: company?.status ?? 'prospect',
+        source: company?.source ?? '',
+        sourceDetail: company?.sourceDetail ?? '',
         tags: company?.tags?.join(', ') ?? '',
         nextAction: company?.nextAction ?? '',
         nextActionDate: company?.nextActionDate?.toDate() ?? null,
@@ -104,6 +112,8 @@ export function CompanyFormDialog({
       const data: CompanyFormData = {
         name: values.name,
         status: values.status,
+        source: (values.source as CompanyFormData['source']) || null,
+        sourceDetail: values.sourceDetail || null,
         tags: values.tags
           .split(',')
           .map((t) => t.trim())
@@ -162,26 +172,71 @@ export function CompanyFormDialog({
               )}
             />
 
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Durum</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {COMPANY_STATUS.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {COMPANY_STATUS_CONFIG[status].label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="source"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kaynak</FormLabel>
+                    <Select
+                      onValueChange={(val) => field.onChange(val === NONE_VALUE ? '' : val)}
+                      defaultValue={field.value || NONE_VALUE}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seç..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={NONE_VALUE}>Belirtilmedi</SelectItem>
+                        {COMPANY_SOURCES.map((source) => (
+                          <SelectItem key={source} value={source}>
+                            {COMPANY_SOURCE_LABELS[source]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
-              name="status"
+              name="sourceDetail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Durum</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {COMPANY_STATUS.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {COMPANY_STATUS_CONFIG[status].label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormLabel>Kaynak Detayı</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Referans kişi, etkinlik adı vb." {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -271,4 +326,3 @@ export function CompanyFormDialog({
     </Dialog>
   );
 }
-

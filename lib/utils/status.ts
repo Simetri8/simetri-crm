@@ -1,5 +1,8 @@
 import type {
   CompanyStatus,
+  CompanySource,
+  ContactStage,
+  ContactSource,
   DealStage,
   LostReason,
   ProposalStatus,
@@ -15,6 +18,9 @@ import type {
   CatalogItemType,
   Unit,
   Currency,
+  RequestType,
+  RequestPriority,
+  RequestStatus,
   StatusConfig,
 } from '@/lib/types';
 
@@ -23,8 +29,40 @@ import type {
 // =============================================================================
 
 export const COMPANY_STATUS_CONFIG: Record<CompanyStatus, StatusConfig> = {
+  prospect: { label: 'Aday', color: 'text-blue-700', bgColor: 'bg-blue-100' },
   active: { label: 'Aktif', color: 'text-green-700', bgColor: 'bg-green-100' },
   inactive: { label: 'Pasif', color: 'text-gray-500', bgColor: 'bg-gray-100' },
+  churned: { label: 'Kaybedildi', color: 'text-red-700', bgColor: 'bg-red-100' },
+};
+
+export const COMPANY_SOURCE_LABELS: Record<CompanySource, string> = {
+  event: 'Etkinlik',
+  referral: 'Referans',
+  inbound: 'Gelen',
+  outbound: 'Giden',
+  other: 'Diğer',
+};
+
+// =============================================================================
+// CONTACT STAGE & SOURCE
+// =============================================================================
+
+export const CONTACT_STAGE_CONFIG: Record<ContactStage, StatusConfig> = {
+  new: { label: 'Yeni', color: 'text-slate-700', bgColor: 'bg-slate-100' },
+  networking: { label: 'Networking', color: 'text-purple-700', bgColor: 'bg-purple-100' },
+  warm: { label: 'Sıcak', color: 'text-amber-700', bgColor: 'bg-amber-100' },
+  prospect: { label: 'Aday', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  client: { label: 'Müşteri', color: 'text-green-700', bgColor: 'bg-green-100' },
+  inactive: { label: 'Pasif', color: 'text-gray-500', bgColor: 'bg-gray-100' },
+};
+
+export const CONTACT_SOURCE_LABELS: Record<ContactSource, string> = {
+  event: 'Etkinlik',
+  referral: 'Referans',
+  inbound: 'Gelen',
+  outbound: 'Giden',
+  linkedin: 'LinkedIn',
+  other: 'Diğer',
 };
 
 // =============================================================================
@@ -144,6 +182,7 @@ export const ACTIVITY_TYPE_CONFIG: Record<ActivityType, StatusConfig & { icon?: 
   note: { label: 'Not', color: 'text-amber-700', bgColor: 'bg-amber-100' },
   file: { label: 'Dosya', color: 'text-purple-700', bgColor: 'bg-purple-100' },
   decision: { label: 'Karar', color: 'text-rose-700', bgColor: 'bg-rose-100' },
+  networking: { label: 'Networking', color: 'text-cyan-700', bgColor: 'bg-cyan-100' },
   system: { label: 'Sistem', color: 'text-gray-500', bgColor: 'bg-gray-100' },
 };
 
@@ -209,6 +248,32 @@ export const CURRENCY_CONFIG: Record<Currency, { label: string; symbol: string }
   TRY: { label: 'Türk Lirası', symbol: '₺' },
   USD: { label: 'ABD Doları', symbol: '$' },
   EUR: { label: 'Euro', symbol: '€' },
+};
+
+// =============================================================================
+// REQUEST TYPE, PRIORITY & STATUS
+// =============================================================================
+
+export const REQUEST_TYPE_LABELS: Record<RequestType, string> = {
+  'technical-assessment': 'Teknik Değerlendirme',
+  'demo-setup': 'Demo Kurulum',
+  'cost-estimate': 'Maliyet Tahmini',
+  design: 'Tasarım',
+  content: 'İçerik',
+  other: 'Diğer',
+};
+
+export const REQUEST_PRIORITY_CONFIG: Record<RequestPriority, StatusConfig> = {
+  low: { label: 'Düşük', color: 'text-gray-500', bgColor: 'bg-gray-100' },
+  normal: { label: 'Normal', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  urgent: { label: 'Acil', color: 'text-red-700', bgColor: 'bg-red-100' },
+};
+
+export const REQUEST_STATUS_CONFIG: Record<RequestStatus, StatusConfig> = {
+  open: { label: 'Açık', color: 'text-blue-700', bgColor: 'bg-blue-100' },
+  'in-progress': { label: 'Devam Ediyor', color: 'text-amber-700', bgColor: 'bg-amber-100' },
+  done: { label: 'Tamamlandı', color: 'text-green-700', bgColor: 'bg-green-100' },
+  cancelled: { label: 'İptal', color: 'text-red-700', bgColor: 'bg-red-100' },
 };
 
 // =============================================================================

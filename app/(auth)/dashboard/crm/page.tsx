@@ -1,20 +1,32 @@
 'use client';
 
-import { useOverviewDashboard } from '@/hooks/use-overview-dashboard';
-import { KPICards } from '@/components/dashboard';
-import { DashboardNavCards } from '@/components/dashboard/dashboard-nav-cards';
+import { useCrmDashboard } from '@/hooks/use-crm-dashboard';
+import {
+    KPICards,
+    FollowUpsPanel,
+    NetworkingPanel,
+    RequestsPanel,
+    PipelineSummaryPanel,
+} from '@/components/dashboard';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertCircle } from 'lucide-react';
 import { PageHeader } from '@/components/layout/app-header';
 
-export default function DashboardPage() {
-    const { data, loading, error, refresh } = useOverviewDashboard();
+const CRM_KPI_CARDS = [
+    'overdueNextActions',
+    'todayNextActions',
+    'newContacts',
+    'openRequests',
+];
+
+export default function CrmDashboardPage() {
+    const { data, loading, error, refresh } = useCrmDashboard();
 
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Dashboard"
-                description="Bugün neyi unutmamalıyım?"
+                title="CRM Dashboard"
+                description="Takipler, pipeline ve networking"
             />
             <div className="flex items-center justify-end">
                 <Button
@@ -57,10 +69,34 @@ export default function DashboardPage() {
                 kpis={data.kpis}
                 loading={loading}
                 oldestOverdueDays={data.oldestOverdueDays}
-                thisWeekDeliveryCount={data.thisWeekDeliveryCount}
+                thisWeekDeliveryCount={0}
+                visibleCards={CRM_KPI_CARDS}
             />
 
-            <DashboardNavCards />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 auto-rows-min">
+                {/* Follow-ups Panel - 2 columns, 2 rows */}
+                <div className="md:col-span-2 lg:col-span-2 lg:row-span-2">
+                    <FollowUpsPanel followUps={data.followUps} loading={loading} />
+                </div>
+
+                {/* Pipeline Summary - 1 column */}
+                <div className="md:col-span-1 lg:col-span-1">
+                    <PipelineSummaryPanel
+                        summary={data.pipelineSummary}
+                        loading={loading}
+                    />
+                </div>
+
+                {/* Networking Panel - 1 column */}
+                <div className="md:col-span-1 lg:col-span-1">
+                    <NetworkingPanel contacts={data.networkingContacts} loading={loading} />
+                </div>
+
+                {/* Requests Panel - 2 columns */}
+                <div className="md:col-span-2 lg:col-span-2">
+                    <RequestsPanel requests={data.openRequests} loading={loading} />
+                </div>
+            </div>
         </div>
     );
 }
