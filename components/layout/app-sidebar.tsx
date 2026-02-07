@@ -111,7 +111,18 @@ export function AppSidebar() {
     return (
         <Sidebar>
             <SidebarHeader>
-                <h1 className="text-xl p-2 font-bold">Simetri CRM</h1>
+                <Link href="/dashboard" className="flex items-center p-2">
+                    <img
+                        src="/logos/Simetri-CRM-logo-02-cropped.png"
+                        alt="Simetri CRM"
+                        className="h-8 w-auto dark:hidden"
+                    />
+                    <img
+                        src="/logos/Simetri-CRM-logo-03-cropped.png"
+                        alt="Simetri CRM"
+                        className="hidden h-8 w-auto dark:block"
+                    />
+                </Link>
             </SidebarHeader>
             <SidebarContent>
                 {/* Ana Menü */}
