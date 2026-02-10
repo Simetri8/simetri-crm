@@ -9,7 +9,7 @@ import {
     PipelineSummaryPanel,
 } from '@/components/dashboard';
 import { Button } from '@/components/ui/button';
-import { RefreshCcw, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { PageHeader } from '@/components/layout/app-header';
 
 const CRM_KPI_CARDS = [
@@ -23,23 +23,11 @@ export default function CrmDashboardPage() {
     const { data, loading, error, refresh } = useCrmDashboard();
 
     return (
-        <div className="space-y-6">
+        <div className="px-8 space-y-4">
             <PageHeader
                 title="CRM Dashboard"
                 description="Takipler, pipeline ve networking"
             />
-            <div className="flex items-center justify-end">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={refresh}
-                    disabled={loading}
-                    className="gap-2"
-                >
-                    <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                    Yenile
-                </Button>
-            </div>
 
             {error && (
                 <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30 p-4">
@@ -73,9 +61,9 @@ export default function CrmDashboardPage() {
                 visibleCards={CRM_KPI_CARDS}
             />
 
-            <div className="grid gap-4 lg:grid-cols-3">
-                <FollowUpsPanel followUps={data.followUps} loading={loading} />
+            <div className="grid gap-3 lg:grid-cols-3">
                 <NetworkingPanel contacts={data.networkingContacts} loading={loading} />
+                <FollowUpsPanel followUps={data.followUps} loading={loading} />
                 <RequestsPanel requests={data.openRequests} loading={loading} />
             </div>
         </div>

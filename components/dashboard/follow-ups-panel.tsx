@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +17,6 @@ import {
     Handshake,
     UserCircle,
     CheckCircle2,
-    Plus,
     AlertCircle,
     Pencil,
     Check,
@@ -154,169 +153,160 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
     const overdueCount = followUps.filter((f) => f.isOverdue).length;
 
     return (
-            <Card className="col-span-2 row-span-2 h-full flex flex-col min-h-0">
+        <Card className="col-span-1 h-full flex flex-col min-h-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    Bugün &amp; Geciken Takipler
+                <CardTitle className="flex items-center gap-2 text-base">
+                    Bugün &amp; Geciken
+
+                </CardTitle>
+                <CardAction>
                     {overdueCount > 0 && (
                         <Badge variant="destructive" className="text-xs">
-                            {overdueCount} gecikmiş
+                            {overdueCount}
                         </Badge>
                     )}
-                </CardTitle>
-                <Button variant="outline" size="sm" className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    Aktivite Ekle
-                </Button>
+                </CardAction>
             </CardHeader>
-            <CardContent className="flex-1 min-h-0 flex flex-col">
-                <ScrollArea className="min-h-[320px] max-h-[50vh] pr-4">
-                    {followUps.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                            <CheckCircle2 className="h-8 w-8 mb-2 text-green-500" />
-                            <p className="text-sm">Bekleyen takip yok</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {followUps.map((item) => {
-                                const isEditing = editingId === item.id;
-                                return (
-                                    <div
-                                        key={`${item.type}-${item.id}`}
-                                        className={`w-full p-3 rounded-lg border transition-colors ${isEditing ? 'border-primary bg-accent' :
-                                            item.isOverdue
-                                                ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
-                                                : 'hover:bg-accent cursor-pointer'
-                                            }`}
-                                        onClick={() => !isEditing && handleItemClick(item)}
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            <div
-                                                className={`p-2 rounded-full ${
-                                                    item.type === 'company'
-                                                        ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                                                        : item.type === 'contact'
-                                                        ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
-                                                        : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
+            <CardContent className="flex-1 min-h-0 flex flex-col px-4">
+                {followUps.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                        <CheckCircle2 className="h-8 w-8 mb-2 text-green-500" />
+                        <p className="text-sm">Bekleyen takip yok</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {followUps.slice(0, 10).map((item) => {
+                            const isEditing = editingId === item.id;
+                            return (
+                                <div
+                                    key={`${item.type}-${item.id}`}
+                                    className={`w-full p-3 rounded-lg border transition-colors ${isEditing ? 'border-primary bg-accent' :
+                                        item.isOverdue
+                                            ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
+                                            : 'hover:bg-accent cursor-pointer'
+                                        }`}
+                                    onClick={() => !isEditing && handleItemClick(item)}
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <div
+                                            className={`p-2 rounded-full ${item.type === 'company'
+                                                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
+                                                : item.type === 'contact'
+                                                    ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
+                                                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
                                                 }`}
-                                            >
-                                                {item.type === 'company' ? (
-                                                    <Building2 className="h-4 w-4" />
-                                                ) : item.type === 'contact' ? (
-                                                    <UserCircle className="h-4 w-4" />
-                                                ) : (
-                                                    <Handshake className="h-4 w-4" />
-                                                )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium truncate">{item.title}</span>
-                                                    {item.isOverdue && !isEditing && (
-                                                        <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
-                                                    )}
-                                                </div>
-
-                                                {isEditing ? (
-                                                    <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
-                                                        <Input
-                                                            placeholder="Sonraki aksiyon..."
-                                                            value={editAction}
-                                                            onChange={(e) => setEditAction(e.target.value)}
-                                                            className="text-sm"
-                                                        />
-                                                        <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    className={cn(
-                                                                        'w-full justify-start text-left font-normal text-sm',
-                                                                        !editDate && 'text-muted-foreground'
-                                                                    )}
-                                                                >
-                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
-                                                                    {editDate
-                                                                        ? format(editDate, 'dd MMM yyyy', { locale: tr })
-                                                                        : 'Tarih seç'}
-                                                                </Button>
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0" align="start">
-                                                                <Calendar
-                                                                    mode="single"
-                                                                    selected={editDate}
-                                                                    onSelect={setEditDate}
-                                                                    locale={tr}
-                                                                    initialFocus
-                                                                />
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                        <div className="flex gap-2">
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={(e) => handleSaveEdit(e, item)}
-                                                                disabled={saving}
-                                                                className="flex-1"
-                                                            >
-                                                                <Check className="mr-1 h-3 w-3" />
-                                                                Kaydet
-                                                            </Button>
-                                                            <Button
-                                                                size="sm"
-                                                                variant="outline"
-                                                                onClick={handleCancelEdit}
-                                                                disabled={saving}
-                                                            >
-                                                                <X className="h-3 w-3" />
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        {item.nextAction && (
-                                                            <p className="text-sm text-muted-foreground truncate mt-0.5">
-                                                                {item.nextAction}
-                                                            </p>
-                                                        )}
-                                                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                                                            <span>
-                                                                Tarih: {formatDate(item.nextActionDate)}
-                                                            </span>
-                                                            <span>
-                                                                Son aktivite: {formatRelativeTime(item.lastActivityAt)}
-                                                            </span>
-                                                        </div>
-                                                    </>
-                                                )}
-                                            </div>
+                                        >
+                                            {item.type === 'company' ? (
+                                                <Building2 className="h-4 w-4" />
+                                            ) : item.type === 'contact' ? (
+                                                <UserCircle className="h-4 w-4" />
+                                            ) : (
+                                                <Handshake className="h-4 w-4" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <Badge
-                                                    variant={item.isOverdue ? 'destructive' : 'secondary'}
-                                                    className="shrink-0"
-                                                >
-                                                    {item.type === 'company' ? 'Company' : item.type === 'contact' ? 'Contact' : 'Deal'}
-                                                </Badge>
-                                                {!isEditing && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6"
-                                                        onClick={(e) => handleEditClick(e, item)}
-                                                    >
-                                                        <Pencil className="h-3 w-3" />
-                                                    </Button>
+                                                <span className="font-medium text-sm truncate">{item.title}</span>
+                                                {item.isOverdue && !isEditing && (
+                                                    <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
                                                 )}
                                             </div>
+
+                                            {isEditing ? (
+                                                <div className="mt-1 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                                                    <Input
+                                                        placeholder="Sonraki aksiyon..."
+                                                        value={editAction}
+                                                        onChange={(e) => setEditAction(e.target.value)}
+                                                        className="text-sm"
+                                                    />
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    'w-full justify-start text-left font-normal text-sm',
+                                                                    !editDate && 'text-muted-foreground'
+                                                                )}
+                                                            >
+                                                                <CalendarIcon className="mr-2 h-3 w-3" />
+                                                                {editDate
+                                                                    ? format(editDate, 'dd MMM yyyy', { locale: tr })
+                                                                    : 'Tarih seç'}
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={editDate}
+                                                                onSelect={setEditDate}
+                                                                locale={tr}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={(e) => handleSaveEdit(e, item)}
+                                                            disabled={saving}
+                                                            className="flex-1"
+                                                        >
+                                                            <Check className="mr-1 h-3 w-3" />
+                                                            Kaydet
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={handleCancelEdit}
+                                                            disabled={saving}
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {item.nextAction && (
+                                                        <p className="text-sm text-muted-foreground truncate mt-1">
+                                                            {item.nextAction}
+                                                        </p>
+                                                    )}
+                                                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                                                        <span>
+                                                            Tarih: {formatDate(item.nextActionDate)}
+                                                        </span>
+                                                        <span>
+                                                            Son: {formatRelativeTime(item.lastActivityAt)}
+                                                        </span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge
+                                                variant={item.isOverdue ? 'destructive' : 'secondary'}
+                                                className="shrink-0"
+                                            >
+                                                {item.type === 'company' ? 'Company' : item.type === 'contact' ? 'Contact' : 'Deal'}
+                                            </Badge>
+                                            {!isEditing && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    onClick={(e) => handleEditClick(e, item)}
+                                                >
+                                                    <Pencil className="h-3 w-3" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                </ScrollArea>
-                <div className="mt-4 text-xs">
-                    <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
-                        FollowUp
-                    </Badge>
-                </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
