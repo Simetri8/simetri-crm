@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (firebaseUser && firebaseUser.email) {
                 // Check whitelist
                 const isAllowed = await userService.isWhitelisted(firebaseUser.email);
-                
+
                 if (!isAllowed) {
                     console.error('AuthProvider: User not whitelisted', firebaseUser.email);
                     toast.error('Giriş yetkiniz bulunmamaktadır. Lütfen yönetici ile iletişime geçin.');
@@ -50,6 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     router.push('/');
                     return;
                 }
+
+                // Create/update UID-based user doc for Firestore rules
+                await userService.ensureUserDoc({
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    displayName: firebaseUser.displayName,
+                    photoURL: firebaseUser.photoURL,
+                });
             }
 
             setUser(firebaseUser);

@@ -13,46 +13,34 @@ import { db } from './config';
 import { getCollection } from './firestore';
 import { User } from '@/lib/types';
 
+const WHITELIST_COLLECTION = 'whitelist';
 const USERS_COLLECTION = 'users';
 
 export const userService = {
-  // Check if a user is whitelisted by email
-  // Note: Firestore doesn't allow querying by ID directly in a simple way if we don't know the ID,
-  // but since we use email as the ID or a field, we can check it.
-  // For this implementation, we'll assume the user document ID is their UID, 
-  // but we also want to check by email for the whitelist.
-  
+  // Check if an email is in the whitelist
   isWhitelisted: async (email: string): Promise<boolean> => {
     if (!email) return false;
-    
-    // We'll look for a document in 'users' collection where email matches
-    const q = query(
-      getCollection<User>(USERS_COLLECTION),
-      orderBy('createdAt', 'desc')
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.some(doc => doc.data().email === email);
+    const docRef = doc(db, WHITELIST_COLLECTION, email);
+    const snapshot = await getDoc(docRef);
+    return snapshot.exists();
   },
 
-  // Get all whitelisted users
+  // Get all whitelisted emails (for admin management UI)
   getAll: async (): Promise<User[]> => {
     const q = query(
-      getCollection<User>(USERS_COLLECTION),
+      getCollection<User>(WHITELIST_COLLECTION),
       orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({
       ...doc.data(),
-      uid: doc.id
+      uid: doc.id, // doc ID = email address
     }));
   },
 
-  // Add a user to whitelist
+  // Add an email to whitelist
   addToWhitelist: async (email: string, displayName: string = '') => {
-    // We use email as a way to identify, but we'll create a doc with a generated ID or email
-    const id = email.replace(/[^a-zA-Z0-9]/g, '_'); // Simple ID from email
-    const docRef = doc(db, USERS_COLLECTION, id);
-    
+    const docRef = doc(db, WHITELIST_COLLECTION, email);
     return setDoc(docRef, {
       email,
       displayName,
@@ -62,8 +50,41 @@ export const userService = {
   },
 
   // Remove from whitelist
-  removeFromWhitelist: async (id: string) => {
-    const docRef = doc(db, USERS_COLLECTION, id);
+  removeFromWhitelist: async (email: string) => {
+    const docRef = doc(db, WHITELIST_COLLECTION, email);
     return deleteDoc(docRef);
-  }
+  },
+
+  // Create or update user document with Firebase Auth UID (called on login)
+  ensureUserDoc: async (user: { uid: string; email: string | null; displayName: string | null; photoURL: string | null }) => {
+    const docRef = doc(db, USERS_COLLECTION, user.uid);
+    const snapshot = await getDoc(docRef);
+    if (!snapshot.exists()) {
+      await setDoc(docRef, {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: serverTimestamp() as Timestamp,
+      });
+    } else {
+      await setDoc(docRef, {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      }, { merge: true });
+    }
+  },
+
+  // Get all registered users (UID-based, for assignee dropdowns)
+  getAllUsers: async (): Promise<User[]> => {
+    const q = query(
+      getCollection<User>(USERS_COLLECTION),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      ...doc.data(),
+      uid: doc.id,
+    }));
+  },
 };

@@ -52,11 +52,11 @@ export default function UsersPage() {
     }
   };
 
-  const handleRemoveUser = async (id: string, email: string) => {
+  const handleRemoveUser = async (email: string) => {
     if (!confirm(`${email} adresini whitelist'ten çıkarmak istediğinize emin misiniz?`)) return;
 
     try {
-      await userService.removeFromWhitelist(id);
+      await userService.removeFromWhitelist(email);
       toast.success('Kullanıcı whitelist\'ten çıkarıldı');
       loadUsers();
     } catch (error) {
@@ -132,7 +132,7 @@ export default function UsersPage() {
                   </TableRow>
                 ) : (
                   users.map((user) => (
-                    <TableRow key={user.uid}>
+                    <TableRow key={user.email}>
                       <TableCell className="font-medium">{user.displayName || '-'}</TableCell>
                       <TableCell>{user.email}</TableCell>
                       <TableCell>
@@ -143,7 +143,7 @@ export default function UsersPage() {
                           variant="ghost"
                           size="icon"
                           className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleRemoveUser(user.uid, user.email || '')}
+                          onClick={() => handleRemoveUser(user.email || '')}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
