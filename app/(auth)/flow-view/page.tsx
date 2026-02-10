@@ -1,25 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 import { companyService } from '@/lib/firebase/companies';
-import { seedFlowData } from '@/lib/firebase/seed-flow';
-import { useAuth } from '@/components/auth/auth-provider';
 import Link from 'next/link';
-import { Building2, ArrowRight, Loader2, Sprout } from 'lucide-react';
+import { Building2, ArrowRight, Loader2 } from 'lucide-react';
 import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import type { Company } from '@/lib/types';
 import { PageHeader } from '@/components/layout/app-header';
 
 export default function FlowViewPage() {
-  const { user } = useAuth();
-  const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSeeding, setIsSeeding] = useState(false);
 
   useEffect(() => {
     const loadCompanies = async () => {
@@ -38,22 +30,6 @@ export default function FlowViewPage() {
     loadCompanies();
   }, []);
 
-  const handleSeed = async () => {
-    if (!user) return;
-
-    setIsSeeding(true);
-    try {
-      const companyId = await seedFlowData(user.uid);
-      toast.success('Test şirketi ve tüm senaryolar oluşturuldu');
-      router.push(`/flow-view/${companyId}`);
-    } catch (error) {
-      console.error('Seed error:', error);
-      toast.error('Seed işlemi başarısız oldu');
-    } finally {
-      setIsSeeding(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -68,28 +44,6 @@ export default function FlowViewPage() {
         title="İş Akışı Görünümü"
         description="Şirket seçerek müşteri temaslarından task kapatmaya kadar tüm akışı görselleştirin"
       />
-
-      {process.env.NODE_ENV === 'development' && (
-        <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 md:flex-row md:items-center md:justify-between">
-          <div className="text-sm text-muted-foreground">
-            Geliştirme ortamında örnek bir şirket ve tam akış senaryolarını hızlıca oluşturabilirsiniz.
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleSeed}
-              disabled={isSeeding}
-              variant="outline"
-              className="w-full md:w-auto"
-            >
-              <Sprout className="mr-2 h-4 w-4" />
-              {isSeeding ? 'Test Verisi Oluşturuluyor...' : 'Test Verisi Oluştur (Tüm Senaryolar)'}
-            </Button>
-            <p className="hidden text-xs text-muted-foreground md:block">
-              Her nesne türünün her durumu için en az 2 kayıt oluşturur.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {companies.map((company) => {

@@ -47,9 +47,9 @@ const crmItems = [
         icon: KanbanSquare,
     },
     {
-        title: "Teklifler",
-        url: "/crm/proposals",
-        icon: FileText,
+        title: "Kişiler",
+        url: "/crm/contacts",
+        icon: Contact,
     },
     {
         title: "Şirketler",
@@ -57,19 +57,14 @@ const crmItems = [
         icon: Building2,
     },
     {
-        title: "Kişiler",
-        url: "/crm/contacts",
-        icon: Contact,
-    },
-    {
         title: "Talepler",
         url: "/crm/requests",
         icon: ClipboardList,
     },
     {
-        title: "Katalog",
-        url: "/crm/catalog",
-        icon: Package,
+        title: "Teklifler",
+        url: "/crm/proposals",
+        icon: FileText,
     }
 ]
 
@@ -92,6 +87,11 @@ const opsItems = [
 ]
 
 const settingsItems = [
+    {
+        title: "Ürün Kataloğu",
+        url: "/crm/catalog",
+        icon: Package,
+    },
     {
         title: "Kullanıcılar",
         url: "/users",

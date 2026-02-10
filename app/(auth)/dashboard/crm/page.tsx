@@ -73,29 +73,10 @@ export default function CrmDashboardPage() {
                 visibleCards={CRM_KPI_CARDS}
             />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 auto-rows-min">
-                {/* Follow-ups Panel - 2 columns, 2 rows */}
-                <div className="md:col-span-2 lg:col-span-2 lg:row-span-2">
-                    <FollowUpsPanel followUps={data.followUps} loading={loading} />
-                </div>
-
-                {/* Pipeline Summary - 1 column */}
-                <div className="md:col-span-1 lg:col-span-1">
-                    <PipelineSummaryPanel
-                        summary={data.pipelineSummary}
-                        loading={loading}
-                    />
-                </div>
-
-                {/* Networking Panel - 1 column */}
-                <div className="md:col-span-1 lg:col-span-1">
-                    <NetworkingPanel contacts={data.networkingContacts} loading={loading} />
-                </div>
-
-                {/* Requests Panel - 2 columns */}
-                <div className="md:col-span-2 lg:col-span-2">
-                    <RequestsPanel requests={data.openRequests} loading={loading} />
-                </div>
+            <div className="grid gap-4 lg:grid-cols-3">
+                <FollowUpsPanel followUps={data.followUps} loading={loading} />
+                <NetworkingPanel contacts={data.networkingContacts} loading={loading} />
+                <RequestsPanel requests={data.openRequests} loading={loading} />
             </div>
         </div>
     );

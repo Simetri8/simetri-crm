@@ -127,13 +127,13 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
 
     if (loading) {
         return (
-            <Card className="col-span-2 row-span-2">
+            <Card className="col-span-2 row-span-2 h-full flex flex-col min-h-0">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Skeleton className="h-5 w-40" />
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1">
                     <div className="space-y-3">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
@@ -154,7 +154,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
     const overdueCount = followUps.filter((f) => f.isOverdue).length;
 
     return (
-        <Card className="col-span-2 row-span-2">
+            <Card className="col-span-2 row-span-2 h-full flex flex-col min-h-0">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                     Bugün &amp; Geciken Takipler
@@ -169,8 +169,8 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                     Aktivite Ekle
                 </Button>
             </CardHeader>
-            <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
+            <CardContent className="flex-1 min-h-0 flex flex-col">
+                <ScrollArea className="min-h-[320px] max-h-[50vh] pr-4">
                     {followUps.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
                             <CheckCircle2 className="h-8 w-8 mb-2 text-green-500" />
