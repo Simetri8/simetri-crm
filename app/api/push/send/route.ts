@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       title,
       body,
       url: url || '/',
-      icon: '/crm-icon.png'
+      icon: '/logos/Simetri-CRM-logo-01.png'
     });
 
     await webpush.sendNotification(userData.pushSubscription, payload);
