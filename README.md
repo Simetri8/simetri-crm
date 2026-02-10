@@ -1,4 +1,4 @@
-<![CDATA[# Simetri Planner — Ajans CRM & İş Takip Uygulaması
+# Simetri Planner — Ajans CRM & İş Takip Uygulaması
 
 > Yazılım geliştirme ve dijital ajansların **müşteri ilişkileri**, **teklif yönetimi**, **iş emri/teslimat takibi**, **zaman kaydı** ve **iletişim geçmişini** tek yerden yönettiği iş odaklı CRM uygulaması.
 
@@ -6,34 +6,34 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Backend-FFCA28?logo=firebase)](https://firebase.google.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
-[![Deploy](https://img.shields.io/badge/Deploy-Vercel-000?logo=vercel)](https://vercel.com/)
+[![Deploy](https://img.shields.io/badge/Deploy-Railway-0B0D0E?logo=railway)](https://railway.app/)
 
 ---
 
 ## 🎯 Çözdüğü Problemler
 
-| Problem | Çözüm |
-|---------|-------|
-| **Kayıp bağlantılar** — etkinlikte tanışılan kişi unutuldu | Contact-First CRM — kişi merkezli kayıt ve ilişki takibi |
-| **Unutulan takipler** — müşteriye dönüş yapılmadı | Next Action sistemi — her kayıtta sonraki adım + tarih |
-| **Dağınık iletişim** — notlar farklı kanallarda kayboldu | Tek Activity Feed — görüşme, not, dosya, karar tek akışta |
+| Problem                                                            | Çözüm                                                              |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| **Kayıp bağlantılar** — etkinlikte tanışılan kişi unutuldu         | Contact-First CRM — kişi merkezli kayıt ve ilişki takibi           |
+| **Unutulan takipler** — müşteriye dönüş yapılmadı                  | Next Action sistemi — her kayıtta sonraki adım + tarih             |
+| **Dağınık iletişim** — notlar farklı kanallarda kayboldu           | Tek Activity Feed — görüşme, not, dosya, karar tek akışta          |
 | **Teslimata dönüşmeyen işler** — kapsam belirsiz, görevler dağınık | İş Emri + Teslimat yapısı — deal → work order → deliverable → task |
 
 ---
 
 ## 🏗️ Teknoloji Yığını
 
-| Katman | Teknoloji |
-|--------|-----------|
-| **Frontend** | Next.js 16 (App Router), React 19, TypeScript |
-| **UI** | Tailwind CSS 4 + shadcn/ui (Radix UI primitives) |
-| **State** | Jotai, React Hook Form + Zod |
-| **Backend** | Firebase (Auth + Firestore + Storage) |
-| **Drag & Drop** | @dnd-kit |
-| **Tablo** | @tanstack/react-table |
-| **PDF** | jsPDF + jspdf-autotable |
-| **Animasyon** | Motion (Framer Motion) |
-| **Deploy** | Vercel |
+| Katman          | Teknoloji                                        |
+| --------------- | ------------------------------------------------ |
+| **Frontend**    | Next.js 16 (App Router), React 19, TypeScript    |
+| **UI**          | Tailwind CSS 4 + shadcn/ui (Radix UI primitives) |
+| **State**       | Jotai, React Hook Form + Zod                     |
+| **Backend**     | Firebase (Auth + Firestore + Storage)            |
+| **Drag & Drop** | @dnd-kit                                         |
+| **Tablo**       | @tanstack/react-table                            |
+| **PDF**         | jsPDF + jspdf-autotable                          |
+| **Animasyon**   | Motion (Framer Motion)                           |
+| **Deploy**      | Railway                                          |
 
 ---
 
@@ -97,12 +97,12 @@ Uygulama varsayılan olarak [http://localhost:3000](http://localhost:3000) adres
 
 ## 📜 Komutlar
 
-| Komut | Açıklama |
-|-------|----------|
-| `npm run dev` | Geliştirme sunucusunu başlatır (Webpack) |
-| `npm run build` | Üretim derlemesi oluşturur |
-| `npm run start` | Üretim sunucusunu başlatır |
-| `npm run lint` | ESLint ile kod kontrolü yapar |
+| Komut           | Açıklama                                 |
+| --------------- | ---------------------------------------- |
+| `npm run dev`   | Geliştirme sunucusunu başlatır (Webpack) |
+| `npm run build` | Üretim derlemesi oluşturur               |
+| `npm run start` | Üretim sunucusunu başlatır               |
+| `npm run lint`  | ESLint ile kod kontrolü yapar            |
 
 ---
 
@@ -117,14 +117,14 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 
 ### İlişki Aşamaları (Contact Stages)
 
-| Aşama | Açıklama |
-|-------|----------|
-| `new` | Yeni tanışıldı, henüz etkileşim yok |
-| `networking` | Aktif ilişki kurma, iş konuşulmamış |
-| `warm` | İyi ilişki var, potansiyel iş sinyali |
-| `prospect` | Somut iş fırsatı belirdi |
-| `client` | Aktif iş ilişkisi var |
-| `inactive` | İletişim kesildi |
+| Aşama        | Açıklama                              |
+| ------------ | ------------------------------------- |
+| `new`        | Yeni tanışıldı, henüz etkileşim yok   |
+| `networking` | Aktif ilişki kurma, iş konuşulmamış   |
+| `warm`       | İyi ilişki var, potansiyel iş sinyali |
+| `prospect`   | Somut iş fırsatı belirdi              |
+| `client`     | Aktif iş ilişkisi var                 |
+| `inactive`   | İletişim kesildi                      |
 
 ### Deal Pipeline Aşamaları
 
@@ -138,20 +138,20 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 
 ## 📊 Veri Modeli (Firestore Koleksiyonları)
 
-| Koleksiyon | Açıklama |
-|------------|----------|
-| `contacts` | Kişiler — bağımsız, şirketsiz olabilir (Contact-First) |
-| `companies` | Müşteri şirketleri |
-| `deals` | Satış fırsatları / Pipeline kartları |
-| `proposals` | Teklifler (kalem, KDV, versiyon) |
-| `work_orders` | İş emirleri (deal kazanıldığında otomatik oluşur) |
-| `deliverables` | Teslimatlar (iş emrine bağlı, 3-7 adet) |
-| `tasks` | Görevler (teslimata bağlı) |
-| `activities` | İletişim ve not akışı (Activity Feed) |
-| `requests` | İç talepler (satış → teknik ekip) |
-| `time_entries` | Zaman girişleri (timesheet) |
-| `catalog_items` | Hizmet/kalem kataloğu (opsiyonel) |
-| `change_requests` | Kapsam değişiklikleri (opsiyonel) |
+| Koleksiyon        | Açıklama                                               |
+| ----------------- | ------------------------------------------------------ |
+| `contacts`        | Kişiler — bağımsız, şirketsiz olabilir (Contact-First) |
+| `companies`       | Müşteri şirketleri                                     |
+| `deals`           | Satış fırsatları / Pipeline kartları                   |
+| `proposals`       | Teklifler (kalem, KDV, versiyon)                       |
+| `work_orders`     | İş emirleri (deal kazanıldığında otomatik oluşur)      |
+| `deliverables`    | Teslimatlar (iş emrine bağlı, 3-7 adet)                |
+| `tasks`           | Görevler (teslimata bağlı)                             |
+| `activities`      | İletişim ve not akışı (Activity Feed)                  |
+| `requests`        | İç talepler (satış → teknik ekip)                      |
+| `time_entries`    | Zaman girişleri (timesheet)                            |
+| `catalog_items`   | Hizmet/kalem kataloğu (opsiyonel)                      |
+| `change_requests` | Kapsam değişiklikleri (opsiyonel)                      |
 
 ---
 
@@ -168,8 +168,8 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 
 ## 📖 Dokümantasyon
 
-| Doküman | Açıklama |
-|---------|----------|
+| Doküman                                                         | Açıklama                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------ |
 | [`00-Proje-Dokümantasyonu.md`](docs/00-Proje-Dokümantasyonu.md) | Ana ürün tasarım dokümanı (veri modeli, iş akışları, yol haritası) |
 
 ---
@@ -177,4 +177,3 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 ## 📄 Lisans
 
 Bu proje özel bir projedir. Tüm hakları saklıdır.
-]]>
