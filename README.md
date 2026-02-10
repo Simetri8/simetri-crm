@@ -1,46 +1,180 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<![CDATA[# Simetri Planner — Ajans CRM & İş Takip Uygulaması
 
-## Getting Started
+> Yazılım geliştirme ve dijital ajansların **müşteri ilişkileri**, **teklif yönetimi**, **iş emri/teslimat takibi**, **zaman kaydı** ve **iletişim geçmişini** tek yerden yönettiği iş odaklı CRM uygulaması.
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-Backend-FFCA28?logo=firebase)](https://firebase.google.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)](https://tailwindcss.com/)
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-000?logo=vercel)](https://vercel.com/)
+
+---
+
+## 🎯 Çözdüğü Problemler
+
+| Problem | Çözüm |
+|---------|-------|
+| **Kayıp bağlantılar** — etkinlikte tanışılan kişi unutuldu | Contact-First CRM — kişi merkezli kayıt ve ilişki takibi |
+| **Unutulan takipler** — müşteriye dönüş yapılmadı | Next Action sistemi — her kayıtta sonraki adım + tarih |
+| **Dağınık iletişim** — notlar farklı kanallarda kayboldu | Tek Activity Feed — görüşme, not, dosya, karar tek akışta |
+| **Teslimata dönüşmeyen işler** — kapsam belirsiz, görevler dağınık | İş Emri + Teslimat yapısı — deal → work order → deliverable → task |
+
+---
+
+## 🏗️ Teknoloji Yığını
+
+| Katman | Teknoloji |
+|--------|-----------|
+| **Frontend** | Next.js 16 (App Router), React 19, TypeScript |
+| **UI** | Tailwind CSS 4 + shadcn/ui (Radix UI primitives) |
+| **State** | Jotai, React Hook Form + Zod |
+| **Backend** | Firebase (Auth + Firestore + Storage) |
+| **Drag & Drop** | @dnd-kit |
+| **Tablo** | @tanstack/react-table |
+| **PDF** | jsPDF + jspdf-autotable |
+| **Animasyon** | Motion (Framer Motion) |
+| **Deploy** | Vercel |
+
+---
+
+## 📁 Proje Yapısı
+
+```
+simetri-planner/
+├── app/                    # Next.js App Router sayfaları & rotaları
+│   └── (auth)/crm/        # CRM modül sayfaları (dashboard, contacts, deals, vb.)
+├── components/             # UI bileşenleri
+│   ├── crm/                # CRM'e özgü bileşenler
+│   └── ui/                 # shadcn/ui genel bileşenler
+├── hooks/                  # Custom React hook'ları
+├── lib/                    # Servis katmanı, tipler, yardımcı fonksiyonlar
+│   ├── services/           # Firebase Firestore CRUD servisleri
+│   └── types/              # TypeScript tip tanımları
+├── docs/                   # Proje dokümantasyonu
+└── public/                 # Statik dosyalar
+```
+
+---
+
+## 🚀 Kurulum
+
+### Gereksinimler
+
+- Node.js 18+
+- npm veya yarn
+- Firebase projesi (Auth + Firestore etkin)
+
+### 1. Depoyu klonlayın
+
+```bash
+git clone https://github.com/<your-org>/simetri-planner.git
+cd simetri-planner
+```
+
+### 2. Bağımlılıkları yükleyin
+
+```bash
+npm install
+```
+
+### 3. Ortam değişkenlerini ayarlayın
+
+`.env.example` dosyasını `.env.local` olarak kopyalayın ve Firebase bilgilerinizi doldurun:
+
+```bash
+cp .env.example .env.local
+```
+
+### 4. Geliştirme sunucusunu başlatın
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Uygulama varsayılan olarak [http://localhost:3000](http://localhost:3000) adresinde çalışır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Komutlar
 
-## Firebase
+| Komut | Açıklama |
+|-------|----------|
+| `npm run dev` | Geliştirme sunucusunu başlatır (Webpack) |
+| `npm run build` | Üretim derlemesi oluşturur |
+| `npm run start` | Üretim sunucusunu başlatır |
+| `npm run lint` | ESLint ile kod kontrolü yapar |
 
-### Deploy Firestore Rules
+---
 
-To deploy only the Firestore security rules:
+## 🔄 İş Akışı Özeti
 
-```bash
-firebase deploy --only firestore:rules
+```
+Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
+    → Teklif Hazırla → Gönder → Müzakere → Kazan/Kaybet
+    → İş Emri Oluştur → Teslimatları Tanımla → Görevleri Ata
+    → Zaman Girişi → Haftalık Onay → Kilitle
 ```
 
-## Learn More
+### İlişki Aşamaları (Contact Stages)
 
-To learn more about Next.js, take a look at the following resources:
+| Aşama | Açıklama |
+|-------|----------|
+| `new` | Yeni tanışıldı, henüz etkileşim yok |
+| `networking` | Aktif ilişki kurma, iş konuşulmamış |
+| `warm` | İyi ilişki var, potansiyel iş sinyali |
+| `prospect` | Somut iş fırsatı belirdi |
+| `client` | Aktif iş ilişkisi var |
+| `inactive` | İletişim kesildi |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Deal Pipeline Aşamaları
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`lead` → `qualified` → `proposal-prep` → `proposal-sent` → `negotiation` → `won` | `lost`
 
-## Deploy on Vercel
+### Task Kanban Durumları
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`backlog` → `in-progress` → `blocked` → `done`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📊 Veri Modeli (Firestore Koleksiyonları)
+
+| Koleksiyon | Açıklama |
+|------------|----------|
+| `contacts` | Kişiler — bağımsız, şirketsiz olabilir (Contact-First) |
+| `companies` | Müşteri şirketleri |
+| `deals` | Satış fırsatları / Pipeline kartları |
+| `proposals` | Teklifler (kalem, KDV, versiyon) |
+| `work_orders` | İş emirleri (deal kazanıldığında otomatik oluşur) |
+| `deliverables` | Teslimatlar (iş emrine bağlı, 3-7 adet) |
+| `tasks` | Görevler (teslimata bağlı) |
+| `activities` | İletişim ve not akışı (Activity Feed) |
+| `requests` | İç talepler (satış → teknik ekip) |
+| `time_entries` | Zaman girişleri (timesheet) |
+| `catalog_items` | Hizmet/kalem kataloğu (opsiyonel) |
+| `change_requests` | Kapsam değişiklikleri (opsiyonel) |
+
+---
+
+## 🗺️ MVP Yol Haritası
+
+- [x] **Faz 0** — Contact-First Dönüşüm (kişi/şirket/aktivite model revizyonu)
+- [ ] **Faz 0.5** — İç Talepler + Quick Action Panel
+- [x] **Faz 1** — CRM Temeli (şirket/kişi CRUD, deal pipeline, activity feed)
+- [ ] **Faz 2** — Teklif (katalog, KDV, versiyon, PDF)
+- [ ] **Faz 3** — Operasyon (iş emri, teslimat, görev, kanban)
+- [ ] **Faz 4** — Zaman Takibi (timesheet, onay, kilitleme)
+
+---
+
+## 📖 Dokümantasyon
+
+| Doküman | Açıklama |
+|---------|----------|
+| [`00-Proje-Dokümantasyonu.md`](docs/00-Proje-Dokümantasyonu.md) | Ana ürün tasarım dokümanı (veri modeli, iş akışları, yol haritası) |
+
+---
+
+## 📄 Lisans
+
+Bu proje özel bir projedir. Tüm hakları saklıdır.
+]]>
