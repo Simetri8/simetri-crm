@@ -10,7 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Initialize Web Push
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:admin@simetri-planner.com',
+    'mailto:bilgi@simetri.app',
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
       // 4. Send Email
       if (process.env.ADMIN_EMAIL) {
         await resend.emails.send({
-          from: 'Simetri Planner <onboarding@resend.dev>', // Update with verified domain
+          from: 'Simetri CRM <onboarding@resend.dev>', // Update with verified domain
           to: process.env.ADMIN_EMAIL,
           subject: `Günlük Rapor: ${coldCustomers.length} Müşteri, ${overdueProjects.length} Proje`,
           html: emailBody,

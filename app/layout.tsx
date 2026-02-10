@@ -8,7 +8,7 @@ import { ThemeProvider } from "next-themes";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Simetri Planner",
+  title: "Simetri CRM",
   description: "Company management system",
   manifest: "/manifest.json",
 };

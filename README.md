@@ -1,4 +1,4 @@
-# Simetri Planner — Ajans CRM & İş Takip Uygulaması
+# Simetri CRM — Ajans CRM & İş Takip Uygulaması
 
 > Yazılım geliştirme ve dijital ajansların **müşteri ilişkileri**, **teklif yönetimi**, **iş emri/teslimat takibi**, **zaman kaydı** ve **iletişim geçmişini** tek yerden yönettiği iş odaklı CRM uygulaması.
 
@@ -40,7 +40,7 @@
 ## 📁 Proje Yapısı
 
 ```
-simetri-planner/
+simetri-crm/
 ├── app/                    # Next.js App Router sayfaları & rotaları
 │   └── (auth)/crm/        # CRM modül sayfaları (dashboard, contacts, deals, vb.)
 ├── components/             # UI bileşenleri
@@ -67,8 +67,8 @@ simetri-planner/
 ### 1. Depoyu klonlayın
 
 ```bash
-git clone https://github.com/<your-org>/simetri-planner.git
-cd simetri-planner
+git clone https://github.com/<your-org>/simetri-crm.git
+cd simetri-crm
 ```
 
 ### 2. Bağımlılıkları yükleyin

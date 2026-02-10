@@ -10,8 +10,8 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Simetri Planner</h1>
-        <p className="mb-8 text-muted-foreground">Company Management System</p>
+        <h1 className="text-4xl font-bold mb-4">Simetri CRM</h1>
+        <p className="mb-8 text-muted-foreground">Customer Relationship Management System</p>
         <Button onClick={signInWithGoogle} size="lg" className="gap-2">
           <LogIn className="h-4 w-4" />
           Login with Google

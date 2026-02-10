@@ -6,7 +6,7 @@ import webpush from 'web-push';
 // npx web-push generate-vapid-keys
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:admin@simetri-planner.com',
+    'mailto:bilgi@simetri.app',
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
