@@ -50,6 +50,15 @@ export function PageHeader({ title, description }: HeaderState) {
 export function AppHeader() {
   const { header } = useAppHeader();
   const { theme, setTheme } = useTheme();
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(new Date());
+    }, 2000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="mb-0 flex justify-between">
@@ -69,6 +78,9 @@ export function AppHeader() {
         )}
       </div>
       <div className="flex gap-4">
+        <span className="text-md flex pt-1 gap-2 text-muted-foreground font-mono">
+          {now.toLocaleDateString("tr-TR", { day: "numeric", month: "long" })} {now.toLocaleTimeString("tr-TR")}
+        </span>
         <div className="hidden gap-2 md:flex">
           <ThemeSwitcher
             value={theme as "light" | "dark" | "system"}

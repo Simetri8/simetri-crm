@@ -12,7 +12,7 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3 } from "lucide-react"
+import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3, CalendarDays } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -37,6 +37,11 @@ const mainItems = [
         title: "İş Akışı",
         url: "/flow-view",
         icon: Network,
+    },
+    {
+        title: "Takvim",
+        url: "/calendar",
+        icon: CalendarDays,
     },
 ]
 

@@ -1,0 +1,123 @@
+# Kibo UI Calendar ile Takvim Ekranı Oluşturma
+
+Mevcut CRM ve operasyon verilerini (takipler, aktiviteler, deadline'lar) aylık takvim görünümünde görselleştiren bir ekran oluşturulacak. Kibo UI'ın [components/kibo-ui/calendar](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar) bileşeni temel alınacak.
+
+## Takvimde Gösterilecek Veriler
+
+Takvimde 5 farklı kaynaktan gelen olaylar renk kodları ile gösterilecek:
+
+| Kaynak | Tarih Alanı | Renk | Açıklama |
+|--------|-------------|------|----------|
+| **Contacts** | `nextActionDate` | 🟢 Yeşil | Kişi takipleri |
+| **Deals** | `nextActionDate` | 🔵 Mavi | Fırsat takipleri |
+| **Companies** | `nextActionDate` | 🟣 Mor | Şirket takipleri |
+| **Work Orders** | `targetDeliveryDate` | 🟠 Turuncu | İş emri teslim tarihi |
+| **Requests** | `dueDate` | 🔴 Kırmızı | Talep son tarihi |
+
+## Proposed Changes
+
+### Veri Katmanı
+
+#### [NEW] [calendar.ts](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/lib/firebase/calendar.ts)
+
+Takvim için veri çekme servisi. Ay bazlı tarih aralığına göre tüm kaynaklardan etkinlikleri toplayacak:
+
+```typescript
+export type CalendarEventSource = 'contact' | 'deal' | 'company' | 'work-order' | 'request';
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  date: Date;
+  source: CalendarEventSource;
+  sourceId: string;    // ilgili kaydın ID'si
+  color: string;
+  subtitle?: string;   // ek bilgi (şirket adı, deal adı vs.)
+};
+
+export const calendarService = {
+  getEventsForMonth(year: number, month: number): Promise<CalendarEvent[]> {
+    // 5 kaynaktan paralel sorgular
+    // Sonuçları birleştirip CalendarEvent[] döndürür
+  }
+};
+```
+
+---
+
+### Hook Katmanı
+
+#### [NEW] [use-calendar-events.ts](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/hooks/use-calendar-events.ts)
+
+Ay değişikliklerini izleyerek veri çekilmesini yöneten React hook'u:
+
+```typescript
+export function useCalendarEvents(year: number, month: number) {
+  // calendarService.getEventsForMonth ile veri çekme
+  // loading, error, events state'leri
+  // CalendarEvent[] → Feature[] dönüşümü (Kibo Calendar'ın beklediği format)
+}
+```
+
+---
+
+### Sayfa Katmanı
+
+#### [NEW] [page.tsx](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/app/(auth)/calendar/page.tsx)
+
+Takvim sayfası. Kibo UI Calendar bileşenlerini compose ederek:
+
+- [CalendarProvider](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar/index.tsx#487-497) (locale="tr-TR", startDay=1 — Pazartesi'den başlasın)
+- [CalendarDate](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar/index.tsx#432-435) → ay/yıl seçici + ileri/geri navigasyon
+- [CalendarHeader](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar/index.tsx#440-458) → gün başlıkları (Pzt, Sal, Çar...)
+- [CalendarBody](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar/index.tsx#194-309) → gün hücreleri + etkinlik render
+- [CalendarItem](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar/index.tsx#459-463) → her etkinliğin gösterimi (renk + başlık)
+- Kaynak filtresi (checkbox'lar ile hangi kaynak görünsün)
+- Etkinliğe tıklayınca ilgili kaydın detay sayfasına yönlendirme
+
+---
+
+### Navigasyon Güncellemesi
+
+#### [MODIFY] [app-sidebar.tsx](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/layout/app-sidebar.tsx)
+
+`mainItems` dizisine "Takvim" menü öğesi eklenecek:
+
+```diff
+ const mainItems = [
+     ...
++    {
++        title: "Takvim",
++        url: "/calendar",
++        icon: CalendarDays,
++    },
+ ]
+```
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Takvimde hangi verilerin gösterilmesi isteniyor?**
+> Yukarıda önerilen 5 kaynak (Contact/Deal/Company takipleri, İş emri deadline'ı, Talep son tarihi) yeterli mi, yoksa başka kaynaklar da eklenmeli mi? Örneğin:
+> - Aktiviteler (geçmiş arama/toplantı kayıtları)
+> - Teklif tarihleri (gönderim/kabul)
+> - Deliverable hedef tarihleri
+
+> [!NOTE]
+> **Locale ve Hafta Başlangıcı**: Takvim `tr-TR` locale ile Pazartesi'den başlayacak şekilde ayarlanacak.
+
+## Verification Plan
+
+### Build Doğrulaması
+- `npm run build` komutu ile build hatası olmadığı doğrulanacak
+
+### Tarayıcı Doğrulaması
+- Geliştirme sunucusunda [/calendar](file:///Users/mehmac/Documents/Simetri8/Develop/simetri-planner/components/kibo-ui/calendar) sayfasına gidilerek:
+  1. Takvimin doğru render edildiği
+  2. Ay/yıl seçicisinin çalıştığı
+  3. İleri/geri navigasyonun çalıştığı
+  4. Etkinliklerin günlere doğru yerleştiği
+  5. Sidebar'da "Takvim" linkinin göründüğü
+  kontrol edilecek

@@ -260,19 +260,24 @@ export const CalendarBody = ({ features, children }: CalendarBodyProps) => {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const featuresForDay = featuresByDay[day] || [];
+    const currentDate = new Date(year, month, day);
+    const today = isSameDay(currentDate, new Date());
 
     days.push(
       <div
-        className="relative flex h-full w-full flex-col gap-1 p-1 text-muted-foreground text-xs"
+        className={cn(
+          "relative flex h-full w-full flex-col gap-1 p-1 text-muted-foreground text-xs",
+          today && "bg-primary/5 font-semibold text-primary ring-2 ring-primary/20"
+        )}
         key={day}
       >
         {day}
         <div>
-          {featuresForDay.slice(0, 3).map((feature) => children({ feature }))}
+          {featuresForDay.slice(0, 5).map((feature) => children({ feature }))}
         </div>
-        {featuresForDay.length > 3 && (
+        {featuresForDay.length > 5 && (
           <span className="block text-muted-foreground text-xs">
-            +{featuresForDay.length - 3} more
+            +{featuresForDay.length - 5} more
           </span>
         )}
       </div>
