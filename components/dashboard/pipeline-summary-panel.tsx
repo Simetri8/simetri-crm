@@ -144,11 +144,6 @@ export function PipelineSummaryPanel({
                         </div>
                     </div>
                 )}
-                <div className="mt-4 text-xs">
-                    <Badge variant="outline" className="h-[20px] px-2 py-0 text-[10px] font-normal text-muted-foreground">
-                        Deal
-                    </Badge>
-                </div>
             </CardContent>
         </Card>
     );
