@@ -23,7 +23,7 @@ export default function CrmDashboardPage() {
     const { data, loading, error, refresh } = useCrmDashboard();
 
     return (
-        <div className="px-8 space-y-4">
+        <div className=" space-y-4">
             <PageHeader
                 title="CRM Dashboard"
                 description="Takipler, pipeline ve networking"

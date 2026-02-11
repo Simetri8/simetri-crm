@@ -13,27 +13,28 @@ import type {
   WorkOrder,
   Request,
 } from '@/lib/types';
+import { ENTITY_COLORS, type EntityType } from '@/lib/constants/entity-colors';
 
 // =============================================================================
 // CALENDAR EVENT TYPES
 // =============================================================================
 
-export type CalendarEventSource = 'contact' | 'deal' | 'company' | 'work-order' | 'request';
+export type CalendarEventSource = EntityType;
 
 export const CALENDAR_SOURCE_COLORS: Record<CalendarEventSource, string> = {
-  contact: '#22c55e',     // Yeşil
-  deal: '#3b82f6',        // Mavi
-  company: '#a855f7',     // Mor
-  'work-order': '#f97316', // Turuncu
-  request: '#ef4444',     // Kırmızı
+  contact: ENTITY_COLORS.contact.hex,
+  company: ENTITY_COLORS.company.hex,
+  deal: ENTITY_COLORS.deal.hex,
+  'work-order': ENTITY_COLORS['work-order'].hex,
+  request: ENTITY_COLORS.request.hex,
 };
 
 export const CALENDAR_SOURCE_LABELS: Record<CalendarEventSource, string> = {
-  contact: 'Kişi',
-  deal: 'Fırsat',
-  company: 'Şirket',
-  'work-order': 'İş Emri',
-  request: 'Talep',
+  contact: ENTITY_COLORS.contact.label,
+  company: ENTITY_COLORS.company.label,
+  deal: ENTITY_COLORS.deal.label,
+  'work-order': ENTITY_COLORS['work-order'].label,
+  request: ENTITY_COLORS.request.label,
 };
 
 export type CalendarEvent = {

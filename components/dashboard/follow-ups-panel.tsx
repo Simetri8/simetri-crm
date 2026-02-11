@@ -31,6 +31,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { toast } from 'sonner';
 import type { FollowUpItem } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
+import { ENTITY_COLORS } from '@/lib/constants/entity-colors';
 
 export type FollowUpsPanelProps = {
     followUps: FollowUpItem[];
@@ -189,12 +190,13 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                 >
                                     <div className="flex items-start gap-3">
                                         <div
-                                            className={`p-2 rounded-full ${item.type === 'company'
-                                                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400'
-                                                : item.type === 'contact'
-                                                    ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400'
-                                                    : 'bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400'
-                                                }`}
+                                            className={cn(
+                                                'p-2 rounded-full',
+                                                ENTITY_COLORS[item.type].tailwind.bg,
+                                                ENTITY_COLORS[item.type].tailwind.text,
+                                                ENTITY_COLORS[item.type].tailwind.darkBg,
+                                                ENTITY_COLORS[item.type].tailwind.darkText
+                                            )}
                                         >
                                             {item.type === 'company' ? (
                                                 <Building2 className="h-4 w-4" />
@@ -288,8 +290,9 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                                 variant={item.isOverdue ? 'destructive' : 'secondary'}
                                                 className="shrink-0"
                                             >
-                                                {item.type === 'company' ? 'Company' : item.type === 'contact' ? 'Contact' : 'Deal'}
+                                                {ENTITY_COLORS[item.type].label}
                                             </Badge>
+                                            {/* 
                                             {!isEditing && (
                                                 <Button
                                                     variant="ghost"
@@ -300,6 +303,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                                     <Pencil className="h-3 w-3" />
                                                 </Button>
                                             )}
+                                            */}
                                         </div>
                                     </div>
                                 </div>
