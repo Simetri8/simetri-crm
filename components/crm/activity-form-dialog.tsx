@@ -64,6 +64,30 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+function formatTimeValue(date: Date | null | undefined): string {
+  if (!date) return '';
+  return format(date, 'HH:mm');
+}
+
+function withOptionalTime(date: Date | null, timeValue: string): Date | null {
+  if (!date) return null;
+  if (!timeValue) return date;
+
+  const [hours, minutes] = timeValue.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return date;
+
+  const nextDate = new Date(date);
+  nextDate.setHours(hours, minutes, 0, 0);
+  return nextDate;
+}
+
+function formatDateWithOptionalTime(date: Date): string {
+  const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+  return hasTime
+    ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
+    : format(date, 'dd MMM yyyy', { locale: tr });
+}
+
 type ActivityFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -89,6 +113,7 @@ export function ActivityFormDialog({
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [nextActionTime, setNextActionTime] = useState('');
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -121,6 +146,7 @@ export function ActivityFormDialog({
         nextActionDate: null,
         occurredAt: new Date(),
       });
+      setNextActionTime('');
     }
   }, [open, defaultContactId, defaultCompanyId, defaultDealId, form]);
 
@@ -179,12 +205,13 @@ export function ActivityFormDialog({
         summary: values.summary,
         details: values.details || null,
         nextAction: values.nextAction || null,
-        nextActionDate: values.nextActionDate ?? null,
+        nextActionDate: withOptionalTime(values.nextActionDate ?? null, nextActionTime),
         occurredAt: values.occurredAt,
       };
       await onSubmit(data);
       onOpenChange(false);
       form.reset();
+      setNextActionTime('');
     } finally {
       setIsSubmitting(false);
     }
@@ -421,32 +448,40 @@ export function ActivityFormDialog({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Tarih</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                'w-full justify-start text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value
-                                ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                                : 'Tarih seç'}
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value ?? undefined}
-                            onSelect={field.onChange}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <div className="flex gap-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  'flex-1 justify-start text-left font-normal',
+                                  !field.value && 'text-muted-foreground'
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value
+                                  ? formatDateWithOptionalTime(field.value)
+                                  : 'Tarih seç'}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value ?? undefined}
+                              onSelect={field.onChange}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <Input
+                          type="time"
+                          value={nextActionTime}
+                          onChange={(e) => setNextActionTime(e.target.value)}
+                          className="w-[130px]"
+                        />
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}

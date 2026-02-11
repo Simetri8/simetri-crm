@@ -177,6 +177,8 @@ export type User = {
 export type Company = BaseEntity &
   NextActionFields & {
     name: string;
+    address: string | null;
+    website: string | null;
     status: CompanyStatus;
     source: CompanySource | null;
     sourceDetail: string | null;
@@ -186,6 +188,8 @@ export type Company = BaseEntity &
 
 export type CompanyFormData = {
   name: string;
+  address?: string | null;
+  website?: string | null;
   status: CompanyStatus;
   source?: CompanySource | null;
   sourceDetail?: string | null;

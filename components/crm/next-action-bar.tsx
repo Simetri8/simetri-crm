@@ -23,6 +23,30 @@ type NextActionBarProps = {
   isOverdue?: boolean;
 };
 
+function formatTimeValue(date: Date | undefined): string {
+  if (!date) return '';
+  return format(date, 'HH:mm');
+}
+
+function withOptionalTime(date: Date | undefined, timeValue: string): Date | null {
+  if (!date) return null;
+  if (!timeValue) return date;
+
+  const [hours, minutes] = timeValue.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return date;
+
+  const nextDate = new Date(date);
+  nextDate.setHours(hours, minutes, 0, 0);
+  return nextDate;
+}
+
+function formatDateWithOptionalTime(date: Date): string {
+  const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+  return hasTime
+    ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
+    : format(date, 'dd MMM yyyy', { locale: tr });
+}
+
 export function NextActionBar({
   nextAction,
   nextActionDate,
@@ -35,12 +59,15 @@ export function NextActionBar({
   const [editDate, setEditDate] = useState<Date | undefined>(
     nextActionDate?.toDate()
   );
+  const [editTime, setEditTime] = useState(
+    formatTimeValue(nextActionDate?.toDate())
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      await onUpdate(editAction || null, editDate ?? null);
+      await onUpdate(editAction || null, withOptionalTime(editDate, editTime));
       setIsEditing(false);
     } finally {
       setIsSubmitting(false);
@@ -51,6 +78,7 @@ export function NextActionBar({
     // Tamamlandı - kullanicidan yeni action istenecek
     setEditAction('');
     setEditDate(undefined);
+    setEditTime('');
     setIsEditing(true);
   };
 
@@ -75,7 +103,7 @@ export function NextActionBar({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {editDate ? format(editDate, 'dd MMM yyyy', { locale: tr }) : 'Tarih sec'}
+              {editDate ? formatDateWithOptionalTime(editDate) : 'Tarih sec'}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -87,6 +115,12 @@ export function NextActionBar({
             />
           </PopoverContent>
         </Popover>
+        <Input
+          type="time"
+          value={editTime}
+          onChange={(e) => setEditTime(e.target.value)}
+          className="h-9 w-[130px]"
+        />
         <Button size="sm" onClick={handleSave} disabled={isSubmitting}>
           Kaydet
         </Button>
@@ -97,6 +131,7 @@ export function NextActionBar({
             setIsEditing(false);
             setEditAction(nextAction ?? '');
             setEditDate(nextActionDate?.toDate());
+            setEditTime(formatTimeValue(nextActionDate?.toDate()));
           }}
         >
           İptal
@@ -124,7 +159,7 @@ export function NextActionBar({
                   isOverdue ? 'text-red-600 font-semibold' : 'text-muted-foreground'
                 )}
               >
-                ({format(nextActionDate.toDate(), 'dd MMM', { locale: tr })})
+                ({formatDateWithOptionalTime(nextActionDate.toDate())})
               </span>
             )}
           </div>
@@ -147,7 +182,16 @@ export function NextActionBar({
             Tamamlandı
           </Button>
         )}
-        <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => {
+            setEditAction(nextAction ?? '');
+            setEditDate(nextActionDate?.toDate());
+            setEditTime(formatTimeValue(nextActionDate?.toDate()));
+            setIsEditing(true);
+          }}
+        >
           <Edit2 className="h-4 w-4" />
         </Button>
       </div>

@@ -45,6 +45,12 @@ const NONE_VALUE = '__none__';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Şirket adı zorunlu'),
+  address: z.string().optional(),
+  website: z
+    .string()
+    .url('Geçerli bir URL girin')
+    .or(z.literal(''))
+    .optional(),
   status: z.enum(['prospect', 'active', 'inactive', 'churned']),
   source: z.string().optional(),
   sourceDetail: z.string().optional(),
@@ -60,6 +66,30 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+function formatTimeValue(date: Date | null | undefined): string {
+  if (!date) return '';
+  return format(date, 'HH:mm');
+}
+
+function withOptionalTime(date: Date | null, timeValue: string): Date | null {
+  if (!date) return null;
+  if (!timeValue) return date;
+
+  const [hours, minutes] = timeValue.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return date;
+
+  const nextDate = new Date(date);
+  nextDate.setHours(hours, minutes, 0, 0);
+  return nextDate;
+}
+
+function formatDateWithOptionalTime(date: Date): string {
+  const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+  return hasTime
+    ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
+    : format(date, 'dd MMM yyyy', { locale: tr });
+}
+
 type CompanyFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,12 +104,17 @@ export function CompanyFormDialog({
   onSubmit,
 }: CompanyFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nextActionTime, setNextActionTime] = useState(
+    formatTimeValue(company?.nextActionDate?.toDate() ?? null)
+  );
   const isEdit = !!company;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: company?.name ?? '',
+      address: company?.address ?? '',
+      website: company?.website ?? '',
       status: company?.status ?? 'prospect',
       source: company?.source ?? '',
       sourceDetail: company?.sourceDetail ?? '',
@@ -95,6 +130,8 @@ export function CompanyFormDialog({
     if (open) {
       form.reset({
         name: company?.name ?? '',
+        address: company?.address ?? '',
+        website: company?.website ?? '',
         status: company?.status ?? 'prospect',
         source: company?.source ?? '',
         sourceDetail: company?.sourceDetail ?? '',
@@ -103,6 +140,7 @@ export function CompanyFormDialog({
         nextActionDate: company?.nextActionDate?.toDate() ?? null,
         logoUrl: company?.logoUrl ?? '',
       });
+      setNextActionTime(formatTimeValue(company?.nextActionDate?.toDate() ?? null));
     }
   }, [open, company, form]);
 
@@ -111,6 +149,8 @@ export function CompanyFormDialog({
     try {
       const data: CompanyFormData = {
         name: values.name,
+        address: values.address ? values.address.trim() : null,
+        website: values.website ? values.website : null,
         status: values.status,
         source: (values.source as CompanyFormData['source']) || null,
         sourceDetail: values.sourceDetail || null,
@@ -119,12 +159,13 @@ export function CompanyFormDialog({
           .map((t) => t.trim())
           .filter(Boolean),
         nextAction: values.nextAction || null,
-        nextActionDate: values.nextActionDate ?? null,
+        nextActionDate: withOptionalTime(values.nextActionDate ?? null, nextActionTime),
         logoUrl: values.logoUrl ? values.logoUrl : null,
       };
       await onSubmit(data);
       onOpenChange(false);
       form.reset();
+      setNextActionTime('');
     } finally {
       setIsSubmitting(false);
     }
@@ -164,6 +205,37 @@ export function CompanyFormDialog({
                   <FormControl>
                     <Input
                       placeholder="https://.../logo.png"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Adres</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Şirket adresi" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Web Adresi</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://ornek.com"
                       {...field}
                     />
                   </FormControl>
@@ -276,32 +348,40 @@ export function CompanyFormDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Sonraki Adım Tarihi</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'w-full justify-start text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value
-                            ? format(field.value, 'dd MMM yyyy', { locale: tr })
-                            : 'Tarih seç'}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ?? undefined}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <div className="flex gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              'flex-1 justify-start text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value
+                              ? formatDateWithOptionalTime(field.value)
+                              : 'Tarih seç'}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ?? undefined}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <Input
+                      type="time"
+                      value={nextActionTime}
+                      onChange={(e) => setNextActionTime(e.target.value)}
+                      className="w-[130px]"
+                    />
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

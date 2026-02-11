@@ -41,10 +41,37 @@ export type FollowUpsPanelProps = {
 function formatDate(timestamp: Timestamp | null): string {
     if (!timestamp) return '-';
     const date = timestamp.toDate();
-    return date.toLocaleDateString('tr-TR', {
-        day: 'numeric',
-        month: 'short',
-    });
+    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+    return hasTime
+        ? format(date, 'd MMM HH:mm', { locale: tr })
+        : date.toLocaleDateString('tr-TR', {
+            day: 'numeric',
+            month: 'short',
+        });
+}
+
+function formatTimeValue(date: Date | undefined): string {
+    if (!date) return '';
+    return format(date, 'HH:mm');
+}
+
+function withOptionalTime(date: Date | undefined, timeValue: string): Date | null {
+    if (!date) return null;
+    if (!timeValue) return date;
+
+    const [hours, minutes] = timeValue.split(':').map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return date;
+
+    const nextDate = new Date(date);
+    nextDate.setHours(hours, minutes, 0, 0);
+    return nextDate;
+}
+
+function formatDateWithOptionalTime(date: Date): string {
+    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+    return hasTime
+        ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
+        : format(date, 'dd MMM yyyy', { locale: tr });
 }
 
 function formatRelativeTime(timestamp: Timestamp | null): string {
@@ -67,6 +94,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editAction, setEditAction] = useState('');
     const [editDate, setEditDate] = useState<Date | undefined>(undefined);
+    const [editTime, setEditTime] = useState('');
     const [saving, setSaving] = useState(false);
 
     const handleItemClick = (item: FollowUpItem) => {
@@ -85,6 +113,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
         setEditingId(item.id);
         setEditAction(item.nextAction || '');
         setEditDate(item.nextActionDate?.toDate());
+        setEditTime(formatTimeValue(item.nextActionDate?.toDate()));
     };
 
     const handleCancelEdit = (e: React.MouseEvent) => {
@@ -92,6 +121,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
         setEditingId(null);
         setEditAction('');
         setEditDate(undefined);
+        setEditTime('');
     };
 
     const handleSaveEdit = async (e: React.MouseEvent, item: FollowUpItem) => {
@@ -105,16 +135,32 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
         setSaving(true);
         try {
             if (item.type === 'company') {
-                await companyService.updateNextAction(item.id, editAction, editDate, user.uid);
+                await companyService.updateNextAction(
+                    item.id,
+                    editAction,
+                    withOptionalTime(editDate, editTime),
+                    user.uid
+                );
             } else if (item.type === 'contact') {
-                await contactService.updateNextAction(item.id, editAction, editDate, user.uid);
+                await contactService.updateNextAction(
+                    item.id,
+                    editAction,
+                    withOptionalTime(editDate, editTime),
+                    user.uid
+                );
             } else {
-                await dealService.updateNextAction(item.id, editAction, editDate, user.uid);
+                await dealService.updateNextAction(
+                    item.id,
+                    editAction,
+                    withOptionalTime(editDate, editTime),
+                    user.uid
+                );
             }
             toast.success('Aksiyon güncellendi');
             setEditingId(null);
             setEditAction('');
             setEditDate(undefined);
+            setEditTime('');
             // Refresh dashboard (parent component should handle this)
             window.location.reload();
         } catch (error) {
@@ -222,31 +268,39 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
                                                         onChange={(e) => setEditAction(e.target.value)}
                                                         className="text-sm"
                                                     />
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                className={cn(
-                                                                    'w-full justify-start text-left font-normal text-sm',
-                                                                    !editDate && 'text-muted-foreground'
-                                                                )}
-                                                            >
-                                                                <CalendarIcon className="mr-2 h-3 w-3" />
-                                                                {editDate
-                                                                    ? format(editDate, 'dd MMM yyyy', { locale: tr })
-                                                                    : 'Tarih seç'}
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar
-                                                                mode="single"
-                                                                selected={editDate}
-                                                                onSelect={setEditDate}
-                                                                locale={tr}
-                                                                initialFocus
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
+                                                    <div className="flex gap-2">
+                                                        <Popover>
+                                                            <PopoverTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className={cn(
+                                                                        'flex-1 justify-start text-left font-normal text-sm',
+                                                                        !editDate && 'text-muted-foreground'
+                                                                    )}
+                                                                >
+                                                                    <CalendarIcon className="mr-2 h-3 w-3" />
+                                                                    {editDate
+                                                                        ? formatDateWithOptionalTime(editDate)
+                                                                        : 'Tarih seç'}
+                                                                </Button>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="w-auto p-0" align="start">
+                                                                <Calendar
+                                                                    mode="single"
+                                                                    selected={editDate}
+                                                                    onSelect={setEditDate}
+                                                                    locale={tr}
+                                                                    initialFocus
+                                                                />
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        <Input
+                                                            type="time"
+                                                            value={editTime}
+                                                            onChange={(e) => setEditTime(e.target.value)}
+                                                            className="w-[120px] text-sm"
+                                                        />
+                                                    </div>
                                                     <div className="flex gap-2">
                                                         <Button
                                                             size="sm"

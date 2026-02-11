@@ -81,6 +81,25 @@ const QUICK_ACTIVITY_TYPES: { type: ActivityType; icon: React.ElementType }[] = 
     { type: 'networking', icon: Handshake },
 ];
 
+function withOptionalTime(date: Date | null, timeValue: string): Date | null {
+    if (!date) return null;
+    if (!timeValue) return date;
+
+    const [hours, minutes] = timeValue.split(':').map(Number);
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return date;
+
+    const nextDate = new Date(date);
+    nextDate.setHours(hours, minutes, 0, 0);
+    return nextDate;
+}
+
+function formatDateWithOptionalTime(date: Date): string {
+    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+    return hasTime
+        ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
+        : format(date, 'dd MMM yyyy', { locale: tr });
+}
+
 export function QuickActionButton() {
     const { user } = useAuth();
     const [activityOpen, setActivityOpen] = useState(false);
@@ -154,6 +173,7 @@ function QuickActivitySheet({
     const [summary, setSummary] = useState('');
     const [nextAction, setNextAction] = useState('');
     const [nextActionDate, setNextActionDate] = useState<Date | null>(null);
+    const [nextActionTime, setNextActionTime] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -169,6 +189,7 @@ function QuickActivitySheet({
         setSummary('');
         setNextAction('');
         setNextActionDate(null);
+        setNextActionTime('');
 
         const load = async () => {
             setDataLoading(true);
@@ -202,7 +223,7 @@ function QuickActivitySheet({
                 contactId: contactId || null,
                 companyId: companyId || null,
                 nextAction: nextAction.trim() || null,
-                nextActionDate: nextActionDate || null,
+                nextActionDate: withOptionalTime(nextActionDate, nextActionTime),
             };
             await activityService.add(data, userId);
             toast.success('Aktivite kaydedildi');
@@ -326,30 +347,38 @@ function QuickActivitySheet({
                             value={nextAction}
                             onChange={(e) => setNextAction(e.target.value)}
                         />
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className={cn(
-                                        'w-full justify-start text-left font-normal',
-                                        !nextActionDate && 'text-muted-foreground'
-                                    )}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {nextActionDate
-                                        ? format(nextActionDate, 'dd MMM yyyy', { locale: tr })
-                                        : 'Tarih seç'}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    mode="single"
-                                    selected={nextActionDate ?? undefined}
-                                    onSelect={(d) => setNextActionDate(d ?? null)}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
+                        <div className="flex gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className={cn(
+                                            'flex-1 justify-start text-left font-normal',
+                                            !nextActionDate && 'text-muted-foreground'
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {nextActionDate
+                                            ? formatDateWithOptionalTime(nextActionDate)
+                                            : 'Tarih seç'}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={nextActionDate ?? undefined}
+                                        onSelect={(d) => setNextActionDate(d ?? null)}
+                                        initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <Input
+                                type="time"
+                                value={nextActionTime}
+                                onChange={(e) => setNextActionTime(e.target.value)}
+                                className="w-[130px]"
+                            />
+                        </div>
                     </div>
 
                     {/* Submit */}

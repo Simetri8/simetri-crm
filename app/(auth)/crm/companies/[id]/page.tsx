@@ -11,6 +11,7 @@ import {
   Calendar,
   Edit,
   Plus,
+  MapPin,
   Phone,
   Mail,
   User,
@@ -224,6 +225,12 @@ export default function CompanyDetailPage({
             Düzenle
           </Button>
         </div>
+        {company.address && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            <span>{company.address}</span>
+          </div>
+        )}
       </div>
 
       {/* Overview Cards */}
