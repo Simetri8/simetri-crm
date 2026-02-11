@@ -23,6 +23,13 @@ export type NetworkingPanelProps = {
     loading: boolean;
 };
 
+function formatDateWithOptionalTime(date: Date): string {
+    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+    return hasTime
+        ? format(date, 'dd MMM HH:mm', { locale: tr })
+        : format(date, 'dd MMM', { locale: tr });
+}
+
 export function NetworkingPanel({
     contacts,
     loading,
@@ -121,7 +128,7 @@ export function NetworkingPanel({
                                     {contact.nextActionDate && (
                                         <span className="flex items-center gap-1">
                                             <Calendar className="h-3 w-3" />
-                                            {format(contact.nextActionDate.toDate(), 'dd MMM', { locale: tr })}
+                                            {formatDateWithOptionalTime(contact.nextActionDate.toDate())}
                                         </span>
                                     )}
                                 </div>
