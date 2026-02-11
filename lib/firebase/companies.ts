@@ -15,9 +15,44 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { getCollection } from './firestore';
+import { activityService } from './activities';
 import type { Company, CompanyFormData, CompanyStatus } from '@/lib/types';
 
 const COLLECTION = 'companies';
+
+function normalizeNextAction(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function hasNextActionChanged(
+  oldAction: string | null,
+  oldDate: Date | null,
+  newAction: string | null,
+  newDate: Date | null
+): boolean {
+  const oldMs = oldDate?.getTime() ?? null;
+  const newMs = newDate?.getTime() ?? null;
+  return oldAction !== newAction || oldMs !== newMs;
+}
+
+function formatNextActionDateForLog(date: Date | null): string {
+  return date ? date.toLocaleString('tr-TR') : 'Yok';
+}
+
+function buildNextActionUpdateDetails(
+  oldAction: string | null,
+  oldDate: Date | null,
+  newAction: string | null,
+  newDate: Date | null
+): string {
+  return [
+    `Önceki aksiyon: ${oldAction ?? 'Yok'}`,
+    `Önceki tarih: ${formatNextActionDateForLog(oldDate)}`,
+    `Yeni aksiyon: ${newAction ?? 'Yok'}`,
+    `Yeni tarih: ${formatNextActionDateForLog(newDate)}`,
+  ].join('\n');
+}
 
 export const companyService = {
   /**
@@ -95,6 +130,15 @@ export const companyService = {
     userId: string
   ): Promise<void> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
+    const shouldTrackNextAction =
+      data.nextAction !== undefined || data.nextActionDate !== undefined;
+    let existingCompany: Company | null = null;
+
+    if (shouldTrackNextAction) {
+      const currentSnap = await getDoc(docRef);
+      existingCompany = currentSnap.exists() ? currentSnap.data() : null;
+    }
+
     const updateData: Record<string, unknown> = {
       ...data,
       updatedAt: serverTimestamp(),
@@ -107,6 +151,9 @@ export const companyService = {
         ? Timestamp.fromDate(data.nextActionDate)
         : null;
     }
+    if (data.nextAction !== undefined) {
+      updateData.nextAction = normalizeNextAction(data.nextAction);
+    }
     if (data.website !== undefined) {
       updateData.website = data.website ?? null;
     }
@@ -115,6 +162,38 @@ export const companyService = {
     }
 
     await updateDoc(docRef, updateData);
+
+    if (shouldTrackNextAction && existingCompany) {
+      const oldAction = existingCompany.nextAction ?? null;
+      const oldDate = existingCompany.nextActionDate?.toDate() ?? null;
+      const newAction =
+        data.nextAction !== undefined
+          ? normalizeNextAction(data.nextAction)
+          : oldAction;
+      const newDate =
+        data.nextActionDate !== undefined ? data.nextActionDate ?? null : oldDate;
+
+      if (hasNextActionChanged(oldAction, oldDate, newAction, newDate)) {
+        try {
+          await activityService.addSystemActivity(
+            'next_action_updated',
+            'Şirket sonraki adımı güncellendi',
+            {
+              companyId: id,
+              details: buildNextActionUpdateDetails(
+                oldAction,
+                oldDate,
+                newAction,
+                newDate
+              ),
+            },
+            userId
+          );
+        } catch (error) {
+          console.error('Next action activity log error (company update):', error);
+        }
+      }
+    }
   },
 
   /**
@@ -147,12 +226,52 @@ export const companyService = {
     userId: string
   ): Promise<void> => {
     const docRef = doc(getCollection<Company>(COLLECTION), id);
+    const currentSnap = await getDoc(docRef);
+    const currentData = currentSnap.exists() ? currentSnap.data() : null;
+    const normalizedNextAction = normalizeNextAction(nextAction);
+
     await updateDoc(docRef, {
-      nextAction,
+      nextAction: normalizedNextAction,
       nextActionDate: nextActionDate ? Timestamp.fromDate(nextActionDate) : null,
       updatedAt: serverTimestamp(),
       updatedBy: userId,
     });
+
+    if (currentData) {
+      const oldAction = currentData.nextAction ?? null;
+      const oldDate = currentData.nextActionDate?.toDate() ?? null;
+
+      if (
+        hasNextActionChanged(
+          oldAction,
+          oldDate,
+          normalizedNextAction,
+          nextActionDate
+        )
+      ) {
+        try {
+          await activityService.addSystemActivity(
+            'next_action_updated',
+            'Şirket sonraki adımı güncellendi',
+            {
+              companyId: id,
+              details: buildNextActionUpdateDetails(
+                oldAction,
+                oldDate,
+                normalizedNextAction,
+                nextActionDate
+              ),
+            },
+            userId
+          );
+        } catch (error) {
+          console.error(
+            'Next action activity log error (company updateNextAction):',
+            error
+          );
+        }
+      }
+    }
   },
 
   /**

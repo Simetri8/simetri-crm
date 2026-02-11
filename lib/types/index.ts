@@ -100,6 +100,7 @@ export type ActivitySource = (typeof ACTIVITY_SOURCES)[number];
 export const SYSTEM_EVENTS = [
   'call_attempt',
   'chat_summary',
+  'next_action_updated',
   'deal_stage_changed',
   'proposal_sent',
   'proposal_accepted',

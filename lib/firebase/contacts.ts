@@ -15,9 +15,44 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { getCollection } from './firestore';
+import { activityService } from './activities';
 import type { Contact, ContactFormData, ContactStage, ContactSource, Company } from '@/lib/types';
 
 const COLLECTION = 'contacts';
+
+function normalizeNextAction(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+function hasNextActionChanged(
+  oldAction: string | null,
+  oldDate: Date | null,
+  newAction: string | null,
+  newDate: Date | null
+): boolean {
+  const oldMs = oldDate?.getTime() ?? null;
+  const newMs = newDate?.getTime() ?? null;
+  return oldAction !== newAction || oldMs !== newMs;
+}
+
+function formatNextActionDateForLog(date: Date | null): string {
+  return date ? date.toLocaleString('tr-TR') : 'Yok';
+}
+
+function buildNextActionUpdateDetails(
+  oldAction: string | null,
+  oldDate: Date | null,
+  newAction: string | null,
+  newDate: Date | null
+): string {
+  return [
+    `Önceki aksiyon: ${oldAction ?? 'Yok'}`,
+    `Önceki tarih: ${formatNextActionDateForLog(oldDate)}`,
+    `Yeni aksiyon: ${newAction ?? 'Yok'}`,
+    `Yeni tarih: ${formatNextActionDateForLog(newDate)}`,
+  ].join('\n');
+}
 
 export const contactService = {
   /**
@@ -140,12 +175,20 @@ export const contactService = {
     userId: string
   ): Promise<void> => {
     const docRef = doc(getCollection<Contact>(COLLECTION), id);
+    const shouldTrackNextAction =
+      data.nextAction !== undefined || data.nextActionDate !== undefined;
+    let existingContact: Contact | null = null;
+
+    if (shouldTrackNextAction) {
+      const currentSnap = await getDoc(docRef);
+      existingContact = currentSnap.exists() ? currentSnap.data() : null;
+    }
 
     // Eger isPrimary true yapiliyorsa, diger primary'leri kaldir
     if (data.isPrimary === true) {
-      const existingContact = await contactService.getById(id);
-      if (existingContact?.companyId) {
-        await contactService.clearPrimaryForCompany(existingContact.companyId, id);
+      const contactForPrimary = existingContact ?? (await contactService.getById(id));
+      if (contactForPrimary?.companyId) {
+        await contactService.clearPrimaryForCompany(contactForPrimary.companyId, id);
       }
     }
 
@@ -172,8 +215,48 @@ export const contactService = {
         ? Timestamp.fromDate(data.nextActionDate)
         : null;
     }
+    if (data.nextAction !== undefined) {
+      updateData.nextAction = normalizeNextAction(data.nextAction);
+    }
 
     await updateDoc(docRef, updateData);
+
+    if (shouldTrackNextAction && existingContact) {
+      const oldAction = existingContact.nextAction ?? null;
+      const oldDate = existingContact.nextActionDate?.toDate() ?? null;
+      const newAction =
+        data.nextAction !== undefined
+          ? normalizeNextAction(data.nextAction)
+          : oldAction;
+      const newDate =
+        data.nextActionDate !== undefined ? data.nextActionDate ?? null : oldDate;
+      const companyIdForLog =
+        data.companyId !== undefined
+          ? data.companyId ?? null
+          : existingContact.companyId ?? null;
+
+      if (hasNextActionChanged(oldAction, oldDate, newAction, newDate)) {
+        try {
+          await activityService.addSystemActivity(
+            'next_action_updated',
+            'Kişi sonraki adımı güncellendi',
+            {
+              contactId: id,
+              companyId: companyIdForLog ?? undefined,
+              details: buildNextActionUpdateDetails(
+                oldAction,
+                oldDate,
+                newAction,
+                newDate
+              ),
+            },
+            userId
+          );
+        } catch (error) {
+          console.error('Next action activity log error (contact update):', error);
+        }
+      }
+    }
   },
 
   /**
@@ -210,12 +293,53 @@ export const contactService = {
     userId: string
   ): Promise<void> => {
     const docRef = doc(getCollection<Contact>(COLLECTION), id);
+    const currentSnap = await getDoc(docRef);
+    const currentData = currentSnap.exists() ? currentSnap.data() : null;
+    const normalizedNextAction = normalizeNextAction(nextAction);
+
     await updateDoc(docRef, {
-      nextAction,
+      nextAction: normalizedNextAction,
       nextActionDate: nextActionDate ? Timestamp.fromDate(nextActionDate) : null,
       updatedAt: serverTimestamp(),
       updatedBy: userId,
     });
+
+    if (currentData) {
+      const oldAction = currentData.nextAction ?? null;
+      const oldDate = currentData.nextActionDate?.toDate() ?? null;
+
+      if (
+        hasNextActionChanged(
+          oldAction,
+          oldDate,
+          normalizedNextAction,
+          nextActionDate
+        )
+      ) {
+        try {
+          await activityService.addSystemActivity(
+            'next_action_updated',
+            'Kişi sonraki adımı güncellendi',
+            {
+              contactId: id,
+              companyId: currentData.companyId ?? undefined,
+              details: buildNextActionUpdateDetails(
+                oldAction,
+                oldDate,
+                normalizedNextAction,
+                nextActionDate
+              ),
+            },
+            userId
+          );
+        } catch (error) {
+          console.error(
+            'Next action activity log error (contact updateNextAction):',
+            error
+          );
+        }
+      }
+    }
   },
 
   /**
