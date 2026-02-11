@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { dashboardService } from '@/lib/firebase/dashboard';
-import type { DashboardKPIs } from '@/lib/types';
+import type { Activity, DashboardKPIs } from '@/lib/types';
 
 export type OverviewDashboardData = {
   kpis: DashboardKPIs | null;
   oldestOverdueDays: number | null;
   thisWeekDeliveryCount: number;
+  recentActivities: Activity[];
 };
 
 export function useOverviewDashboard() {
@@ -15,6 +16,7 @@ export function useOverviewDashboard() {
     kpis: null,
     oldestOverdueDays: null,
     thisWeekDeliveryCount: 0,
+    recentActivities: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -24,13 +26,14 @@ export function useOverviewDashboard() {
       setLoading(true);
       setError(null);
 
-      const [kpis, oldestOverdueDays, thisWeekDeliveryCount] = await Promise.all([
+      const [kpis, oldestOverdueDays, thisWeekDeliveryCount, recentActivities] = await Promise.all([
         dashboardService.getKPIs(),
         dashboardService.getOldestOverdueDays(),
         dashboardService.getThisWeekDeliveryCount(),
+        dashboardService.getRecentActivities({ limitCount: 8 }),
       ]);
 
-      setData({ kpis, oldestOverdueDays, thisWeekDeliveryCount });
+      setData({ kpis, oldestOverdueDays, thisWeekDeliveryCount, recentActivities });
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Veri yuklenirken hata olustu'));
     } finally {

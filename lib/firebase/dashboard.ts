@@ -6,6 +6,7 @@ import { dealService } from './deals';
 import { requestService } from './requests';
 import { workOrderService } from './work-orders';
 import { timeEntryService } from './time-entries';
+import { activityService } from './activities';
 import type {
   DashboardKPIs,
   FollowUpItem,
@@ -17,6 +18,7 @@ import type {
   Company,
   Contact,
   Deal,
+  Activity,
 } from '@/lib/types';
 
 /**
@@ -272,5 +274,14 @@ export const dashboardService = {
       limitCount: 50,
     });
     return workOrders.filter((wo) => wo.isDueSoon && !wo.isOverdue).length;
+  },
+
+  /**
+   * Son aktiviteleri getirir
+   */
+  getRecentActivities: async (options?: {
+    limitCount?: number;
+  }): Promise<Activity[]> => {
+    return activityService.getRecent(options?.limitCount ?? 10);
   },
 };

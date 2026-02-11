@@ -1,7 +1,7 @@
 'use client';
 
 import { useOverviewDashboard } from '@/hooks/use-overview-dashboard';
-import { KPICards } from '@/components/dashboard';
+import { KPICards, RecentActivitiesPanel } from '@/components/dashboard';
 import { DashboardNavCards } from '@/components/dashboard/dashboard-nav-cards';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw, AlertCircle, Sprout, Trash2 } from 'lucide-react';
@@ -104,6 +104,11 @@ export default function DashboardPage() {
             />
 
             <DashboardNavCards />
+
+            <RecentActivitiesPanel
+                activities={data.recentActivities}
+                loading={loading}
+            />
 
             {process.env.NODE_ENV === 'development' && (
                 <div className="flex flex-col gap-2 rounded-lg border bg-muted/40 p-4 md:flex-row md:items-center md:justify-between">
