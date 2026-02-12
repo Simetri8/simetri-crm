@@ -95,6 +95,7 @@ type CompanyFormDialogProps = {
   onOpenChange: (open: boolean) => void;
   company?: Company | null;
   onSubmit: (data: CompanyFormData) => Promise<void>;
+  presentation?: 'center' | 'right';
 };
 
 export function CompanyFormDialog({
@@ -102,6 +103,7 @@ export function CompanyFormDialog({
   onOpenChange,
   company,
   onSubmit,
+  presentation = 'center',
 }: CompanyFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nextActionTime, setNextActionTime] = useState(
@@ -173,7 +175,13 @@ export function CompanyFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent
+        className={
+          presentation === 'right'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
+            : 'sm:max-w-[500px]'
+        }
+      >
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Şirketi Düzenle' : 'Yeni Şirket'}

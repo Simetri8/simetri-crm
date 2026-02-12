@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,14 +23,16 @@ import { cn } from '@/lib/utils';
 export type RequestsPanelProps = {
     requests: RequestSummaryItem[];
     loading: boolean;
+    onOpenList?: () => void;
+    onSelectRequest?: (requestId: string) => void;
 };
 
 export function RequestsPanel({
     requests,
     loading,
+    onOpenList,
+    onSelectRequest,
 }: RequestsPanelProps) {
-    const router = useRouter();
-
     if (loading) {
         return (
             <Card className="col-span-1 row-span-1">
@@ -65,7 +66,7 @@ export function RequestsPanel({
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push('/crm/requests')}
+                        onClick={onOpenList}
                         className="gap-1 text-xs"
                     >
                         Tümünü Gör
@@ -87,7 +88,7 @@ export function RequestsPanel({
                         return (
                             <button
                                 key={request.id}
-                                onClick={() => router.push('/crm/requests')}
+                                onClick={() => onSelectRequest?.(request.id)}
                                 className="w-full text-left p-3 rounded-lg border transition-colors hover:bg-accent"
                             >
                                 <div className="flex items-start justify-between gap-2">

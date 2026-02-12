@@ -74,6 +74,7 @@ type RequestFormDialogProps = {
   request?: Request | null;
   users?: User[];
   onSubmit: (data: RequestFormData) => Promise<void>;
+  presentation?: 'center' | 'right';
 };
 
 export function RequestFormDialog({
@@ -82,6 +83,7 @@ export function RequestFormDialog({
   request,
   users = [],
   onSubmit,
+  presentation = 'center',
 }: RequestFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -154,7 +156,13 @@ export function RequestFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={
+          presentation === 'right'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
+            : 'sm:max-w-[550px] max-h-[90vh] overflow-y-auto'
+        }
+      >
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Talebi Düzenle' : 'Yeni Talep'}

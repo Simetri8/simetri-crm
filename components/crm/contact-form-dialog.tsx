@@ -94,6 +94,7 @@ type ContactFormDialogProps = {
   contact?: Contact | null;
   defaultCompanyId?: string;
   onSubmit: (data: ContactFormData) => Promise<void>;
+  presentation?: 'center' | 'right';
 };
 
 export function ContactFormDialog({
@@ -102,6 +103,7 @@ export function ContactFormDialog({
   contact,
   defaultCompanyId,
   onSubmit,
+  presentation = 'center',
 }: ContactFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -186,7 +188,13 @@ export function ContactFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={
+          presentation === 'right'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
+            : 'sm:max-w-[550px] max-h-[90vh] overflow-y-auto'
+        }
+      >
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Kişiyi Düzenle' : 'Yeni Kişi'}

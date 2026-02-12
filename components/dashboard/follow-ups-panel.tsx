@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,7 +16,6 @@ import {
     UserCircle,
     CheckCircle2,
     AlertCircle,
-    Pencil,
     Check,
     X,
     CalendarIcon,
@@ -36,6 +33,9 @@ import { ENTITY_COLORS } from '@/lib/constants/entity-colors';
 export type FollowUpsPanelProps = {
     followUps: FollowUpItem[];
     loading: boolean;
+    onOpenList?: () => void;
+    onSelectFollowUp?: (item: FollowUpItem) => void;
+    onRefresh?: () => Promise<void> | void;
 };
 
 function formatDate(timestamp: Timestamp | null): string {
@@ -48,11 +48,6 @@ function formatDate(timestamp: Timestamp | null): string {
             day: 'numeric',
             month: 'short',
         });
-}
-
-function formatTimeValue(date: Date | undefined): string {
-    if (!date) return '';
-    return format(date, 'HH:mm');
 }
 
 function withOptionalTime(date: Date | undefined, timeValue: string): Date | null {
@@ -88,8 +83,13 @@ function formatRelativeTime(timestamp: Timestamp | null): string {
     return `${Math.floor(diffDays / 30)} ay önce`;
 }
 
-export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
-    const router = useRouter();
+export function FollowUpsPanel({
+    followUps,
+    loading,
+    onOpenList,
+    onSelectFollowUp,
+    onRefresh,
+}: FollowUpsPanelProps) {
     const { user } = useAuth();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editAction, setEditAction] = useState('');
@@ -99,21 +99,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
 
     const handleItemClick = (item: FollowUpItem) => {
         if (editingId) return; // Don't navigate if editing
-        if (item.type === 'company') {
-            router.push(`/crm/companies/${item.id}`);
-        } else if (item.type === 'contact') {
-            router.push(`/crm/contacts`);
-        } else {
-            router.push(`/crm/deals/${item.id}`);
-        }
-    };
-
-    const handleEditClick = (e: React.MouseEvent, item: FollowUpItem) => {
-        e.stopPropagation();
-        setEditingId(item.id);
-        setEditAction(item.nextAction || '');
-        setEditDate(item.nextActionDate?.toDate());
-        setEditTime(formatTimeValue(item.nextActionDate?.toDate()));
+        onSelectFollowUp?.(item);
     };
 
     const handleCancelEdit = (e: React.MouseEvent) => {
@@ -161,8 +147,7 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
             setEditAction('');
             setEditDate(undefined);
             setEditTime('');
-            // Refresh dashboard (parent component should handle this)
-            window.location.reload();
+            await onRefresh?.();
         } catch (error) {
             console.error('Error updating next action:', error);
             toast.error('Aksiyon güncellenemedi');
@@ -207,11 +192,21 @@ export function FollowUpsPanel({ followUps, loading }: FollowUpsPanelProps) {
 
                 </CardTitle>
                 <CardAction>
-                    {overdueCount > 0 && (
-                        <Badge variant="destructive" className="text-xs">
-                            {overdueCount}
-                        </Badge>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onOpenList}
+                            className="gap-1 text-xs"
+                        >
+                            Tümünü Gör
+                        </Button>
+                        {overdueCount > 0 && (
+                            <Badge variant="destructive" className="text-xs">
+                                {overdueCount}
+                            </Badge>
+                        )}
+                    </div>
                 </CardAction>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 flex flex-col px-4">

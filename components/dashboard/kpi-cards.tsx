@@ -10,7 +10,6 @@ import {
     ClipboardList,
     UserPlus,
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import type { DashboardKPIs } from '@/lib/types';
 
 export type KPICardsProps = {
@@ -19,6 +18,7 @@ export type KPICardsProps = {
     oldestOverdueDays: number | null;
     thisWeekDeliveryCount: number;
     visibleCards?: string[];
+    onCardClick?: (key: string) => void;
 };
 
 type KPICardData = {
@@ -43,6 +43,7 @@ export function KPICards({
     oldestOverdueDays,
     thisWeekDeliveryCount,
     visibleCards,
+    onCardClick,
 }: KPICardsProps) {
     const skeletonCount = visibleCards?.length ?? 6;
 
@@ -151,7 +152,23 @@ export function KPICards({
     return (
         <div className={getGridClass(cards.length)}>
             {cards.map((card) => (
-                <Card key={card.key} className="gap-0 relative pb-2">
+                <Card
+                    key={card.key}
+                    className="gap-0 relative pb-2"
+                    role={onCardClick ? 'button' : undefined}
+                    tabIndex={onCardClick ? 0 : undefined}
+                    onClick={onCardClick ? () => onCardClick(card.key) : undefined}
+                    onKeyDown={
+                        onCardClick
+                            ? (event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    onCardClick(card.key);
+                                }
+                            }
+                            : undefined
+                    }
+                >
                     <CardHeader>
                         <CardTitle>{card.title}</CardTitle>
                         <CardDescription>{card.subtitle}</CardDescription>

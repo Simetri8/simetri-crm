@@ -63,6 +63,7 @@ type DealFormDialogProps = {
   deal?: Deal | null;
   defaultStage?: DealStage;
   onSubmit: (data: DealFormData) => Promise<void>;
+  presentation?: 'center' | 'right';
 };
 
 export function DealFormDialog({
@@ -71,6 +72,7 @@ export function DealFormDialog({
   deal,
   defaultStage,
   onSubmit,
+  presentation = 'center',
 }: DealFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -176,7 +178,13 @@ export function DealFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent
+        className={
+          presentation === 'right'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
+            : 'sm:max-w-[550px]'
+        }
+      >
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Fırsatı Düzenle' : 'Yeni Fırsat'}

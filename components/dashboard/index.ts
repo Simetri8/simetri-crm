@@ -6,4 +6,5 @@ export { PipelineSummaryPanel } from './pipeline-summary-panel';
 export { WorkOrderRisksPanel } from './work-order-risks-panel';
 export { TimesheetPanel } from './timesheet-panel';
 export { DashboardNavCards } from './dashboard-nav-cards';
+export { CrmDashboardListSheet } from './crm-dashboard-list-sheet';
 export { RecentActivitiesPanel } from './recent-activities-panel';

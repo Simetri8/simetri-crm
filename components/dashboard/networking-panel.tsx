@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +20,8 @@ import { cn } from '@/lib/utils';
 export type NetworkingPanelProps = {
     contacts: NetworkingItem[];
     loading: boolean;
+    onOpenList?: () => void;
+    onSelectContact?: (contactId: string) => void;
 };
 
 function formatDateWithOptionalTime(date: Date): string {
@@ -33,9 +34,9 @@ function formatDateWithOptionalTime(date: Date): string {
 export function NetworkingPanel({
     contacts,
     loading,
+    onOpenList,
+    onSelectContact,
 }: NetworkingPanelProps) {
-    const router = useRouter();
-
     if (loading) {
         return (
             <Card className="col-span-1 row-span-1">
@@ -69,7 +70,7 @@ export function NetworkingPanel({
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => router.push('/crm/contacts')}
+                        onClick={onOpenList}
                         className="gap-1 text-xs"
                     >
                         Tümünü Gör
@@ -90,7 +91,7 @@ export function NetworkingPanel({
                         return (
                             <button
                                 key={contact.id}
-                                onClick={() => router.push('/crm/contacts')}
+                                onClick={() => onSelectContact?.(contact.id)}
                                 className="w-full text-left p-3 rounded-lg border transition-colors hover:bg-accent"
                             >
                                 <div className="flex items-start justify-between gap-2">
