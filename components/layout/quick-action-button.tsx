@@ -174,6 +174,7 @@ function QuickActivitySheet({
     const [nextAction, setNextAction] = useState('');
     const [nextActionDate, setNextActionDate] = useState<Date | null>(null);
     const [nextActionTime, setNextActionTime] = useState('');
+    const [nextActionDatePopoverOpen, setNextActionDatePopoverOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -348,7 +349,10 @@ function QuickActivitySheet({
                             onChange={(e) => setNextAction(e.target.value)}
                         />
                         <div className="flex gap-2">
-                            <Popover>
+                            <Popover
+                                open={nextActionDatePopoverOpen}
+                                onOpenChange={setNextActionDatePopoverOpen}
+                            >
                                 <PopoverTrigger asChild>
                                     <Button
                                         variant="outline"
@@ -367,7 +371,10 @@ function QuickActivitySheet({
                                     <Calendar
                                         mode="single"
                                         selected={nextActionDate ?? undefined}
-                                        onSelect={(d) => setNextActionDate(d ?? null)}
+                                        onSelect={(d) => {
+                                            setNextActionDate(d ?? null);
+                                            setNextActionDatePopoverOpen(false);
+                                        }}
                                         initialFocus
                                     />
                                 </PopoverContent>
@@ -425,6 +432,7 @@ function QuickRequestSheet({
     const [contactId, setContactId] = useState('');
     const [companyId, setCompanyId] = useState('');
     const [dueDate, setDueDate] = useState<Date | null>(null);
+    const [dueDatePopoverOpen, setDueDatePopoverOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [contacts, setContacts] = useState<Contact[]>([]);
@@ -593,7 +601,7 @@ function QuickRequestSheet({
                     {/* Due date */}
                     <div>
                         <Label className="text-sm font-medium mb-2 block">Hedef Tarih</Label>
-                        <Popover>
+                        <Popover open={dueDatePopoverOpen} onOpenChange={setDueDatePopoverOpen}>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
@@ -612,7 +620,10 @@ function QuickRequestSheet({
                                 <Calendar
                                     mode="single"
                                     selected={dueDate ?? undefined}
-                                    onSelect={(d) => setDueDate(d ?? null)}
+                                    onSelect={(d) => {
+                                        setDueDate(d ?? null);
+                                        setDueDatePopoverOpen(false);
+                                    }}
                                     initialFocus
                                 />
                             </PopoverContent>

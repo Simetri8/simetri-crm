@@ -92,6 +92,7 @@ export function TaskFormDialog({
 }: TaskFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [assigneeSearchOpen, setAssigneeSearchOpen] = useState(false);
+  const [dueDatePopoverOpen, setDueDatePopoverOpen] = useState(false);
   const isEdit = !!task;
 
   const form = useForm<FormValues>({
@@ -233,7 +234,7 @@ export function TaskFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Bitis Tarihi</FormLabel>
-                    <Popover>
+                    <Popover open={dueDatePopoverOpen} onOpenChange={setDueDatePopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -254,7 +255,10 @@ export function TaskFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value ?? undefined}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setDueDatePopoverOpen(false);
+                          }}
                           locale={tr}
                         />
                       </PopoverContent>

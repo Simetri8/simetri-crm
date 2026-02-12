@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -113,6 +114,8 @@ export function ActivityFormDialog({
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loadingContacts, setLoadingContacts] = useState(true);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [occurredAtPopoverOpen, setOccurredAtPopoverOpen] = useState(false);
+  const [nextActionDatePopoverOpen, setNextActionDatePopoverOpen] = useState(false);
   const [nextActionTime, setNextActionTime] = useState('');
 
   const form = useForm<FormValues>({
@@ -222,13 +225,14 @@ export function ActivityFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Yeni Aktivite</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-1">
             {/* Kisi secimi */}
             {!defaultContactId && showContextSelectors && (
               <FormField
@@ -360,7 +364,7 @@ export function ActivityFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Tarih</FormLabel>
-                    <Popover>
+                    <Popover open={occurredAtPopoverOpen} onOpenChange={setOccurredAtPopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -381,7 +385,10 @@ export function ActivityFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setOccurredAtPopoverOpen(false);
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
@@ -449,7 +456,10 @@ export function ActivityFormDialog({
                     <FormItem className="flex flex-col">
                       <FormLabel>Tarih</FormLabel>
                       <div className="flex gap-2">
-                        <Popover>
+                        <Popover
+                          open={nextActionDatePopoverOpen}
+                          onOpenChange={setNextActionDatePopoverOpen}
+                        >
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -470,7 +480,10 @@ export function ActivityFormDialog({
                             <Calendar
                               mode="single"
                               selected={field.value ?? undefined}
-                              onSelect={field.onChange}
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                setNextActionDatePopoverOpen(false);
+                              }}
                               initialFocus
                             />
                           </PopoverContent>
@@ -489,7 +502,8 @@ export function ActivityFormDialog({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4">
+            </div>
+            <DialogFooter sticky className="mt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -501,7 +515,7 @@ export function ActivityFormDialog({
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Ekle
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

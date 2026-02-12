@@ -62,6 +62,7 @@ export function NextActionBar({
   const [editTime, setEditTime] = useState(
     formatTimeValue(nextActionDate?.toDate())
   );
+  const [editDatePopoverOpen, setEditDatePopoverOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async () => {
@@ -93,7 +94,7 @@ export function NextActionBar({
             className="h-9"
           />
         </div>
-        <Popover>
+        <Popover open={editDatePopoverOpen} onOpenChange={setEditDatePopoverOpen}>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
@@ -110,7 +111,10 @@ export function NextActionBar({
             <Calendar
               mode="single"
               selected={editDate}
-              onSelect={setEditDate}
+              onSelect={(date) => {
+                setEditDate(date);
+                setEditDatePopoverOpen(false);
+              }}
               initialFocus
             />
           </PopoverContent>

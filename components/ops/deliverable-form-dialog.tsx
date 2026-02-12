@@ -67,6 +67,7 @@ export function DeliverableFormDialog({
   onSubmit,
 }: DeliverableFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [targetDatePopoverOpen, setTargetDatePopoverOpen] = useState(false);
   const isEdit = !!deliverable;
 
   const form = useForm<FormValues>({
@@ -165,7 +166,7 @@ export function DeliverableFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Hedef Tarih</FormLabel>
-                    <Popover>
+                    <Popover open={targetDatePopoverOpen} onOpenChange={setTargetDatePopoverOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -186,7 +187,10 @@ export function DeliverableFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value ?? undefined}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setTargetDatePopoverOpen(false);
+                          }}
                           locale={tr}
                         />
                       </PopoverContent>

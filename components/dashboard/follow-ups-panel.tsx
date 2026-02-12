@@ -95,6 +95,7 @@ export function FollowUpsPanel({
     const [editAction, setEditAction] = useState('');
     const [editDate, setEditDate] = useState<Date | undefined>(undefined);
     const [editTime, setEditTime] = useState('');
+    const [editDatePopoverOpen, setEditDatePopoverOpen] = useState(false);
     const [saving, setSaving] = useState(false);
 
     const handleItemClick = (item: FollowUpItem) => {
@@ -264,7 +265,7 @@ export function FollowUpsPanel({
                                                         className="text-sm"
                                                     />
                                                     <div className="flex gap-2">
-                                                        <Popover>
+                                                        <Popover open={editDatePopoverOpen} onOpenChange={setEditDatePopoverOpen}>
                                                             <PopoverTrigger asChild>
                                                                 <Button
                                                                     variant="outline"
@@ -283,7 +284,10 @@ export function FollowUpsPanel({
                                                                 <Calendar
                                                                     mode="single"
                                                                     selected={editDate}
-                                                                    onSelect={setEditDate}
+                                                                    onSelect={(date) => {
+                                                                        setEditDate(date);
+                                                                        setEditDatePopoverOpen(false);
+                                                                    }}
                                                                     locale={tr}
                                                                     initialFocus
                                                                 />

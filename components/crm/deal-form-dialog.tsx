@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -78,6 +79,7 @@ export function DealFormDialog({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [expectedCloseDatePopoverOpen, setExpectedCloseDatePopoverOpen] = useState(false);
   const isEdit = !!deal;
 
   const form = useForm<FormValues>({
@@ -181,8 +183,8 @@ export function DealFormDialog({
       <DialogContent
         className={
           presentation === 'right'
-            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
-            : 'sm:max-w-[550px]'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-hidden flex flex-col'
+            : 'sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col'
         }
       >
         <DialogHeader>
@@ -192,7 +194,8 @@ export function DealFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-1">
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -301,7 +304,10 @@ export function DealFormDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Beklenen Kapanma</FormLabel>
-                    <Popover>
+                    <Popover
+                      open={expectedCloseDatePopoverOpen}
+                      onOpenChange={setExpectedCloseDatePopoverOpen}
+                    >
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -322,7 +328,10 @@ export function DealFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value ?? undefined}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setExpectedCloseDatePopoverOpen(false);
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
@@ -399,7 +408,8 @@ export function DealFormDialog({
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            </div>
+            <DialogFooter sticky className="mt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -411,7 +421,7 @@ export function DealFormDialog({
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

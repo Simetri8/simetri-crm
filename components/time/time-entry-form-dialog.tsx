@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -93,6 +94,7 @@ export function TimeEntryFormDialog({
 }: TimeEntryFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workOrderSearchOpen, setWorkOrderSearchOpen] = useState(false);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const isEdit = !!timeEntry;
 
   const form = useForm<FormValues>({
@@ -189,7 +191,7 @@ export function TimeEntryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? 'Zaman Girişini Düzenle' : 'Yeni Zaman Girişi'}
@@ -197,7 +199,8 @@ export function TimeEntryFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-1">
             {/* Work Order Selection */}
             <FormField
               control={form.control}
@@ -334,7 +337,7 @@ export function TimeEntryFormDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Tarih</FormLabel>
-                  <Popover>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -355,7 +358,10 @@ export function TimeEntryFormDialog({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) => field.onChange(date ?? new Date())}
+                        onSelect={(date) => {
+                          field.onChange(date ?? new Date());
+                          setDatePopoverOpen(false);
+                        }}
                         locale={tr}
                         disabled={(date) => date > new Date()}
                       />
@@ -453,7 +459,8 @@ export function TimeEntryFormDialog({
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            </div>
+            <DialogFooter sticky className="mt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -465,7 +472,7 @@ export function TimeEntryFormDialog({
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>

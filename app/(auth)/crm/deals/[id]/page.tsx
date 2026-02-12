@@ -87,6 +87,7 @@ export default function DealDetailPage({
   const [activityFormOpen, setActivityFormOpen] = useState(false);
   const [showCreateWorkOrderDialog, setShowCreateWorkOrderDialog] = useState(false);
   const [targetDeliveryDate, setTargetDeliveryDate] = useState<Date | undefined>(undefined);
+  const [targetDeliveryDatePopoverOpen, setTargetDeliveryDatePopoverOpen] = useState(false);
   const [createWorkOrderLoading, setCreateWorkOrderLoading] = useState(false);
   const [pendingStageChange, setPendingStageChange] = useState<DealStage | null>(null);
   const [showLostReasonDialog, setShowLostReasonDialog] = useState(false);
@@ -537,7 +538,10 @@ export default function DealDetailPage({
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Hedef Teslim Tarihi</Label>
-              <Popover>
+              <Popover
+                open={targetDeliveryDatePopoverOpen}
+                onOpenChange={setTargetDeliveryDatePopoverOpen}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -556,7 +560,10 @@ export default function DealDetailPage({
                   <CalendarComponent
                     mode="single"
                     selected={targetDeliveryDate}
-                    onSelect={setTargetDeliveryDate}
+                    onSelect={(date) => {
+                      setTargetDeliveryDate(date);
+                      setTargetDeliveryDatePopoverOpen(false);
+                    }}
                     locale={tr}
                     disabled={(date) => date < new Date()}
                   />

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -106,6 +107,7 @@ export function CompanyFormDialog({
   presentation = 'center',
 }: CompanyFormDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nextActionDatePopoverOpen, setNextActionDatePopoverOpen] = useState(false);
   const [nextActionTime, setNextActionTime] = useState(
     formatTimeValue(company?.nextActionDate?.toDate() ?? null)
   );
@@ -178,8 +180,8 @@ export function CompanyFormDialog({
       <DialogContent
         className={
           presentation === 'right'
-            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-y-auto'
-            : 'sm:max-w-[500px]'
+            ? 'left-auto top-0 right-0 h-full max-h-screen w-[min(760px,95vw)] translate-x-0 translate-y-0 rounded-none border-r-0 border-t-0 border-b-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right overflow-hidden flex flex-col'
+            : 'sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col'
         }
       >
         <DialogHeader>
@@ -189,7 +191,8 @@ export function CompanyFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-1">
             <FormField
               control={form.control}
               name="name"
@@ -357,7 +360,10 @@ export function CompanyFormDialog({
                 <FormItem className="flex flex-col">
                   <FormLabel>Sonraki Adım Tarihi</FormLabel>
                   <div className="flex gap-2">
-                    <Popover>
+                    <Popover
+                      open={nextActionDatePopoverOpen}
+                      onOpenChange={setNextActionDatePopoverOpen}
+                    >
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -378,7 +384,10 @@ export function CompanyFormDialog({
                         <Calendar
                           mode="single"
                           selected={field.value ?? undefined}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setNextActionDatePopoverOpen(false);
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
@@ -395,7 +404,8 @@ export function CompanyFormDialog({
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            </div>
+            <DialogFooter sticky className="mt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -407,7 +417,7 @@ export function CompanyFormDialog({
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEdit ? 'Güncelle' : 'Oluştur'}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
