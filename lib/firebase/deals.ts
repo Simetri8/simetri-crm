@@ -63,6 +63,51 @@ function buildNextActionUpdateDetails(
   ].join('\n');
 }
 
+/**
+ * Formdaki şirket / kişi seçiminden deal kaydında saklanacak ID ve denormalize isimleri üretir.
+ * Yalnızca kişi seçildiyse, kişinin şirketi varsa companyId oradan tamamlanır.
+ */
+async function resolveDealPartyFields(
+  companyIdInput: string,
+  primaryContactIdInput: string
+): Promise<{
+  companyId: string;
+  companyName: string;
+  primaryContactId: string;
+  primaryContactName: string;
+}> {
+  let companyId = companyIdInput.trim();
+  let primaryContactId = primaryContactIdInput.trim();
+
+  let primaryContactName = '';
+
+  if (primaryContactId) {
+    const contactRef = doc(getCollection<Contact>('contacts'), primaryContactId);
+    const contactSnap = await getDoc(contactRef);
+    if (contactSnap.exists()) {
+      const c = contactSnap.data();
+      primaryContactName = c.fullName;
+      if (!companyId && c.companyId) {
+        companyId = c.companyId;
+      }
+    }
+  }
+
+  let companyName = '';
+  if (companyId) {
+    const companyRef = doc(getCollection<Company>('companies'), companyId);
+    const companySnap = await getDoc(companyRef);
+    companyName = companySnap.exists() ? companySnap.data().name : '';
+  }
+
+  return {
+    companyId,
+    companyName,
+    primaryContactId,
+    primaryContactName,
+  };
+}
+
 export const dealService = {
   /**
    * Tum deal'leri getirir
@@ -149,23 +194,20 @@ export const dealService = {
    * Yeni deal ekler
    */
   add: async (data: DealFormData, userId: string): Promise<string> => {
-    // Şirket ve contact adlarini al (denormalizasyon icin)
-    const companyRef = doc(getCollection<Company>('companies'), data.companyId);
-    const companySnap = await getDoc(companyRef);
-    const companyName = companySnap.exists() ? companySnap.data().name : '';
+    const companyIdRaw = (data.companyId ?? '').trim();
+    const primaryContactIdRaw = (data.primaryContactId ?? '').trim();
+    if (!companyIdRaw && !primaryContactIdRaw) {
+      throw new Error('Kişi veya şirket seçilmeli');
+    }
 
-    const contactRef = doc(getCollection<Contact>('contacts'), data.primaryContactId);
-    const contactSnap = await getDoc(contactRef);
-    const primaryContactName = contactSnap.exists()
-      ? contactSnap.data().fullName
-      : '';
+    const party = await resolveDealPartyFields(companyIdRaw, primaryContactIdRaw);
 
     const now = serverTimestamp() as Timestamp;
     const docRef = await addDoc(getCollection<Deal>(COLLECTION), {
-      companyId: data.companyId,
-      companyName,
-      primaryContactId: data.primaryContactId,
-      primaryContactName,
+      companyId: party.companyId,
+      companyName: party.companyName,
+      primaryContactId: party.primaryContactId,
+      primaryContactName: party.primaryContactName,
       title: data.title,
       stage: data.stage ?? 'lead',
       lostReason: null,
@@ -207,11 +249,39 @@ export const dealService = {
       existingDeal = currentSnap.exists() ? currentSnap.data() : null;
     }
 
+    const needsPartyResolve =
+      data.companyId !== undefined || data.primaryContactId !== undefined;
+    let partyResolved: Awaited<ReturnType<typeof resolveDealPartyFields>> | null =
+      null;
+    if (needsPartyResolve) {
+      const currentSnap = await getDoc(docRef);
+      const existing = currentSnap.exists() ? currentSnap.data() : null;
+      const cid =
+        data.companyId !== undefined
+          ? (data.companyId ?? '').trim()
+          : (existing?.companyId ?? '');
+      const pid =
+        data.primaryContactId !== undefined
+          ? (data.primaryContactId ?? '').trim()
+          : (existing?.primaryContactId ?? '');
+      if (!cid && !pid) {
+        throw new Error('Kişi veya şirket seçilmeli');
+      }
+      partyResolved = await resolveDealPartyFields(cid, pid);
+    }
+
     const updateData: Record<string, unknown> = {
       ...data,
       updatedAt: serverTimestamp(),
       updatedBy: userId,
     };
+
+    if (partyResolved) {
+      updateData.companyId = partyResolved.companyId;
+      updateData.companyName = partyResolved.companyName;
+      updateData.primaryContactId = partyResolved.primaryContactId;
+      updateData.primaryContactName = partyResolved.primaryContactName;
+    }
 
     // Tarih alanlarini Timestamp'e cevir
     if (data.nextActionDate !== undefined) {

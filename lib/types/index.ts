@@ -244,9 +244,9 @@ export type ContactFormData = {
 
 export type Deal = BaseEntity &
   NextActionFields & {
-    companyId: string;
+    companyId: string; // Boş olabilir (yalnızca kişi bağlantılı fırsat)
     companyName: string; // Denormalized
-    primaryContactId: string;
+    primaryContactId: string; // Boş olabilir (yalnızca şirket bağlantılı fırsat)
     primaryContactName: string; // Denormalized
     title: string;
     stage: DealStage;
@@ -257,8 +257,8 @@ export type Deal = BaseEntity &
   };
 
 export type DealFormData = {
-  companyId: string;
-  primaryContactId: string;
+  companyId?: string | null;
+  primaryContactId?: string | null;
   title: string;
   stage?: DealStage;
   expectedCloseDate?: Date | null;

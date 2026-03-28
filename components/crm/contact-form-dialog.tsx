@@ -60,7 +60,7 @@ const formSchema = z.object({
   notes: z.string().optional(),
   tags: z.string().optional(),
   nextAction: z.string().optional(),
-  nextActionDate: z.date().optional().nullable(),
+  nextActionDate: z.union([z.date(), z.null()]).optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -405,7 +405,7 @@ export function ContactFormDialog({
               name="nextActionDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Sonraki Adım Tarihi</FormLabel>
+                  <FormLabel>Sonraki adım tarihi (opsiyonel)</FormLabel>
                   <div className="flex gap-2">
                     <Popover
                       open={nextActionDatePopoverOpen}

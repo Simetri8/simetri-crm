@@ -44,17 +44,28 @@ import { companyService } from '@/lib/firebase/companies';
 import { contactService } from '@/lib/firebase/contacts';
 import type { Deal, DealFormData, Company, Contact, DealStage } from '@/lib/types';
 
-const formSchema = z.object({
-  companyId: z.string().min(1, 'Şirket seçimi zorunlu'),
-  primaryContactId: z.string().min(1, 'Kontak seçimi zorunlu'),
-  title: z.string().min(1, 'Başlık zorunlu'),
-  stage: z.enum(DEAL_STAGES),
-  expectedCloseDate: z.date().optional().nullable(),
-  estimatedBudgetMinor: z.number().optional().nullable(),
-  currency: z.enum(CURRENCIES),
-  nextAction: z.string().optional(),
-  nextActionDate: z.date().optional().nullable(),
-});
+const NONE_VALUE = '__none__';
+
+const formSchema = z
+  .object({
+    companyId: z.string().optional(),
+    primaryContactId: z.string().optional(),
+    title: z.string().min(1, 'Başlık zorunlu'),
+    stage: z.enum(DEAL_STAGES),
+    expectedCloseDate: z.date().optional().nullable(),
+    estimatedBudgetMinor: z.number().optional().nullable(),
+    currency: z.enum(CURRENCIES),
+    nextAction: z.string().optional(),
+    nextActionDate: z.date().optional().nullable(),
+  })
+  .refine(
+    (v) => {
+      const c = (v.companyId ?? '').trim();
+      const p = (v.primaryContactId ?? '').trim();
+      return Boolean(c) || Boolean(p);
+    },
+    { message: 'Kişi veya şirket seçin', path: ['primaryContactId'] }
+  );
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -80,6 +91,7 @@ export function DealFormDialog({
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [expectedCloseDatePopoverOpen, setExpectedCloseDatePopoverOpen] = useState(false);
+  const [loadingContacts, setLoadingContacts] = useState(false);
   const isEdit = !!deal;
 
   const form = useForm<FormValues>({
@@ -137,29 +149,40 @@ export function DealFormDialog({
     }
   }, [open]);
 
-  // Şirket secildiginde kontaklari yukle
+  // Şirket seçimine göre kontak listesi (şirket yoksa tüm kişiler)
   useEffect(() => {
     const loadContacts = async () => {
-      if (!selectedCompanyId) {
-        setContacts([]);
-        return;
-      }
+      setLoadingContacts(true);
       try {
-        const data = await contactService.getByCompanyId(selectedCompanyId);
+        const data = selectedCompanyId
+          ? await contactService.getByCompanyId(selectedCompanyId)
+          : await contactService.getAll({ limitCount: 500 });
         setContacts(data);
       } catch (error) {
         console.error('Error loading contacts:', error);
+      } finally {
+        setLoadingContacts(false);
       }
     };
     loadContacts();
   }, [selectedCompanyId]);
 
+  // Şirket filtresi değişince seçili kişi artık listede yoksa temizle
+  useEffect(() => {
+    if (!open || loadingContacts) return;
+    const pid = form.getValues('primaryContactId')?.trim();
+    if (!pid) return;
+    if (contacts.length > 0 && !contacts.some((c) => c.id === pid)) {
+      form.setValue('primaryContactId', '');
+    }
+  }, [open, selectedCompanyId, contacts, loadingContacts, form]);
+
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
       const data: DealFormData = {
-        companyId: values.companyId,
-        primaryContactId: values.primaryContactId,
+        companyId: values.companyId?.trim() || null,
+        primaryContactId: values.primaryContactId?.trim() || null,
         title: values.title,
         stage: values.stage,
         expectedCloseDate: values.expectedCloseDate ?? null,
@@ -196,16 +219,22 @@ export function DealFormDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="flex min-h-0 flex-1 flex-col">
             <div className="flex-1 space-y-4 overflow-y-auto px-1">
+            <p className="text-sm text-muted-foreground">
+              Şirket veya kişiden en az biri seçilmelidir; ikisi birden de
+              seçilebilir.
+            </p>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="companyId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Şirket</FormLabel>
+                    <FormLabel>Şirket (opsiyonel)</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(val) =>
+                        field.onChange(val === NONE_VALUE ? '' : val)
+                      }
+                      value={field.value || NONE_VALUE}
                       disabled={loadingCompanies}
                     >
                       <FormControl>
@@ -214,6 +243,7 @@ export function DealFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value={NONE_VALUE}>Seçilmedi</SelectItem>
                         {companies.map((company) => (
                           <SelectItem key={company.id} value={company.id}>
                             {company.name}
@@ -231,18 +261,21 @@ export function DealFormDialog({
                 name="primaryContactId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kontak</FormLabel>
+                    <FormLabel>Kişi (opsiyonel)</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={!selectedCompanyId}
+                      onValueChange={(val) =>
+                        field.onChange(val === NONE_VALUE ? '' : val)
+                      }
+                      value={field.value || NONE_VALUE}
+                      disabled={loadingContacts}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Kontak seç..." />
+                          <SelectValue placeholder="Kişi seç..." />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value={NONE_VALUE}>Seçilmedi</SelectItem>
                         {contacts.map((contact) => (
                           <SelectItem key={contact.id} value={contact.id}>
                             {contact.fullName}

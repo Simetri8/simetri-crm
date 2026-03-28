@@ -276,7 +276,7 @@ export default function DealDetailPage({
     <div className="flex flex-col gap-6">
       <PageHeader
         title={deal.title}
-        description={deal.companyName}
+        description={deal.companyName || deal.primaryContactName || undefined}
       />
 
       <div className="flex flex-col gap-3 bg-background text-sm">
@@ -290,18 +290,27 @@ export default function DealDetailPage({
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <Link
-                href={`/crm/companies/${deal.companyId}`}
-                className="flex items-center gap-1 hover:text-primary"
-              >
-                <Building2 className="h-4 w-4" />
-                {deal.companyName}
-              </Link>
-              <span>•</span>
-              <div className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                {deal.primaryContactName}
-              </div>
+              {deal.companyId ? (
+                <>
+                  <Link
+                    href={`/crm/companies/${deal.companyId}`}
+                    className="flex items-center gap-1 hover:text-primary"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    {deal.companyName}
+                  </Link>
+                  {deal.primaryContactName ? <span>•</span> : null}
+                </>
+              ) : null}
+              {deal.primaryContactName ? (
+                <div className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {deal.primaryContactName}
+                </div>
+              ) : null}
+              {!deal.companyId && !deal.primaryContactName ? (
+                <span className="text-muted-foreground">Şirket / kişi bağlantısı yok</span>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -574,7 +583,9 @@ export default function DealDetailPage({
               <p className="font-medium mb-1">Oluşturulacak İş Emri:</p>
               <ul className="text-muted-foreground space-y-1">
                 <li>• Başlık: {deal.title}</li>
-                <li>• Şirket: {deal.companyName}</li>
+                <li>
+                  • Şirket: {deal.companyName || '—'}
+                </li>
                 {proposals.some((p) => p.status === 'accepted') && (
                   <li>• Kabul edilen teklif bağlanacak</li>
                 )}

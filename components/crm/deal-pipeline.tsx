@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { Building2, BadgeDollarSign, Edit, Pencil } from 'lucide-react';
+import { Building2, BadgeDollarSign, Edit, Pencil, User } from 'lucide-react';
 import {
   KanbanProvider,
   KanbanBoard,
@@ -125,10 +125,21 @@ export function DealPipeline({ deals, onStageChange, onEdit }: DealPipelineProps
                         <p className="font-medium text-sm line-clamp-2">{deal.title}</p>
                       </div>
 
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Building2 className="h-3 w-3" />
-                        <span className="truncate">{deal.companyName}</span>
-                      </div>
+                      {(deal.companyName || deal.primaryContactName) && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          {deal.companyName ? (
+                            <>
+                              <Building2 className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{deal.companyName}</span>
+                            </>
+                          ) : (
+                            <>
+                              <User className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{deal.primaryContactName}</span>
+                            </>
+                          )}
+                        </div>
+                      )}
 
                       {deal.estimatedBudgetMinor && (
                         <div className="flex items-center gap-1 text-xs font-medium text-green-600">
