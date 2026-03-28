@@ -20,6 +20,10 @@
 # production
 /build
 
+# next-pwa: her production build'de yeniden üretilir (Railway/deploy zaten build alır)
+/public/sw.js
+/public/workbox-*.js
+
 # misc
 .DS_Store
 *.pem
