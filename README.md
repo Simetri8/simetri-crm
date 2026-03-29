@@ -171,6 +171,7 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 | Doküman                                                         | Açıklama                                                           |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
 | [`00-Proje-Dokümantasyonu.md`](docs/00-Proje-Dokümantasyonu.md) | Ana ürün tasarım dokümanı (veri modeli, iş akışları, yol haritası) |
+| [`mcp.md`](docs/mcp.md)                                         | Cursor/Claude için remote MCP istemci konfigürasyonu ve güvenlik notları |
 
 ---
 
@@ -216,7 +217,8 @@ Bu projede AI agent entegrasyonu için API key korumalı MCP endpointi bulunur:
 }
 ```
 
-Sunucuda varsayılan olarak şu araçlar yayınlanır: `health_check`, `list_companies`, `list_deals`, `get_dashboard_snapshot`.
+Sunucuda networking, CRM ve iş emri takibi için kapsamlı bir tool seti yayınlanır.
+Güncel tool listesi için `docs/mcp.md` dosyasına bakın.
 
 ---
 
