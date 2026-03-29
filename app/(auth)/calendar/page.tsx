@@ -3,8 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Loader2, TrendingUp, Calendar, CalendarDays } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { isSameDay, isToday, startOfWeek, endOfWeek, eachDayOfInterval, format, addWeeks, subWeeks } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { isSameDay, isToday, startOfWeek, endOfWeek, eachDayOfInterval, addWeeks } from 'date-fns';
 import {
     CalendarProvider,
     CalendarDate,
@@ -14,7 +13,6 @@ import {
     CalendarDatePagination,
     CalendarHeader,
     CalendarBody,
-    CalendarItem,
     useCalendarMonth,
     useCalendarYear,
 } from '@/components/kibo-ui/calendar';
@@ -33,6 +31,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/layout/app-header';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 const ALL_SOURCES: CalendarEventSource[] = [
     'contact',
@@ -56,10 +55,45 @@ const SOURCE_COLOR_SCHEME: Record<
 
 function CalendarContent() {
     const router = useRouter();
+    const { effectiveSettings } = useRegionalSettings();
     const [month] = useCalendarMonth();
     const [year] = useCalendarYear();
     const [viewMode, setViewMode] = useState<'month' | 'week'>('month');
-    const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
+    const [weekOffset, setWeekOffset] = useState(0);
+    const weekStart = useMemo(
+        () => addWeeks(startOfWeek(new Date(), { weekStartsOn: effectiveSettings.weekStartsOn }), weekOffset),
+        [effectiveSettings.weekStartsOn, weekOffset]
+    );
+
+    const weekRangeFormatter = useMemo(
+        () =>
+            new Intl.DateTimeFormat(effectiveSettings.locale, {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                timeZone: effectiveSettings.timeZone,
+            }),
+        [effectiveSettings.locale, effectiveSettings.timeZone]
+    );
+
+    const weekdayFormatter = useMemo(
+        () =>
+            new Intl.DateTimeFormat(effectiveSettings.locale, {
+                weekday: 'short',
+                timeZone: effectiveSettings.timeZone,
+            }),
+        [effectiveSettings.locale, effectiveSettings.timeZone]
+    );
+
+    const dayFormatter = useMemo(
+        () =>
+            new Intl.DateTimeFormat(effectiveSettings.locale, {
+                day: 'numeric',
+                timeZone: effectiveSettings.timeZone,
+            }),
+        [effectiveSettings.locale, effectiveSettings.timeZone]
+    );
+
 
     const {
         events,
@@ -94,9 +128,9 @@ function CalendarContent() {
     const weekDays = useMemo(() => {
         return eachDayOfInterval({
             start: weekStart,
-            end: endOfWeek(weekStart, { weekStartsOn: 1 }),
+            end: endOfWeek(weekStart, { weekStartsOn: effectiveSettings.weekStartsOn }),
         });
-    }, [weekStart]);
+    }, [weekStart, effectiveSettings.weekStartsOn]);
 
     // Haftalık görünüm için etkinlikler
     const weekEvents = useMemo(() => {
@@ -265,17 +299,17 @@ function CalendarContent() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setWeekStart(subWeeks(weekStart, 1))}
+                            onClick={() => setWeekOffset((prev) => prev - 1)}
                         >
                             ← Önceki Hafta
                         </Button>
                         <h3 className="text-sm font-semibold">
-                            {format(weekStart, 'd MMMM', { locale: tr })} - {format(endOfWeek(weekStart, { weekStartsOn: 1 }), 'd MMMM yyyy', { locale: tr })}
+                            {weekRangeFormatter.format(weekStart)} - {weekRangeFormatter.format(endOfWeek(weekStart, { weekStartsOn: effectiveSettings.weekStartsOn }))}
                         </h3>
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setWeekStart(addWeeks(weekStart, 1))}
+                            onClick={() => setWeekOffset((prev) => prev + 1)}
                         >
                             Sonraki Hafta →
                         </Button>
@@ -298,13 +332,13 @@ function CalendarContent() {
                                             'text-xs font-medium',
                                             today ? 'text-primary' : 'text-muted-foreground'
                                         )}>
-                                            {format(day, 'EEE', { locale: tr })}
+                                            {weekdayFormatter.format(day)}
                                         </span>
                                         <span className={cn(
                                             'text-lg font-bold',
                                             today && 'text-primary'
                                         )}>
-                                            {format(day, 'd')}
+                                            {dayFormatter.format(day)}
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-2">
@@ -375,6 +409,8 @@ function CalendarContent() {
 }
 
 export default function CalendarPage() {
+    const { effectiveSettings } = useRegionalSettings();
+
     return (
         <div className="flex flex-col gap-6 p-6">
             <PageHeader
@@ -382,7 +418,7 @@ export default function CalendarPage() {
                 description="Takipler, teslim tarihleri ve taleplerin aylık görünümü"
             />
 
-            <CalendarProvider locale="tr-TR" startDay={1} className="w-full">
+            <CalendarProvider locale={effectiveSettings.locale} startDay={effectiveSettings.weekStartsOn} className="w-full">
                 <CalendarContent />
             </CalendarProvider>
         </div>

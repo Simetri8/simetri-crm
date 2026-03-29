@@ -30,7 +30,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   CATALOG_ITEM_TYPE_LABELS,
   UNIT_LABELS,
-  CURRENCY_CONFIG,
   formatMoney,
 } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';

@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 import { TASK_STATUS_CONFIG, BLOCKED_REASON_LABELS } from '@/lib/utils/status';
 import { Badge } from '@/components/ui/badge';
 import type { Task } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
-export const TaskNode = memo(({ data, targetPosition }: NodeProps<any>) => {
+export const TaskNode = memo(({ data, targetPosition }: NodeProps<FlowNode>) => {
   const task = data.metadata as Task;
   const statusConfig = TASK_STATUS_CONFIG[task.status];
 

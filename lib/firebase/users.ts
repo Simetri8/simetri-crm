@@ -3,6 +3,7 @@ import {
   getDoc,
   getDocs,
   setDoc,
+  updateDoc,
   deleteDoc,
   query,
   orderBy,
@@ -11,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { getCollection } from './firestore';
-import { User } from '@/lib/types';
+import { RegionalSettings, User } from '@/lib/types';
 
 const WHITELIST_COLLECTION = 'whitelist';
 const USERS_COLLECTION = 'users';
@@ -86,5 +87,22 @@ export const userService = {
       ...doc.data(),
       uid: doc.id,
     }));
+  },
+
+  // Get regional settings for one user
+  getUserRegionalSettings: async (uid: string): Promise<RegionalSettings | null> => {
+    const docRef = doc(db, USERS_COLLECTION, uid);
+    const snapshot = await getDoc(docRef);
+    if (!snapshot.exists()) return null;
+    const data = snapshot.data() as User;
+    return data.regionalSettings ?? null;
+  },
+
+  // Update regional settings as partial patch
+  updateUserRegionalSettings: async (uid: string, patch: Partial<RegionalSettings>) => {
+    const docRef = doc(db, USERS_COLLECTION, uid);
+    await updateDoc(docRef, {
+      regionalSettings: patch,
+    });
   },
 };

@@ -296,7 +296,7 @@ export const activityService = {
     let dealTitle: string | null = null;
     let workOrderTitle: string | null = null;
     let requestTitle: string | null = null;
-    let contactId = options.contactId ?? null;
+    const contactId = options.contactId ?? null;
     let companyId = options.companyId ?? null;
 
     if (contactId) {

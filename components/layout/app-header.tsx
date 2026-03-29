@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "@/components/kibo-ui/theme-switcher";
 import { useTheme } from "next-themes";
+import { useRegionalSettings } from "@/components/providers/regional-settings-provider";
 
 type HeaderState = {
   title?: string;
@@ -51,6 +52,7 @@ export function AppHeader() {
   const { header } = useAppHeader();
   const { theme, setTheme } = useTheme();
   const [now, setNow] = useState(() => new Date());
+  const { formatDate, formatTime } = useRegionalSettings();
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -79,7 +81,7 @@ export function AppHeader() {
       </div>
       <div className="flex gap-4">
         <span className="text-md flex pt-1 gap-2 text-muted-foreground font-mono">
-          {now.toLocaleDateString("tr-TR", { day: "numeric", month: "long" })} {now.toLocaleTimeString("tr-TR")}
+          {formatDate(now)} {formatTime(now)}
         </span>
         <div className="hidden gap-2 md:flex">
           <ThemeSwitcher

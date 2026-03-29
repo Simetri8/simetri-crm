@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import { toast } from 'sonner';
 import {
     Plus,
@@ -70,6 +69,7 @@ import type {
     Contact,
     Company,
 } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 const NONE_VALUE = '__none__';
 
@@ -93,11 +93,8 @@ function withOptionalTime(date: Date | null, timeValue: string): Date | null {
     return nextDate;
 }
 
-function formatDateWithOptionalTime(date: Date): string {
-    const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
-    return hasTime
-        ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
-        : format(date, 'dd MMM yyyy', { locale: tr });
+function formatDateWithOptionalTime(date: Date, formatter: Intl.DateTimeFormat): string {
+    return formatter.format(date);
 }
 
 export function QuickActionButton() {
@@ -167,6 +164,7 @@ function QuickActivitySheet({
     onOpenChange: (open: boolean) => void;
     userId: string;
 }) {
+    const { effectiveSettings } = useRegionalSettings();
     const [selectedType, setSelectedType] = useState<ActivityType>('call');
     const [contactId, setContactId] = useState('');
     const [companyId, setCompanyId] = useState('');
@@ -180,6 +178,16 @@ function QuickActivitySheet({
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
+    const dateTimeFormatter = useMemo(
+        () =>
+            new Intl.DateTimeFormat(effectiveSettings.locale, {
+                dateStyle: effectiveSettings.dateStyle,
+                timeStyle: effectiveSettings.timeStyle,
+                hourCycle: effectiveSettings.hourCycle,
+                timeZone: effectiveSettings.timeZone,
+            }),
+        [effectiveSettings]
+    );
 
     useEffect(() => {
         if (!open) return;
@@ -363,7 +371,7 @@ function QuickActivitySheet({
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                         {nextActionDate
-                                            ? formatDateWithOptionalTime(nextActionDate)
+                                            ? formatDateWithOptionalTime(nextActionDate, dateTimeFormatter)
                                             : 'Tarih seç'}
                                     </Button>
                                 </PopoverTrigger>
@@ -425,6 +433,7 @@ function QuickRequestSheet({
     onOpenChange: (open: boolean) => void;
     userId: string;
 }) {
+    const { effectiveSettings } = useRegionalSettings();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [type, setType] = useState<string>('other');
@@ -438,6 +447,14 @@ function QuickRequestSheet({
     const [contacts, setContacts] = useState<Contact[]>([]);
     const [companies, setCompanies] = useState<Company[]>([]);
     const [dataLoading, setDataLoading] = useState(true);
+    const dueDateFormatter = useMemo(
+        () =>
+            new Intl.DateTimeFormat(effectiveSettings.locale, {
+                dateStyle: effectiveSettings.dateStyle,
+                timeZone: effectiveSettings.timeZone,
+            }),
+        [effectiveSettings.locale, effectiveSettings.timeZone, effectiveSettings.dateStyle]
+    );
 
     useEffect(() => {
         if (!open) return;
@@ -612,7 +629,7 @@ function QuickRequestSheet({
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {dueDate
-                                        ? format(dueDate, 'dd MMM yyyy', { locale: tr })
+                                        ? dueDateFormatter.format(dueDate)
                                         : 'Tarih seç'}
                                 </Button>
                             </PopoverTrigger>

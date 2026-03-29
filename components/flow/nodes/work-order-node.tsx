@@ -6,9 +6,10 @@ import { Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WORK_ORDER_STATUS_CONFIG } from '@/lib/utils/status';
 import type { WorkOrder } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
 export const WorkOrderNode = memo(
-  ({ data, targetPosition, sourcePosition }: NodeProps<any>) => {
+  ({ data, targetPosition, sourcePosition }: NodeProps<FlowNode>) => {
   const workOrder = data.metadata as WorkOrder;
   const statusConfig = WORK_ORDER_STATUS_CONFIG[workOrder.status];
 

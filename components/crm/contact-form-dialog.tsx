@@ -141,6 +141,7 @@ export function ContactFormDialog({
       form.reset(getDefaults());
       setNextActionTime(formatTimeValue(contact?.nextActionDate?.toDate() ?? null));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, contact, defaultCompanyId, form]);
 
   useEffect(() => {

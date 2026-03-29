@@ -37,7 +37,6 @@ import {
 } from '@/components/ui/collapsible';
 import { DELIVERABLE_STATUSES } from '@/lib/types';
 import { DELIVERABLE_STATUS_CONFIG } from '@/lib/utils/status';
-import { cn } from '@/lib/utils';
 import type { Deliverable, DeliverableStatus, Task } from '@/lib/types';
 
 type DeliverableWithTasks = Deliverable & {

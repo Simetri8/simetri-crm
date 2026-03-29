@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format, startOfWeek, addDays } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { startOfWeek, addDays } from 'date-fns';
 import { Check, ChevronDown, ChevronRight, Clock, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
@@ -29,9 +28,11 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { formatDuration } from '@/lib/utils/status';
 import type { TimeEntry, TimesheetQueueItem } from '@/lib/types';
 import { PageHeader } from '@/components/layout/app-header';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 export default function TimeApprovalPage() {
   const { user } = useAuth();
+  const { effectiveSettings } = useRegionalSettings();
   const [queue, setQueue] = useState<TimesheetQueueItem[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [entriesByKey, setEntriesByKey] = useState<Record<string, TimeEntry[]>>({});
@@ -111,13 +112,20 @@ export default function TimeApprovalPage() {
     }
   };
 
+  const shortDateFormatter = new Intl.DateTimeFormat(effectiveSettings.locale, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: effectiveSettings.timeZone,
+  });
+
   // Parse weekKey to get week dates
   const getWeekDates = (weekKey: string) => {
     const [year, week] = weekKey.split('-W').map(Number);
     const firstDayOfYear = new Date(year, 0, 1);
     const daysOffset = (week - 1) * 7;
     const weekStartDate = addDays(firstDayOfYear, daysOffset - firstDayOfYear.getDay() + 1);
-    const weekStart = startOfWeek(weekStartDate, { weekStartsOn: 1 });
+    const weekStart = startOfWeek(weekStartDate, { weekStartsOn: effectiveSettings.weekStartsOn });
     const weekEnd = addDays(weekStart, 6);
     return { weekStart, weekEnd };
   };
@@ -178,8 +186,8 @@ export default function TimeApprovalPage() {
                             <span className="font-medium">{item.userName}</span>
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            {format(weekStart, 'dd MMM', { locale: tr })} -{' '}
-                            {format(weekEnd, 'dd MMM yyyy', { locale: tr })} ({item.weekKey})
+                            {shortDateFormatter.format(weekStart)} -{' '}
+                            {shortDateFormatter.format(weekEnd)} ({item.weekKey})
                           </p>
                         </div>
                       </div>

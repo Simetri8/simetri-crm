@@ -6,8 +6,9 @@ import { User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import type { Contact } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
-export const ContactNode = memo(({ data }: any) => {
+export const ContactNode = memo(({ data }: NodeProps<FlowNode>) => {
   const contact = data.metadata as Contact;
 
   return (

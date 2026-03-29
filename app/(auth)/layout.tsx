@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar"
 import { QuickActionButton } from "@/components/layout/quick-action-button"
 import { Toaster } from "@/components/ui/sonner"
 import { AppHeader, AppHeaderProvider } from "@/components/layout/app-header"
+import { RegionalSettingsProvider } from "@/components/providers/regional-settings-provider"
 
 export default function AuthLayout({
     children,
@@ -30,16 +31,18 @@ export default function AuthLayout({
     return (
         <SidebarProvider>
             <AppSidebar />
-            <AppHeaderProvider>
-                <main className="relative min-h-screen flex-1 min-w-0 overflow-x-hidden">
-                    <div className="p-4 lg:p-6">
-                        <AppHeader />
-                        {children}
-                    </div>
-                    <QuickActionButton />
-                    <Toaster />
-                </main>
-            </AppHeaderProvider>
+            <RegionalSettingsProvider>
+                <AppHeaderProvider>
+                    <main className="relative min-h-screen flex-1 min-w-0 overflow-x-hidden">
+                        <div className="p-4 lg:p-6">
+                            <AppHeader />
+                            {children}
+                        </div>
+                        <QuickActionButton />
+                        <Toaster />
+                    </main>
+                </AppHeaderProvider>
+            </RegionalSettingsProvider>
         </SidebarProvider>
     )
 }
