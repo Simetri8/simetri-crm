@@ -168,6 +168,7 @@ export type User = {
   displayName: string | null;
   photoURL: string | null;
   pushSubscription?: PushSubscriptionJSON | null;
+  pushSubscriptions?: PushSubscriptionJSON[];
   regionalSettings?: RegionalSettings;
   createdAt: Timestamp;
 };

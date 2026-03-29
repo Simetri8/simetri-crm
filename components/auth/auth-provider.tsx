@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import {
     User,
     GoogleAuthProvider,
@@ -12,6 +12,7 @@ import { auth } from '@/lib/firebase/config';
 import { useRouter, usePathname } from 'next/navigation';
 import { userService } from '@/lib/firebase/users';
 import { toast } from 'sonner';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 interface AuthContextType {
     user: User | null;
@@ -27,6 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const pathname = usePathname();
+    const { isSupported: isPushSupported, subscription, subscribe } = usePushNotifications();
+    const hasPromptedForPushRef = useRef(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -76,6 +79,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         return () => unsubscribe();
     }, [router, pathname]);
+
+    useEffect(() => {
+        if (!user) {
+            hasPromptedForPushRef.current = false;
+            return;
+        }
+
+        if (!isPushSupported || typeof window === 'undefined') return;
+        if (hasPromptedForPushRef.current) return;
+
+        // Request browser-level notification permission once per session.
+        if (Notification.permission === 'default' || Notification.permission === 'granted') {
+            hasPromptedForPushRef.current = true;
+            void subscribe();
+        }
+    }, [user, isPushSupported, subscribe, subscription]);
 
     const signInWithGoogle = async () => {
         const provider = new GoogleAuthProvider();

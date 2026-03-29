@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import webpush from 'web-push';
 import { adminDb } from '@/lib/firebase/admin';
+import {
+  normalizeUserPushSubscriptions,
+  shouldRemoveSubscriptionOnError,
+  type StoredPushSubscription,
+} from '@/lib/push/subscriptions';
 import {
   CONTACT_STAGES,
   DEAL_STAGES,
@@ -111,6 +117,20 @@ function normalizeNullableString(value: string | null | undefined): string | nul
 
 function parseDate(value: string | null | undefined): Date | null {
   return toDateOrNull(value);
+}
+
+function ensureWebPushConfigured(): { ok: true } | { ok: false; error: string } {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  if (!publicKey || !privateKey) {
+    return {
+      ok: false,
+      error: 'VAPID anahtarlari eksik. NEXT_PUBLIC_VAPID_PUBLIC_KEY ve VAPID_PRIVATE_KEY gerekli.',
+    };
+  }
+
+  webpush.setVapidDetails('mailto:bilgi@simetri.app', publicKey, privateKey);
+  return { ok: true };
 }
 
 function actor(userId?: string): string {
@@ -1632,6 +1652,143 @@ export function createMcpServer(context: AuditContext) {
           deals: { total: dealSnap.size, open: openDeals },
           workOrders: { total: workOrderSnap.size, active: activeWorkOrders },
           tasks: { assigned: taskSnap.size, open: openTasks },
+        });
+      })
+  );
+
+  register(
+    'send_broadcast_push',
+    {
+      title: 'Send Broadcast Push',
+      description: 'Aboneligi olan tum kullanicilara toplu push bildirimi gonderir',
+      inputSchema: z
+        .object({
+          title: z.string().trim().min(1),
+          body: z.string().trim().min(1),
+          url: z.string().trim().min(1).optional(),
+        })
+        .shape,
+      outputSchema: z.object({
+        success: z.boolean(),
+        message: z.string().optional(),
+        totalUsers: z.number().int().nonnegative(),
+        attempted: z.number().int().nonnegative(),
+        sent: z.number().int().nonnegative(),
+        failed: z.number().int().nonnegative(),
+        failures: z.array(z.object({ userId: z.string(), error: z.string() })),
+      }),
+    },
+    async (args) =>
+      withAudit(context, 'send_broadcast_push', async () => {
+        const input = z
+          .object({
+            title: z.string().trim().min(1),
+            body: z.string().trim().min(1),
+            url: z.string().trim().min(1).optional(),
+          })
+          .parse(args);
+
+        const vapid = ensureWebPushConfigured();
+        if (!vapid.ok) {
+          return resultWithStructuredContent({
+            success: false,
+            message: vapid.error,
+            totalUsers: 0,
+            attempted: 0,
+            sent: 0,
+            failed: 0,
+            failures: [],
+          });
+        }
+
+        const usersSnapshot = await adminDb.collection('users').get();
+        const targets: Array<{ userId: string; subscription: StoredPushSubscription }> = [];
+        usersSnapshot.docs.forEach((doc) => {
+          const subscriptions = normalizeUserPushSubscriptions(doc.data());
+          subscriptions.forEach((subscription) => {
+            targets.push({ userId: doc.id, subscription });
+          });
+        });
+
+        if (targets.length === 0) {
+          return resultWithStructuredContent({
+            success: true,
+            message: 'Push aboneligi olan kullanici bulunamadi.',
+            totalUsers: usersSnapshot.size,
+            attempted: 0,
+            sent: 0,
+            failed: 0,
+            failures: [],
+          });
+        }
+
+        const payload = JSON.stringify({
+          title: input.title,
+          body: input.body,
+          url: input.url ?? '/dashboard',
+          icon: '/logos/Simetri-CRM-logo-01.png',
+        });
+
+        const deliveryResults = await Promise.allSettled(
+          targets.map((target) => {
+            return webpush.sendNotification(target.subscription, payload);
+          })
+        );
+
+        const failures: Array<{ userId: string; error: string }> = [];
+        const staleByUser = new Map<string, Set<string>>();
+        deliveryResults.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            const target = targets[index];
+            failures.push({
+              userId: target?.userId ?? 'unknown',
+              error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+            });
+            if (target && shouldRemoveSubscriptionOnError(result.reason)) {
+              const current = staleByUser.get(target.userId) ?? new Set<string>();
+              current.add(target.subscription.endpoint);
+              staleByUser.set(target.userId, current);
+            }
+          }
+        });
+
+        const cleanupPromises: Array<Promise<unknown>> = [];
+        staleByUser.forEach((staleEndpoints, userId) => {
+          const userDoc = usersSnapshot.docs.find((doc) => doc.id === userId);
+          const existing = normalizeUserPushSubscriptions(
+            (userDoc?.data() ?? {}) as Record<string, unknown>
+          );
+          const remaining = existing.filter((sub) => !staleEndpoints.has(sub.endpoint));
+          cleanupPromises.push(
+            adminDb
+              .collection('users')
+              .doc(userId)
+              .set(
+                {
+                  pushSubscriptions: remaining,
+                  pushSubscription: remaining[0] ?? null,
+                },
+                { merge: true }
+              )
+          );
+        });
+        await Promise.all(cleanupPromises);
+
+        const attempted = targets.length;
+        const failed = failures.length;
+        const sent = attempted - failed;
+
+        return resultWithStructuredContent({
+          success: failed === 0,
+          message:
+            failed === 0
+              ? 'Push bildirimi tum abonelere gonderildi.'
+              : 'Bazi kullanicilara push gonderimi basarisiz oldu.',
+          totalUsers: usersSnapshot.size,
+          attempted,
+          sent,
+          failed,
+          failures,
         });
       })
   );
