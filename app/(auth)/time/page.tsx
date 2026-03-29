@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { startOfWeek, addWeeks, subWeeks, format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { startOfWeek, addWeeks, addDays } from 'date-fns';
 import { Plus, ChevronLeft, ChevronRight, Send, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -34,10 +33,12 @@ import type {
   Task,
 } from '@/lib/types';
 import { PageHeader } from '@/components/layout/app-header';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 export default function TimePage() {
   const { user } = useAuth();
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const { effectiveSettings } = useRegionalSettings();
+  const [weekOffset, setWeekOffset] = useState(0);
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
@@ -52,7 +53,31 @@ export default function TimePage() {
   const [defaultDate, setDefaultDate] = useState<Date | undefined>(undefined);
   const [submitWeekOpen, setSubmitWeekOpen] = useState(false);
 
+  const weekStart = useMemo(
+    () => addWeeks(startOfWeek(new Date(), { weekStartsOn: effectiveSettings.weekStartsOn }), weekOffset),
+    [effectiveSettings.weekStartsOn, weekOffset]
+  );
   const weekKey = useMemo(() => getWeekKey(weekStart), [weekStart]);
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        weekday: 'long',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
 
   const loadEntries = async () => {
     if (!user) return;
@@ -172,7 +197,7 @@ export default function TimePage() {
   const hasDraftEntries = draftEntries.length > 0;
 
   const goToThisWeek = () => {
-    setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
+    setWeekOffset(0);
     setSelectedDate(null);
   };
 
@@ -209,14 +234,14 @@ export default function TimePage() {
       {/* Week Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((prev) => prev - 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}>
+          <Button variant="outline" size="icon" onClick={() => setWeekOffset((prev) => prev + 1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <span className="font-medium">
-            {format(weekStart, 'dd MMM', { locale: tr })} - {format(addWeeks(weekStart, 1), 'dd MMM yyyy', { locale: tr })}
+            {shortDateFormatter.format(weekStart)} - {shortDateFormatter.format(addDays(weekStart, 6))}
           </span>
           <span className="text-muted-foreground">({weekKey})</span>
         </div>
@@ -246,7 +271,7 @@ export default function TimePage() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
                   {selectedDate
-                    ? format(selectedDate, 'dd MMMM yyyy, EEEE', { locale: tr })
+                    ? longDateFormatter.format(selectedDate)
                     : 'Tüm Girişler'}
                 </CardTitle>
                 {selectedDate && (
@@ -321,7 +346,7 @@ export default function TimePage() {
             <AlertDialogDescription>
               {deleteEntry && (
                 <>
-                  {format(deleteEntry.date.toDate(), 'dd MMM yyyy', { locale: tr })} tarihli{' '}
+                  {shortDateFormatter.format(deleteEntry.date.toDate())} tarihli{' '}
                   {formatDuration(deleteEntry.durationMinutes)} sürelik girişi silmek istediğinizden
                   emin misiniz?
                 </>

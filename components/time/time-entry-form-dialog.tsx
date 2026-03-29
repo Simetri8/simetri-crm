@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import { CalendarIcon, Loader2, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -55,6 +54,7 @@ import type {
   Deliverable,
   Task,
 } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 const formSchema = z.object({
   workOrderId: z.string().nullable().optional(),
@@ -92,6 +92,7 @@ export function TimeEntryFormDialog({
   defaultDate,
   onSubmit,
 }: TimeEntryFormDialogProps) {
+  const { effectiveSettings } = useRegionalSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workOrderSearchOpen, setWorkOrderSearchOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
@@ -162,6 +163,17 @@ export function TimeEntryFormDialog({
   }, [selectedDeliverableId, form, tasks]);
 
   const selectedWorkOrder = workOrders.find((wo) => wo.id === selectedWorkOrderId);
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        weekday: 'long',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
 
   const handleSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -348,7 +360,7 @@ export function TimeEntryFormDialog({
                           )}
                         >
                           {field.value
-                            ? format(field.value, 'dd MMM yyyy, EEEE', { locale: tr })
+                            ? longDateFormatter.format(field.value)
                             : 'Tarih seç'}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -362,7 +374,6 @@ export function TimeEntryFormDialog({
                           field.onChange(date ?? new Date());
                           setDatePopoverOpen(false);
                         }}
-                        locale={tr}
                         disabled={(date) => date > new Date()}
                       />
                     </PopoverContent>

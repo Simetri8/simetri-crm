@@ -14,6 +14,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { useRegionalSettings } from "@/components/providers/regional-settings-provider"
 
 function Calendar({
   className,
@@ -28,6 +29,7 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
 }) {
   const defaultClassNames = getDefaultClassNames()
+  const { effectiveSettings } = useRegionalSettings()
 
   return (
     <DayPicker
@@ -39,9 +41,24 @@ function Calendar({
         className
       )}
       captionLayout={captionLayout}
+      weekStartsOn={props.weekStartsOn ?? effectiveSettings.weekStartsOn}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+          date.toLocaleString(effectiveSettings.locale, {
+            month: "short",
+            timeZone: effectiveSettings.timeZone,
+          }),
+        formatCaption: (date) =>
+          date.toLocaleString(effectiveSettings.locale, {
+            month: "long",
+            year: "numeric",
+            timeZone: effectiveSettings.timeZone,
+          }),
+        formatWeekdayName: (date) =>
+          date.toLocaleString(effectiveSettings.locale, {
+            weekday: "short",
+            timeZone: effectiveSettings.timeZone,
+          }),
         ...formatters,
       }}
       classNames={{
@@ -186,6 +203,7 @@ function CalendarDayButton({
   ...props
 }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames()
+  const { effectiveSettings } = useRegionalSettings()
 
   const ref = React.useRef<HTMLButtonElement>(null)
   React.useEffect(() => {
@@ -197,7 +215,9 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString()}
+      data-day={day.date.toLocaleDateString(effectiveSettings.locale, {
+        timeZone: effectiveSettings.timeZone,
+      })}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

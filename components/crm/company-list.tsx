@@ -1,15 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import {
   Building2,
   MoreHorizontal,
   Pencil,
   Trash2,
-  CalendarClock,
 } from 'lucide-react';
 import {
   Avatar,
@@ -38,6 +35,7 @@ import { StatusBadge } from './status-badge';
 import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
 import type { Company } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type CompanyListProps = {
   companies: Company[];
@@ -46,6 +44,27 @@ type CompanyListProps = {
 };
 
 export function CompanyList({ companies, onEdit, onDelete }: CompanyListProps) {
+  const { effectiveSettings } = useRegionalSettings();
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   const columns: ColumnDef<Company>[] = [
     {
       accessorKey: 'name',
@@ -112,7 +131,7 @@ export function CompanyList({ companies, onEdit, onDelete }: CompanyListProps) {
                   isOverdue ? 'text-red-500' : 'text-muted-foreground'
                 )}
               >
-                ({format(nextActionDate.toDate(), 'dd MMM', { locale: tr })})
+                ({shortDateFormatter.format(nextActionDate.toDate())})
               </span>
             )}
           </div>
@@ -129,7 +148,7 @@ export function CompanyList({ companies, onEdit, onDelete }: CompanyListProps) {
         if (!date) return <span className="text-muted-foreground">-</span>;
         return (
           <span className="text-sm text-muted-foreground">
-            {format(date.toDate(), 'dd MMM yyyy', { locale: tr })}
+            {longDateFormatter.format(date.toDate())}
           </span>
         );
       },

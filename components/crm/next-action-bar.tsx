@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import { CalendarIcon, CheckCircle2, Edit2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import type { Timestamp } from 'firebase/firestore';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type NextActionBarProps = {
   nextAction: string | null;
@@ -40,11 +41,11 @@ function withOptionalTime(date: Date | undefined, timeValue: string): Date | nul
   return nextDate;
 }
 
-function formatDateWithOptionalTime(date: Date): string {
+function formatDateWithOptionalTime(date: Date, formatter: Intl.DateTimeFormat): string {
   const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
   return hasTime
-    ? format(date, 'dd MMM yyyy HH:mm', { locale: tr })
-    : format(date, 'dd MMM yyyy', { locale: tr });
+    ? formatter.format(date)
+    : formatter.format(date);
 }
 
 export function NextActionBar({
@@ -54,6 +55,7 @@ export function NextActionBar({
   onUpdate,
   isOverdue,
 }: NextActionBarProps) {
+  const { effectiveSettings } = useRegionalSettings();
   const [isEditing, setIsEditing] = useState(false);
   const [editAction, setEditAction] = useState(nextAction ?? '');
   const [editDate, setEditDate] = useState<Date | undefined>(
@@ -64,6 +66,16 @@ export function NextActionBar({
   );
   const [editDatePopoverOpen, setEditDatePopoverOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const dateTimeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        dateStyle: effectiveSettings.dateStyle,
+        timeStyle: effectiveSettings.timeStyle,
+        hourCycle: effectiveSettings.hourCycle,
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings]
+  );
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -104,7 +116,7 @@ export function NextActionBar({
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {editDate ? formatDateWithOptionalTime(editDate) : 'Tarih sec'}
+              {editDate ? formatDateWithOptionalTime(editDate, dateTimeFormatter) : 'Tarih sec'}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -163,7 +175,7 @@ export function NextActionBar({
                   isOverdue ? 'text-red-600 font-semibold' : 'text-muted-foreground'
                 )}
               >
-                ({formatDateWithOptionalTime(nextActionDate.toDate())})
+                ({formatDateWithOptionalTime(nextActionDate.toDate(), dateTimeFormatter)})
               </span>
             )}
           </div>

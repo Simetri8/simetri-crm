@@ -12,7 +12,7 @@ import {
     SidebarSeparator
 
 } from "@/components/ui/sidebar"
-import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3, CalendarDays } from "lucide-react"
+import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3, CalendarDays, Globe } from "lucide-react"
 import Link from "next/link"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
@@ -92,6 +92,11 @@ const opsItems = [
 ]
 
 const settingsItems = [
+    {
+        title: "Bölgesel Ayarlar",
+        url: "/settings",
+        icon: Globe,
+    },
     {
         title: "Ürün Kataloğu",
         url: "/crm/catalog",
