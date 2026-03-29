@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Simetri CRM",
-  description: "Company management system",
+  description: "Şirket yönetim sistemi",
   manifest: "/manifest.json",
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="tr" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>

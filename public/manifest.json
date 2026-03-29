@@ -1,6 +1,7 @@
 {
   "name": "Simetri CRM",
   "short_name": "CRM",
+  "lang": "tr",
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
