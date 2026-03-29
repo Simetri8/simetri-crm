@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
+import {
+  isStoredPushSubscription,
+  normalizeUserPushSubscriptions,
+  upsertPushSubscription,
+} from '@/lib/push/subscriptions';
 
 export async function POST(request: Request) {
   try {
@@ -14,15 +19,25 @@ export async function POST(request: Request) {
 
     const { subscription } = await request.json();
 
-    if (!subscription) {
+    if (!isStoredPushSubscription(subscription)) {
       return NextResponse.json({ error: 'Subscription required' }, { status: 400 });
     }
 
-    await adminDb.collection('users').doc(userId).update({
-      pushSubscription: subscription,
-    });
+    const userRef = adminDb.collection('users').doc(userId);
+    const userSnap = await userRef.get();
+    const existingSubscriptions = normalizeUserPushSubscriptions(userSnap.data());
+    const nextSubscriptions = upsertPushSubscription(existingSubscriptions, subscription);
 
-    return NextResponse.json({ success: true });
+    await userRef.set(
+      {
+        // Backward compatibility: keep latest subscription in legacy field.
+        pushSubscription: subscription,
+        pushSubscriptions: nextSubscriptions,
+      },
+      { merge: true }
+    );
+
+    return NextResponse.json({ success: true, totalSubscriptions: nextSubscriptions.length });
   } catch (error) {
     console.error('Error saving subscription:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

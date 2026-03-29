@@ -3,6 +3,11 @@ import { adminDb } from '@/lib/firebase/admin';
 import { Resend } from 'resend';
 import webpush from 'web-push';
 import { differenceInDays } from 'date-fns';
+import {
+  normalizeUserPushSubscriptions,
+  shouldRemoveSubscriptionOnError,
+  type StoredPushSubscription,
+} from '@/lib/push/subscriptions';
 
 type DateField = { toDate: () => Date };
 type CustomerSnapshotData = {
@@ -15,16 +20,9 @@ type ProjectSnapshotData = {
   name?: string;
   targetEndDate?: DateField;
 };
-type StoredPushSubscription = {
-  endpoint: string;
-  expirationTime?: number | null;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-};
 type UserSnapshotData = {
   pushSubscription?: StoredPushSubscription | null;
+  pushSubscriptions?: StoredPushSubscription[] | null;
 };
 
 // Initialize Resend
@@ -135,24 +133,51 @@ export async function GET() {
       // 5. Send Push Notifications
       const usersSnapshot = await usersRef.get();
       const pushPromises: Promise<unknown>[] = [];
+      const staleByUser = new Map<string, Set<string>>();
 
       usersSnapshot.forEach((doc) => {
         const userData = doc.data() as UserSnapshotData;
-        if (userData.pushSubscription) {
+        const subscriptions = normalizeUserPushSubscriptions(userData);
+        if (subscriptions.length > 0) {
           const payload = JSON.stringify({
             title: 'Günlük Rapor Hazır',
             body: `${coldCustomers.length} müşteri ilgi bekliyor, ${overdueProjects.length} proje gecikmede.`,
             url: '/dashboard',
           });
-          
-          pushPromises.push(
-            webpush.sendNotification(userData.pushSubscription, payload)
-              .catch(err => console.error(`Push failed for user ${doc.id}:`, err))
-          );
+
+          subscriptions.forEach((subscription) => {
+            pushPromises.push(
+              webpush.sendNotification(subscription, payload).catch((err) => {
+                console.error(`Push failed for user ${doc.id}:`, err);
+                if (shouldRemoveSubscriptionOnError(err)) {
+                  const current = staleByUser.get(doc.id) ?? new Set<string>();
+                  current.add(subscription.endpoint);
+                  staleByUser.set(doc.id, current);
+                }
+              })
+            );
+          });
         }
       });
 
       await Promise.all(pushPromises);
+      const cleanupPromises: Promise<unknown>[] = [];
+      staleByUser.forEach((staleEndpoints, userId) => {
+        const userDoc = usersSnapshot.docs.find((doc) => doc.id === userId);
+        const userData = userDoc?.data() as UserSnapshotData | undefined;
+        const existing = normalizeUserPushSubscriptions(userData);
+        const remaining = existing.filter((sub) => !staleEndpoints.has(sub.endpoint));
+        cleanupPromises.push(
+          usersRef.doc(userId).set(
+            {
+              pushSubscriptions: remaining,
+              pushSubscription: remaining[0] ?? null,
+            },
+            { merge: true }
+          )
+        );
+      });
+      await Promise.all(cleanupPromises);
       console.log(`Sent ${pushPromises.length} push notifications.`);
     }
 
