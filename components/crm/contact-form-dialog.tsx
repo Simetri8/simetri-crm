@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -406,7 +406,7 @@ export function ContactFormDialog({
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Sonraki adım tarihi (opsiyonel)</FormLabel>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Popover
                       open={nextActionDatePopoverOpen}
                       onOpenChange={setNextActionDatePopoverOpen}
@@ -414,13 +414,14 @@ export function ContactFormDialog({
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
+                            type="button"
                             variant="outline"
                             className={cn(
-                              'flex-1 justify-start text-left font-normal',
+                              'min-w-0 flex-1 justify-start text-left font-normal',
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
                             {field.value
                               ? formatDateWithOptionalTime(field.value)
                               : 'Tarih seç'}
@@ -432,7 +433,7 @@ export function ContactFormDialog({
                           mode="single"
                           selected={field.value ?? undefined}
                           onSelect={(date) => {
-                            field.onChange(date);
+                            field.onChange(date ?? null);
                             setNextActionDatePopoverOpen(false);
                           }}
                           initialFocus
@@ -444,7 +445,24 @@ export function ContactFormDialog({
                       value={nextActionTime}
                       onChange={(e) => setNextActionTime(e.target.value)}
                       className="w-[130px]"
+                      disabled={!field.value}
                     />
+                    {field.value ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          field.onChange(null);
+                          setNextActionTime('');
+                        }}
+                        aria-label="Tarihi kaldır"
+                        title="Tarihi kaldır"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    ) : null}
                   </div>
                   <FormMessage />
                 </FormItem>
