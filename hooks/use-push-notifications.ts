@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase/config';
 
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -19,20 +19,14 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function usePushNotifications() {
-  const [isSupported, setIsSupported] = useState(false);
+  const [isSupported] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return 'serviceWorker' in navigator && 'PushManager' in window;
+  });
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(isSupported);
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true);
-      registerServiceWorker();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  async function registerServiceWorker() {
+  const registerServiceWorker = useCallback(async () => {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
       const sub = await registration.pushManager.getSubscription();
@@ -42,7 +36,14 @@ export function usePushNotifications() {
       console.error('Service Worker registration failed:', error);
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (isSupported) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      registerServiceWorker();
+    }
+  }, [isSupported, registerServiceWorker]);
 
   async function subscribe() {
     if (!isSupported || !PUBLIC_KEY) {

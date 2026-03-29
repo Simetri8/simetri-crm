@@ -462,7 +462,8 @@ export default function ProposalDetailPage({
         styles: { font: 'helvetica', fontSize: 10 },
       });
 
-      yPos = (doc as any).lastAutoTable.finalY + 10;
+      const docWithTable = doc as typeof doc & { lastAutoTable?: { finalY: number } };
+      yPos = (docWithTable.lastAutoTable?.finalY ?? yPos) + 10;
 
       // Totals
       doc.setFontSize(11);

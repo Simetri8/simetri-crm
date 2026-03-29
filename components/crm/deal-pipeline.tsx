@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
-import { Building2, BadgeDollarSign, Edit, Pencil, User } from 'lucide-react';
+import { Building2, BadgeDollarSign, Pencil, User } from 'lucide-react';
 import {
   KanbanProvider,
   KanbanBoard,

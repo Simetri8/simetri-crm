@@ -112,6 +112,7 @@ export default function TimePage() {
       setLoading(false);
     };
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, weekKey]);
 
   const handleCreate = async (data: TimeEntryFormData) => {

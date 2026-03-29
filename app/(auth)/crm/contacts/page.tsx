@@ -18,7 +18,7 @@ import { contactService } from '@/lib/firebase/contacts';
 import { useAuth } from '@/components/auth/auth-provider';
 import { CONTACT_STAGES } from '@/lib/types';
 import { CONTACT_STAGE_CONFIG } from '@/lib/utils/status';
-import type { Contact, ContactFormData, ContactStage } from '@/lib/types';
+import type { Contact, ContactFormData } from '@/lib/types';
 import {
   AlertDialog,
   AlertDialogAction,

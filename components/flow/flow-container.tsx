@@ -8,10 +8,13 @@ import {
   MiniMap,
   type Node,
   type Edge,
+  type NodeProps,
+  type ReactFlowInstance,
   useNodesState,
   useEdgesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import type { ComponentType } from 'react';
 
 import { CompanyNode } from './nodes/company-node';
 import { DealNode } from './nodes/deal-node';
@@ -27,13 +30,13 @@ import {
 } from '@/lib/flow/data-fetcher';
 import { Button } from '@/components/ui/button';
 
-const nodeTypes: any = {
-  company: CompanyNode,
-  deal: DealNode,
-  proposal: ProposalNode,
-  workOrder: WorkOrderNode,
-  deliverable: DeliverableNode,
-  task: TaskNode,
+const nodeTypes: Record<string, ComponentType<NodeProps>> = {
+  company: CompanyNode as unknown as ComponentType<NodeProps>,
+  deal: DealNode as unknown as ComponentType<NodeProps>,
+  proposal: ProposalNode as unknown as ComponentType<NodeProps>,
+  workOrder: WorkOrderNode as unknown as ComponentType<NodeProps>,
+  deliverable: DeliverableNode as unknown as ComponentType<NodeProps>,
+  task: TaskNode as unknown as ComponentType<NodeProps>,
 };
 
 type FlowContainerProps = {
@@ -47,7 +50,7 @@ export function FlowContainer({
 }: FlowContainerProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const reactFlowInstanceRef = useRef<any>(null);
+  const reactFlowInstanceRef = useRef<ReactFlowInstance<Node, Edge> | null>(null);
 
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string | null>(
     null
@@ -207,7 +210,6 @@ export function FlowContainer({
     },
     [
       edges,
-      fetchDealProposalsAndWorkOrders,
       layoutAndSet,
       loadingChildren,
       nodeById,

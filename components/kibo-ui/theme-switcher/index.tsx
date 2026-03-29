@@ -3,7 +3,7 @@
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 const themes = [
@@ -42,7 +42,6 @@ export const ThemeSwitcher = ({
     prop: value,
     onChange,
   });
-  const [mounted, setMounted] = useState(false);
 
   const handleThemeClick = useCallback(
     (themeKey: "light" | "dark" | "system") => {
@@ -50,15 +49,6 @@ export const ThemeSwitcher = ({
     },
     [setTheme]
   );
-
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div

@@ -4,6 +4,29 @@ import { Resend } from 'resend';
 import webpush from 'web-push';
 import { differenceInDays } from 'date-fns';
 
+type DateField = { toDate: () => Date };
+type CustomerSnapshotData = {
+  name?: string;
+  company?: string;
+  temperature?: string;
+  lastContactDate?: DateField;
+};
+type ProjectSnapshotData = {
+  name?: string;
+  targetEndDate?: DateField;
+};
+type StoredPushSubscription = {
+  endpoint: string;
+  expirationTime?: number | null;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+};
+type UserSnapshotData = {
+  pushSubscription?: StoredPushSubscription | null;
+};
+
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -16,7 +39,7 @@ if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   );
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   // Verify Cron Secret (optional but recommended)
   // const authHeader = request.headers.get('Authorization');
   // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -32,12 +55,12 @@ export async function GET(request: Request) {
 
     // 1. Update Customer Temperatures
     const customersSnapshot = await customersRef.get();
-    const coldCustomers: any[] = [];
-    const warmCustomers: any[] = [];
-    const updates: Promise<any>[] = [];
+    const coldCustomers: Array<{ id: string } & CustomerSnapshotData> = [];
+    const warmCustomers: Array<{ id: string } & CustomerSnapshotData> = [];
+    const updates: Promise<unknown>[] = [];
 
     customersSnapshot.forEach((doc) => {
-      const data = doc.data();
+      const data = doc.data() as CustomerSnapshotData;
       if (data.lastContactDate) {
         const lastContact = data.lastContactDate.toDate();
         const days = differenceInDays(now, lastContact);
@@ -64,10 +87,10 @@ export async function GET(request: Request) {
 
     // 2. Check Overdue Projects
     const projectsSnapshot = await projectsRef.where('status', '==', 'active').get();
-    const overdueProjects: any[] = [];
+    const overdueProjects: Array<{ id: string } & ProjectSnapshotData> = [];
 
     projectsSnapshot.forEach((doc) => {
-      const data = doc.data();
+      const data = doc.data() as ProjectSnapshotData;
       if (data.targetEndDate) {
         const targetDate = data.targetEndDate.toDate();
         if (differenceInDays(now, targetDate) > 0) {
@@ -93,7 +116,7 @@ export async function GET(request: Request) {
         ${overdueProjects.length > 0 ? `
           <h2>⏰ Geciken Projeler (${overdueProjects.length})</h2>
           <ul>
-            ${overdueProjects.map(p => `<li>${p.name} - Hedef: ${p.targetEndDate.toDate().toLocaleDateString()}</li>`).join('')}
+            ${overdueProjects.map(p => `<li>${p.name} - Hedef: ${p.targetEndDate?.toDate().toLocaleDateString() ?? '-'}</li>`).join('')}
           </ul>
         ` : ''}
       `;
@@ -111,10 +134,10 @@ export async function GET(request: Request) {
 
       // 5. Send Push Notifications
       const usersSnapshot = await usersRef.get();
-      const pushPromises: Promise<any>[] = [];
+      const pushPromises: Promise<unknown>[] = [];
 
       usersSnapshot.forEach((doc) => {
-        const userData = doc.data();
+        const userData = doc.data() as UserSnapshotData;
         if (userData.pushSubscription) {
           const payload = JSON.stringify({
             title: 'Günlük Rapor Hazır',

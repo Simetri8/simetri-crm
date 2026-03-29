@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Home, Network, Building2, Users, Contact, KanbanSquare, FileText, Briefcase, Clock, Package, CheckSquare, ClipboardList, BarChart3, CalendarDays, Globe } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { NavUser } from "./nav-user"
 import { useAuth } from "@/components/auth/auth-provider"
 
@@ -122,14 +123,18 @@ export function AppSidebar() {
         <Sidebar>
             <SidebarHeader>
                 <Link href="/dashboard" className="flex items-center p-2">
-                    <img
+                    <Image
                         src="/logos/Simetri-CRM-logo-02-cropped.png"
                         alt="Simetri CRM"
+                        width={180}
+                        height={32}
                         className="h-8 w-auto dark:hidden"
                     />
-                    <img
+                    <Image
                         src="/logos/Simetri-CRM-logo-03-cropped.png"
                         alt="Simetri CRM"
+                        width={180}
+                        height={32}
                         className="hidden h-8 w-auto dark:block"
                     />
                 </Link>

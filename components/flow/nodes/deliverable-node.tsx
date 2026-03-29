@@ -6,9 +6,10 @@ import { Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DELIVERABLE_STATUS_CONFIG } from '@/lib/utils/status';
 import type { Deliverable } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
 export const DeliverableNode = memo(
-  ({ data, targetPosition, sourcePosition }: NodeProps<any>) => {
+  ({ data, targetPosition, sourcePosition }: NodeProps<FlowNode>) => {
   const deliverable = data.metadata as Deliverable;
   const statusConfig = DELIVERABLE_STATUS_CONFIG[deliverable.status];
 

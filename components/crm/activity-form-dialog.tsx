@@ -65,11 +65,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-function formatTimeValue(date: Date | null | undefined): string {
-  if (!date) return '';
-  return format(date, 'HH:mm');
-}
-
 function withOptionalTime(date: Date | null, timeValue: string): Date | null {
   if (!date) return null;
   if (!timeValue) return date;

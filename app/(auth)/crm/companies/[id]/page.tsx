@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ContactList } from '@/components/crm/contact-list';
 import { ContactFormDialog } from '@/components/crm/contact-form-dialog';
 import { CompanyFormDialog } from '@/components/crm/company-form-dialog';
@@ -103,6 +102,7 @@ export default function CompanyDetailPage({
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleUpdateCompany = async (data: CompanyFormData) => {

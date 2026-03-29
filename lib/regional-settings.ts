@@ -90,7 +90,9 @@ function safeTimeZone(candidate: string | null | undefined): string | undefined 
 
 export function getWeekStartFromLocale(locale: string): WeekStartsOn {
   try {
-    const localeInfo = new Intl.Locale(locale);
+    const localeInfo = new Intl.Locale(locale) as Intl.Locale & {
+      weekInfo?: { firstDay?: number };
+    };
     const firstDay = localeInfo.weekInfo?.firstDay;
     if (firstDay === 7) return 0;
     if (firstDay === 6) return 6;

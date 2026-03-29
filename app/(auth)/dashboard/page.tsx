@@ -9,7 +9,6 @@ import { PageHeader } from '@/components/layout/app-header';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/auth-provider';
-import { useRouter } from 'next/navigation';
 import { seedFlowData, wipeAllData } from '@/lib/firebase/seed-flow';
 
 export default function DashboardPage() {
@@ -18,8 +17,6 @@ export default function DashboardPage() {
     const [isWiping, setIsWiping] = useState(false);
 
     const { user } = useAuth();
-    const router = useRouter();
-
     const handleSeed = async () => {
         if (!user) return;
 
