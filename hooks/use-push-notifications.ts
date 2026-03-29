@@ -53,17 +53,23 @@ export function usePushNotifications() {
 
     try {
       setLoading(true);
-      const permission = await Notification.requestPermission();
+      const permission =
+        Notification.permission === 'granted'
+          ? 'granted'
+          : await Notification.requestPermission();
       if (permission !== 'granted') {
         setLoading(false);
         return false;
       }
 
       const registration = await navigator.serviceWorker.ready;
-      const sub = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(PUBLIC_KEY),
-      });
+      let sub = await registration.pushManager.getSubscription();
+      if (!sub) {
+        sub = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(PUBLIC_KEY),
+        });
+      }
 
       setSubscription(sub);
       await saveSubscription(sub);
@@ -81,7 +87,7 @@ export function usePushNotifications() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
-      await fetch('/api/push/subscribe', {
+      const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,6 +95,10 @@ export function usePushNotifications() {
         },
         body: JSON.stringify({ subscription: sub }),
       });
+      if (!response.ok) {
+        const body = await response.text();
+        console.error('Failed to save subscription response:', response.status, body);
+      }
     } catch (error) {
       console.error('Failed to save subscription:', error);
     }

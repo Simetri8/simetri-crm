@@ -3,6 +3,11 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import webpush from 'web-push';
 import { adminDb } from '@/lib/firebase/admin';
 import {
+  normalizeUserPushSubscriptions,
+  shouldRemoveSubscriptionOnError,
+  type StoredPushSubscription,
+} from '@/lib/push/subscriptions';
+import {
   CONTACT_STAGES,
   DEAL_STAGES,
   DELIVERABLE_STATUSES,
@@ -113,15 +118,6 @@ function normalizeNullableString(value: string | null | undefined): string | nul
 function parseDate(value: string | null | undefined): Date | null {
   return toDateOrNull(value);
 }
-
-type StoredPushSubscription = {
-  endpoint: string;
-  expirationTime?: number | null;
-  keys: {
-    p256dh: string;
-    auth: string;
-  };
-};
 
 function ensureWebPushConfigured(): { ok: true } | { ok: false; error: string } {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -1706,12 +1702,15 @@ export function createMcpServer(context: AuditContext) {
         }
 
         const usersSnapshot = await adminDb.collection('users').get();
-        const subscribedUsers = usersSnapshot.docs.filter((doc) => {
-          const sub = doc.data().pushSubscription as StoredPushSubscription | null | undefined;
-          return !!sub?.endpoint && !!sub?.keys?.p256dh && !!sub?.keys?.auth;
+        const targets: Array<{ userId: string; subscription: StoredPushSubscription }> = [];
+        usersSnapshot.docs.forEach((doc) => {
+          const subscriptions = normalizeUserPushSubscriptions(doc.data());
+          subscriptions.forEach((subscription) => {
+            targets.push({ userId: doc.id, subscription });
+          });
         });
 
-        if (subscribedUsers.length === 0) {
+        if (targets.length === 0) {
           return resultWithStructuredContent({
             success: true,
             message: 'Push aboneligi olan kullanici bulunamadi.',
@@ -1731,23 +1730,51 @@ export function createMcpServer(context: AuditContext) {
         });
 
         const deliveryResults = await Promise.allSettled(
-          subscribedUsers.map((doc) => {
-            const sub = doc.data().pushSubscription as StoredPushSubscription;
-            return webpush.sendNotification(sub, payload);
+          targets.map((target) => {
+            return webpush.sendNotification(target.subscription, payload);
           })
         );
 
         const failures: Array<{ userId: string; error: string }> = [];
+        const staleByUser = new Map<string, Set<string>>();
         deliveryResults.forEach((result, index) => {
           if (result.status === 'rejected') {
+            const target = targets[index];
             failures.push({
-              userId: subscribedUsers[index]?.id ?? 'unknown',
+              userId: target?.userId ?? 'unknown',
               error: result.reason instanceof Error ? result.reason.message : String(result.reason),
             });
+            if (target && shouldRemoveSubscriptionOnError(result.reason)) {
+              const current = staleByUser.get(target.userId) ?? new Set<string>();
+              current.add(target.subscription.endpoint);
+              staleByUser.set(target.userId, current);
+            }
           }
         });
 
-        const attempted = subscribedUsers.length;
+        const cleanupPromises: Array<Promise<unknown>> = [];
+        staleByUser.forEach((staleEndpoints, userId) => {
+          const userDoc = usersSnapshot.docs.find((doc) => doc.id === userId);
+          const existing = normalizeUserPushSubscriptions(
+            (userDoc?.data() ?? {}) as Record<string, unknown>
+          );
+          const remaining = existing.filter((sub) => !staleEndpoints.has(sub.endpoint));
+          cleanupPromises.push(
+            adminDb
+              .collection('users')
+              .doc(userId)
+              .set(
+                {
+                  pushSubscriptions: remaining,
+                  pushSubscription: remaining[0] ?? null,
+                },
+                { merge: true }
+              )
+          );
+        });
+        await Promise.all(cleanupPromises);
+
+        const attempted = targets.length;
         const failed = failures.length;
         const sent = attempted - failed;
 
