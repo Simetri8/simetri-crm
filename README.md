@@ -174,6 +174,52 @@ Tanışma → Kişi Oluştur → İlişki Kur → Fırsat Belirle → Deal Aç
 
 ---
 
+## MCP (Remote Streamable HTTP)
+
+Bu projede AI agent entegrasyonu için API key korumalı MCP endpointi bulunur:
+
+- Endpoint: `https://<domain>/api/mcp`
+- Transport: Streamable HTTP
+- Auth: `Authorization: Bearer <MCP_API_KEY>`
+
+### Ortam Değişkenleri
+
+- `MCP_API_KEY` (zorunlu)
+- `MCP_API_KEY_PREVIOUS` (opsiyonel, key rotasyonu)
+- `MCP_API_KEYS` (opsiyonel, çoklu aktif key)
+- `MCP_RATE_LIMIT_PER_MINUTE` (varsayılan: `60`)
+- `MCP_ALLOWED_IPS` (opsiyonel)
+- `MCP_ALLOWED_ORIGINS` (opsiyonel)
+
+### Güvenlik Notları
+
+- Endpoint internetten erişilecekse TLS zorunlu olmalıdır.
+- API key değerlerini repoda tutmayın; sadece secret manager / runtime env üzerinden verin.
+- Reverse proxy tarafında `/api/mcp` için ek rate limit ve request body limit tanımlayın.
+
+### Örnek Client Konfigürasyonu
+
+```json
+{
+  "mcpServers": {
+    "simetri-remote": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://<domain>/api/mcp",
+        "--header",
+        "Authorization: Bearer <MCP_API_KEY>"
+      ]
+    }
+  }
+}
+```
+
+Sunucuda varsayılan olarak şu araçlar yayınlanır: `health_check`, `list_companies`, `list_deals`, `get_dashboard_snapshot`.
+
+---
+
 ## 📄 Lisans
 
 Bu proje özel bir projedir. Tüm hakları saklıdır.
