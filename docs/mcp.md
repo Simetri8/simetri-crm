@@ -109,6 +109,30 @@ Claude Desktop yapılandırmasında `mcpServers` içine aşağıdaki örneği ek
 - `list_recent_activities`
 - `bulk_update_next_actions`
 - `get_owner_workload`
+- `send_broadcast_push`
+
+### Push Bildirimi Tool'u
+
+`send_broadcast_push`, `users` koleksiyonunda geçerli `pushSubscription` alanı olan tüm kullanıcılara tek çağrıda web-push bildirimi gönderir.
+
+Örnek input:
+
+```json
+{
+  "title": "Yeni sürüm yayınlandı",
+  "body": "Uygulamayı yenileyerek son güncellemeleri alabilirsiniz.",
+  "url": "/dashboard"
+}
+```
+
+Örnek output alanları:
+
+- `success`: Tüm gönderimler başarılıysa `true`
+- `totalUsers`: Toplam taranan kullanıcı
+- `attempted`: Bildirim gönderimi denenen kullanıcı sayısı
+- `sent`: Başarılı gönderim adedi
+- `failed`: Başarısız gönderim adedi
+- `failures[]`: Hata alan kullanıcılar (`userId`, `error`)
 
 ## Dokümana Eklenen (Henüz Uygulanmayan / Gelişim Listesi)
 
@@ -131,6 +155,12 @@ Bu araçlar ileride eklenebilir; roadmap görünürlüğü için burada tutulur:
 - `401 Unauthorized`: API key eksik veya hatalı
 - `400 Bad Request`: session/initialize akışı hatalı
 - `429 Too Many Requests`: rate limit aşıldı
+- `500 Internal Server Error`: beklenmeyen sunucu hatası
+
+Push özel notları:
+
+- VAPID anahtarları eksikse (`NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`) `send_broadcast_push` başarılı gönderim yapamaz ve `success: false` döner.
+- Abonelik yoksa hata yerine bilgilendirici sonuç döner (`attempted: 0`).
 
 ## Güvenlik Notları
 

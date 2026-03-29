@@ -21,7 +21,7 @@ function urlBase64ToUint8Array(base64String: string) {
 export function usePushNotifications() {
   const [isSupported] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return 'serviceWorker' in navigator && 'PushManager' in window;
+    return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   });
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(isSupported);
@@ -53,6 +53,12 @@ export function usePushNotifications() {
 
     try {
       setLoading(true);
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        setLoading(false);
+        return false;
+      }
+
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
