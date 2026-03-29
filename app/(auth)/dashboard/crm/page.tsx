@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCrmDashboard } from '@/hooks/use-crm-dashboard';
 import {
@@ -54,7 +54,7 @@ export default function CrmDashboardPage() {
   const [listContext, setListContext] = useState<CrmDashboardListContext>('followups');
   const [listRefreshKey, setListRefreshKey] = useState(0);
 
-  const [loadingEditor, setLoadingEditor] = useState(false);
+  const [, setLoadingEditor] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);

@@ -6,9 +6,10 @@ import { Handshake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DEAL_STAGE_CONFIG } from '@/lib/utils/status';
 import type { Deal } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
 export const DealNode = memo(
-  ({ data, targetPosition, sourcePosition }: NodeProps<any>) => {
+  ({ data, targetPosition, sourcePosition }: NodeProps<FlowNode>) => {
   const deal = data.metadata as Deal;
   const stageConfig = DEAL_STAGE_CONFIG[deal.stage];
 

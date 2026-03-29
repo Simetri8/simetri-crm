@@ -1,8 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { format, addDays, isSameDay } from 'date-fns';
 import { Clock, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { formatDuration } from '@/lib/utils/status';
 import { cn } from '@/lib/utils';
 import type { TimeEntry } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type WeeklySummaryProps = {
   entries: TimeEntry[];
@@ -29,6 +29,25 @@ export function WeeklySummary({
   onSelectDate,
   selectedDate,
 }: WeeklySummaryProps) {
+  const { effectiveSettings } = useRegionalSettings();
+
+  const weekdayFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        weekday: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const dayFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: 'numeric',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   // Generate days of the week
   const weekDays = useMemo(() => {
     const days: Date[] = [];
@@ -144,7 +163,7 @@ export function WeeklySummary({
                       isWeekend && 'text-muted-foreground'
                     )}
                   >
-                    {format(day, 'EEE', { locale: tr })}
+                    {weekdayFormatter.format(day)}
                   </span>
                   <span
                     className={cn(
@@ -154,7 +173,7 @@ export function WeeklySummary({
                         : 'text-muted-foreground'
                     )}
                   >
-                    {format(day, 'd')}
+                    {dayFormatter.format(day)}
                   </span>
                 </div>
               </CardHeader>

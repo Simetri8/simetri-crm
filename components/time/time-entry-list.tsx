@@ -1,7 +1,6 @@
 'use client';
 
 import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
 import {
   Clock,
   MoreHorizontal,
@@ -32,8 +31,9 @@ import {
 } from '@/components/ui/table';
 import { formatDuration } from '@/lib/utils/status';
 import { TIME_ENTRY_STATUS_CONFIG } from '@/lib/utils/status';
-import { cn } from '@/lib/utils';
 import type { TimeEntry } from '@/lib/types';
+import { useMemo } from 'react';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type TimeEntryListProps = {
   entries: TimeEntry[];
@@ -50,6 +50,28 @@ export function TimeEntryList({
   showWorkOrder = true,
   groupByDate = false,
 }: TimeEntryListProps) {
+  const { effectiveSettings } = useRegionalSettings();
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        weekday: 'long',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   if (entries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center border rounded-lg">
@@ -75,7 +97,7 @@ export function TimeEntryList({
     <TableRow key={entry.id}>
       {!groupByDate && (
         <TableCell className="font-medium">
-          {format(entry.date.toDate(), 'dd MMM', { locale: tr })}
+          {shortDateFormatter.format(entry.date.toDate())}
         </TableCell>
       )}
       {showWorkOrder && (
@@ -177,7 +199,7 @@ export function TimeEntryList({
               <div key={dateKey} className="border rounded-lg">
                 <div className="flex items-center justify-between p-3 bg-muted/30 border-b">
                   <span className="font-medium">
-                    {format(date, 'dd MMMM yyyy, EEEE', { locale: tr })}
+                    {longDateFormatter.format(date)}
                   </span>
                   <Badge variant="outline">
                     Toplam: {formatDuration(totalMinutes)}

@@ -6,9 +6,10 @@ import { FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PROPOSAL_STATUS_CONFIG } from '@/lib/utils/status';
 import type { Proposal } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
 export const ProposalNode = memo(
-  ({ data, targetPosition, sourcePosition }: NodeProps<any>) => {
+  ({ data, targetPosition, sourcePosition }: NodeProps<FlowNode>) => {
   const proposal = data.metadata as Proposal;
   const statusConfig = PROPOSAL_STATUS_CONFIG[proposal.status];
 

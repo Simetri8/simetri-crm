@@ -6,8 +6,9 @@ import { Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COMPANY_STATUS_CONFIG } from '@/lib/utils/status';
 import type { Company } from '@/lib/types';
+import type { FlowNode } from '@/lib/flow/types';
 
-export const CompanyNode = memo(({ data, sourcePosition }: NodeProps<any>) => {
+export const CompanyNode = memo(({ data, sourcePosition }: NodeProps<FlowNode>) => {
   const company = data.metadata as Company;
   const statusConfig = COMPANY_STATUS_CONFIG[company.status];
 

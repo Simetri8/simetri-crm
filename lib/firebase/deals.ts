@@ -77,7 +77,7 @@ async function resolveDealPartyFields(
   primaryContactName: string;
 }> {
   let companyId = companyIdInput.trim();
-  let primaryContactId = primaryContactIdInput.trim();
+  const primaryContactId = primaryContactIdInput.trim();
 
   let primaryContactName = '';
 

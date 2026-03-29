@@ -1,7 +1,8 @@
 'use client';
 
-import { format, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import {
   Phone,
@@ -22,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ACTIVITY_TYPE_CONFIG } from '@/lib/utils/status';
 import type { Activity, ActivityType } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 const ACTIVITY_ICONS: Record<ActivityType, typeof Phone> = {
   call: Phone,
@@ -45,6 +47,17 @@ export function ActivityFeed({
   showContext = true,
   emptyMessage = 'Henüz aktivite yok',
 }: ActivityFeedProps) {
+  const { effectiveSettings } = useRegionalSettings();
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   if (activities.length === 0) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground">
@@ -68,7 +81,7 @@ export function ActivityFeed({
             {/* Icon */}
             <div
               className={cn(
-                'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center',
+                'shrink-0 w-8 h-8 rounded-full flex items-center justify-center',
                 config.bgColor
               )}
             >
@@ -171,7 +184,7 @@ export function ActivityFeed({
                   <span>{activity.nextAction}</span>
                   {activity.nextActionDate && (
                     <span className="text-amber-600">
-                      ({format(activity.nextActionDate.toDate(), 'dd MMM', { locale: tr })})
+                      ({shortDateFormatter.format(activity.nextActionDate.toDate())})
                     </span>
                   )}
                 </div>

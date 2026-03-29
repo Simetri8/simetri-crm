@@ -16,7 +16,8 @@ service cloud.firestore {
     // Whitelist (admin-managed email list)
     match /whitelist/{email} {
       allow read: if isSignedIn();
-      allow write: if isRegisteredUser();
+      // Whitelist degisiklikleri yalnizca server-side Admin SDK ile yapilsin.
+      allow write: if false;
     }
 
     // Users (UID-based, auto-created on login)
@@ -26,7 +27,8 @@ service cloud.firestore {
         && request.auth.uid == userId
         && exists(/databases/$(database)/documents/whitelist/$(request.auth.token.email));
       allow update: if isSignedIn() && request.auth.uid == userId;
-      allow delete: if isRegisteredUser();
+      // Kullanici silme islemi client'tan acik olmamali.
+      allow delete: if false;
     }
 
     // Companies (Business Data - Shared)

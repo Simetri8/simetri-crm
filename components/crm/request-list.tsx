@@ -1,7 +1,6 @@
 'use client';
 
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import {
   MoreHorizontal,
   Pencil,
@@ -36,6 +35,7 @@ import {
   REQUEST_STATUS_CONFIG,
 } from '@/lib/utils/status';
 import type { Request, RequestStatus } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type RequestListProps = {
   requests: Request[];
@@ -50,6 +50,27 @@ export function RequestList({
   onDelete,
   onStatusChange,
 }: RequestListProps) {
+  const { effectiveSettings } = useRegionalSettings();
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   return (
     <Table>
       <TableHeader>
@@ -129,11 +150,11 @@ export function RequestList({
                 <div className="flex flex-col text-xs text-muted-foreground">
                   {request.dueDate && (
                     <span>
-                      Son: {format(request.dueDate.toDate(), 'dd MMM', { locale: tr })}
+                      Son: {shortDateFormatter.format(request.dueDate.toDate())}
                     </span>
                   )}
                   <span>
-                    {format(request.createdAt.toDate(), 'dd MMM yyyy', { locale: tr })}
+                    {longDateFormatter.format(request.createdAt.toDate())}
                   </span>
                 </div>
               </TableCell>

@@ -6,7 +6,6 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import {
   ArrowLeft,
-  Building2,
   Calendar,
   FileText,
   Briefcase,
@@ -38,7 +37,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { StatusBadge } from '@/components/crm/status-badge';
 import { ActivityFeed } from '@/components/crm/activity-feed';
 import { ActivityFormDialog } from '@/components/crm/activity-form-dialog';
 import { DeliverableList } from '@/components/ops/deliverable-list';
@@ -186,6 +184,7 @@ export default function WorkOrderDetailPage({
       setLoading(false);
     };
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // Work Order handlers

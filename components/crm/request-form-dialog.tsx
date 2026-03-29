@@ -113,6 +113,7 @@ export function RequestFormDialog({
     if (open) {
       form.reset(getDefaults());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, request, form]);
 
   useEffect(() => {

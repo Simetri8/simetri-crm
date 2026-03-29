@@ -168,7 +168,22 @@ export type User = {
   displayName: string | null;
   photoURL: string | null;
   pushSubscription?: PushSubscriptionJSON | null;
+  regionalSettings?: RegionalSettings;
   createdAt: Timestamp;
+};
+
+export type WeekStartsOn = 0 | 1 | 6;
+export type RegionalDateStyle = 'short' | 'medium' | 'long' | 'full';
+export type RegionalTimeStyle = 'short' | 'medium' | 'long' | 'full';
+export type RegionalHourCycle = 'h11' | 'h12' | 'h23' | 'h24';
+
+export type RegionalSettings = {
+  locale?: string | null;
+  timeZone?: string | null;
+  weekStartsOn?: WeekStartsOn | null;
+  dateStyle?: RegionalDateStyle | null;
+  timeStyle?: RegionalTimeStyle | null;
+  hourCycle?: RegionalHourCycle | null;
 };
 
 // =============================================================================

@@ -7,7 +7,6 @@ import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import {
   ArrowLeft,
-  Briefcase,
   Building2,
   User,
   Calendar,
@@ -25,7 +24,6 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import {
   Dialog,
@@ -58,7 +56,15 @@ import {
   LOST_REASON_LABELS,
   PROPOSAL_STATUS_CONFIG,
 } from '@/lib/utils/status';
-import type { Deal, DealFormData, Activity, ActivityFormData, DealStage, Proposal } from '@/lib/types';
+import type {
+  Deal,
+  DealFormData,
+  Activity,
+  ActivityFormData,
+  DealStage,
+  Proposal,
+  LostReason,
+} from '@/lib/types';
 import {
   Select,
   SelectContent,
@@ -91,7 +97,10 @@ export default function DealDetailPage({
   const [createWorkOrderLoading, setCreateWorkOrderLoading] = useState(false);
   const [pendingStageChange, setPendingStageChange] = useState<DealStage | null>(null);
   const [showLostReasonDialog, setShowLostReasonDialog] = useState(false);
-  const [selectedLostReason, setSelectedLostReason] = useState<string>('');
+  const [selectedLostReason, setSelectedLostReason] = useState<LostReason | ''>('');
+  const handleLostReasonChange = (value: string) => {
+    setSelectedLostReason(value as LostReason);
+  };
 
   const loadData = async () => {
     try {
@@ -113,6 +122,7 @@ export default function DealDetailPage({
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleUpdateDeal = async (data: DealFormData) => {
@@ -212,11 +222,12 @@ export default function DealDetailPage({
 
     try {
       const oldStage = deal.stage;
+      const lostReason = selectedLostReason as LostReason;
       await dealService.updateStage(
         id,
         pendingStageChange,
         user.uid,
-        selectedLostReason as any
+        lostReason
       );
 
       // Sistem aktivitesi ekle
@@ -626,7 +637,7 @@ export default function DealDetailPage({
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Kayıp Sebebi *</Label>
-              <Select value={selectedLostReason} onValueChange={setSelectedLostReason}>
+              <Select value={selectedLostReason} onValueChange={handleLostReasonChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sebep seçin" />
                 </SelectTrigger>

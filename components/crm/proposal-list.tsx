@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
+import { useMemo } from 'react';
 import {
   FileText,
   Building2,
@@ -35,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from './status-badge';
 import { PROPOSAL_STATUS_CONFIG, formatMoney } from '@/lib/utils/status';
 import type { Proposal } from '@/lib/types';
+import { useRegionalSettings } from '@/components/providers/regional-settings-provider';
 
 type ProposalListProps = {
   proposals: Proposal[];
@@ -53,6 +53,27 @@ export function ProposalList({
   onNewVersion,
   onDelete,
 }: ProposalListProps) {
+  const { effectiveSettings } = useRegionalSettings();
+  const shortDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+  const longDateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(effectiveSettings.locale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: effectiveSettings.timeZone,
+      }),
+    [effectiveSettings.locale, effectiveSettings.timeZone]
+  );
+
   return (
     <Table>
       <TableHeader>
@@ -108,11 +129,11 @@ export function ProposalList({
             </TableCell>
             <TableCell>
               <div className="text-sm text-muted-foreground">
-                {format(proposal.createdAt.toDate(), 'dd MMM yyyy', { locale: tr })}
+                {longDateFormatter.format(proposal.createdAt.toDate())}
               </div>
               {proposal.sentAt && (
                 <div className="text-xs text-muted-foreground">
-                  Gond: {format(proposal.sentAt.toDate(), 'dd MMM', { locale: tr })}
+                  Gond: {shortDateFormatter.format(proposal.sentAt.toDate())}
                 </div>
               )}
             </TableCell>
