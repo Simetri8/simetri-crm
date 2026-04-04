@@ -77,7 +77,9 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        "flex size-full min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all",
+        "flex min-h-40 flex-col divide-y overflow-hidden rounded-md border bg-secondary text-xs shadow-sm ring-2 transition-all",
+        "w-[min(76vw,200px)] min-w-[min(76vw,200px)] shrink-0 snap-start self-stretch",
+        "md:h-full md:w-full md:min-w-0 md:max-w-none md:snap-none md:self-auto",
         isOver ? "ring-primary" : "ring-transparent",
         className
       )}
@@ -162,7 +164,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
   const items = filteredData.map((item) => item.id);
 
   return (
-    <ScrollArea className="overflow-hidden">
+    <ScrollArea className="min-h-0 flex-1 overflow-hidden">
       <SortableContext items={items}>
         <div
           className={cn("flex flex-grow flex-col gap-2 p-2", className)}
@@ -328,7 +330,9 @@ export const KanbanProvider = <
       >
         <div
           className={cn(
-            "grid size-full auto-cols-fr grid-flow-col gap-4",
+            "h-full w-full min-h-[min(50vh,520px)] md:min-h-0",
+            "flex flex-row gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 [-webkit-overflow-scrolling:touch] snap-x snap-mandatory",
+            "md:grid md:auto-cols-fr md:grid-flow-col md:min-h-0 md:overflow-visible md:overscroll-auto md:pb-0 md:snap-none",
             className
           )}
         >

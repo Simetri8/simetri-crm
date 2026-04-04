@@ -39,7 +39,7 @@ export function NetworkingPanel({
 }: NetworkingPanelProps) {
     if (loading) {
         return (
-            <Card className="col-span-1 row-span-1">
+            <Card className="col-span-1 row-span-1 min-w-0 w-full max-w-full overflow-hidden">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Skeleton className="h-5 w-32" />
@@ -60,18 +60,18 @@ export function NetworkingPanel({
     }
 
     return (
-        <Card className="col-span-1 row-span-1 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-base">
-                    <Handshake className="h-4 w-4" />
-                    Networking
+        <Card className="col-span-1 row-span-1 min-w-0 w-full max-w-full overflow-hidden shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 min-w-0">
+                <CardTitle className="flex min-w-0 flex-1 items-center gap-2 text-base">
+                    <Handshake className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Networking</span>
                 </CardTitle>
                 <CardAction>
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={onOpenList}
-                        className="gap-1 text-xs"
+                        className="shrink-0 gap-1 text-xs"
                     >
                         Tümünü Gör
                         <ArrowRight className="h-3 w-3" />
@@ -103,9 +103,9 @@ export function NetworkingPanel({
                                             </p>
                                         </div>
                                         {contact.companyName && (
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 ml-5">
-                                                <Building2 className="h-3 w-3" />
-                                                {contact.companyName}
+                                            <p className="mt-0.5 ml-5 flex items-center gap-1 text-xs text-muted-foreground">
+                                                <Building2 className="h-3 w-3 shrink-0" />
+                                                <span className="min-w-0 truncate">{contact.companyName}</span>
                                             </p>
                                         )}
                                     </div>

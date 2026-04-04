@@ -80,7 +80,7 @@ export function AppHeader() {
         )}
       </div>
       <div className="flex gap-4">
-        <span className="text-md flex pt-1 gap-2 text-muted-foreground font-mono">
+        <span className="hidden pt-1 font-mono text-muted-foreground md:inline-flex md:items-center text-md">
           {formatDate(now)} {formatTime(now)}
         </span>
         <div className="hidden gap-2 md:flex">

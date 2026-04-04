@@ -32,9 +32,9 @@ type KPICardData = {
 };
 
 function getGridClass(count: number) {
-    if (count <= 2) return 'grid gap-4 md:grid-cols-2';
-    if (count <= 4) return 'grid gap-4 md:grid-cols-2 lg:grid-cols-4';
-    return 'grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6';
+    if (count <= 2) return 'grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2';
+    if (count <= 4) return 'grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4';
+    return 'grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6';
 }
 
 export function KPICards({
@@ -51,7 +51,7 @@ export function KPICards({
         return (
             <div className={getGridClass(skeletonCount)}>
                 {Array.from({ length: skeletonCount }).map((_, i) => (
-                    <Card key={i} className="shadow-sm">
+                    <Card key={i} className="min-w-0 max-w-full shadow-sm">
                         <CardContent className="p-3">
                             <div className="flex items-start justify-between mb-1.5">
                                 <Skeleton className="h-3.5 w-16" />
@@ -154,7 +154,7 @@ export function KPICards({
             {cards.map((card) => (
                 <Card
                     key={card.key}
-                    className="gap-0 relative pb-2"
+                    className="relative min-w-0 max-w-full gap-0 overflow-hidden pb-2"
                     role={onCardClick ? 'button' : undefined}
                     tabIndex={onCardClick ? 0 : undefined}
                     onClick={onCardClick ? () => onCardClick(card.key) : undefined}

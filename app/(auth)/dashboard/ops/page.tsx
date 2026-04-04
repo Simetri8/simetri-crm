@@ -16,7 +16,7 @@ export default function OpsDashboardPage() {
     const { data, loading, error, refresh } = useOpsDashboard();
 
     return (
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
             <PageHeader
                 title="Operasyon Dashboard"
                 description="İş emirleri ve zaman yönetimi"
@@ -66,14 +66,11 @@ export default function OpsDashboardPage() {
                 visibleCards={OPS_KPI_CARDS}
             />
 
-            <div className="grid gap-4 md:grid-cols-2 auto-rows-min">
-                {/* Work Order Risks */}
-                <div className="md:col-span-1">
+            <div className="grid min-w-0 grid-cols-1 gap-4 auto-rows-min md:grid-cols-2">
+                <div className="min-w-0">
                     <WorkOrderRisksPanel risks={data.workOrderRisks} loading={loading} />
                 </div>
-
-                {/* Timesheet Panel */}
-                <div className="md:col-span-1">
+                <div className="min-w-0">
                     <TimesheetPanel queue={data.timesheetQueue} loading={loading} />
                 </div>
             </div>

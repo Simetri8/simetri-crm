@@ -91,6 +91,7 @@ export function DealPipeline({ deals, onStageChange, onEdit }: DealPipelineProps
 
   return (
     <KanbanProvider
+      className="h-full min-h-0 min-w-0 flex-1"
       columns={columns}
       data={kanbanData}
       onDataChange={setKanbanData}
@@ -115,43 +116,45 @@ export function DealPipeline({ deals, onStageChange, onEdit }: DealPipelineProps
           <KanbanCards<KanbanDeal> id={column.id}>
             {(deal) => (
               <KanbanCard key={deal.id} id={deal.id} name={deal.title} column={deal.column}>
-                <div className="relative group">
+                <div className="relative min-w-0 group">
                   <Link
                     href={`/crm/deals/${deal.id}`}
                     className="block hover:bg-accent/50 transition-colors -m-3 p-3 rounded-md"
                   >
-                    <div className="space-y-2">
-                      <div className="pr-6">
-                        <p className="font-medium text-sm line-clamp-2">{deal.title}</p>
+                    <div className="min-w-0 space-y-2">
+                      <div className="min-w-0 pr-6">
+                        <p className="line-clamp-2 text-sm font-medium">{deal.title}</p>
                       </div>
 
                       {(deal.companyName || deal.primaryContactName) && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="flex min-w-0 items-start gap-1 text-xs text-muted-foreground">
                           {deal.companyName ? (
                             <>
-                              <Building2 className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{deal.companyName}</span>
+                              <Building2 className="mt-0.5 h-3 w-3 shrink-0" />
+                              <span className="min-w-0 wrap-break-word">{deal.companyName}</span>
                             </>
                           ) : (
                             <>
-                              <User className="h-3 w-3 shrink-0" />
-                              <span className="truncate">{deal.primaryContactName}</span>
+                              <User className="mt-0.5 h-3 w-3 shrink-0" />
+                              <span className="min-w-0 wrap-break-word">{deal.primaryContactName}</span>
                             </>
                           )}
                         </div>
                       )}
 
                       {deal.estimatedBudgetMinor && (
-                        <div className="flex items-center gap-1 text-xs font-medium text-green-600">
-                          <BadgeDollarSign className="h-3 w-3" />
-                          <span>{formatMoney(deal.estimatedBudgetMinor, deal.currency)}</span>
+                        <div className="flex min-w-0 items-center gap-1 text-xs font-medium text-green-600">
+                          <BadgeDollarSign className="h-3 w-3 shrink-0" />
+                          <span className="min-w-0 wrap-break-word">
+                            {formatMoney(deal.estimatedBudgetMinor, deal.currency)}
+                          </span>
                         </div>
                       )}
 
                       {deal.nextAction && (
                         <div
                           className={cn(
-                            'text-xs p-1.5 rounded',
+                            'wrap-break-word text-xs p-1.5 rounded',
                             deal.nextActionDate &&
                               deal.nextActionDate.toDate() < new Date()
                               ? 'bg-red-100 text-red-700'

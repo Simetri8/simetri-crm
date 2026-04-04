@@ -87,7 +87,7 @@ export default function PipelinePage() {
   };
 
   return (
-    <div className="flex flex-col h-full p-6 gap-6">
+    <div className="flex min-h-0 flex-1 flex-col gap-6 p-4 md:p-6">
       <PageHeader
         title="Satış Pipeline"
         description="Satış fırsatlarını takip edin"
@@ -108,7 +108,7 @@ export default function PipelinePage() {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />

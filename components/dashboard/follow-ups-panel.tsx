@@ -159,7 +159,7 @@ export function FollowUpsPanel({
 
     if (loading) {
         return (
-            <Card className="col-span-2 row-span-2 h-full flex flex-col min-h-0">
+            <Card className="col-span-1 flex min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Skeleton className="h-5 w-40" />
@@ -186,14 +186,13 @@ export function FollowUpsPanel({
     const overdueCount = followUps.filter((f) => f.isOverdue).length;
 
     return (
-        <Card className="col-span-1 h-full flex flex-col min-h-0 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-base">
-                    Bugün &amp; Geciken
-
+        <Card className="col-span-1 flex h-full min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden shadow-sm">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 min-w-0">
+                <CardTitle className="flex min-w-0 flex-1 items-center gap-2 text-base">
+                    <span className="truncate">Bugün &amp; Geciken</span>
                 </CardTitle>
                 <CardAction>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -255,6 +254,12 @@ export function FollowUpsPanel({
                                                     <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
                                                 )}
                                             </div>
+                                            {item.companyName && (
+                                                <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                                                    <Building2 className="h-3 w-3 shrink-0" />
+                                                    <span className="truncate">{item.companyName}</span>
+                                                </p>
+                                            )}
 
                                             {isEditing ? (
                                                 <div className="mt-1 space-y-1.5" onClick={(e) => e.stopPropagation()}>
