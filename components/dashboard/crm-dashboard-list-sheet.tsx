@@ -181,6 +181,9 @@ export function CrmDashboardListSheet({
                         )}
                         <div className="min-w-0 text-left">
                           <p className="text-sm font-medium truncate">{item.title}</p>
+                          {item.companyName && (
+                            <p className="text-xs text-muted-foreground truncate">{item.companyName}</p>
+                          )}
                           {item.nextActionDate && (
                             <p className="text-xs text-muted-foreground">
                               {formatDateValue(item.nextActionDate.toDate())}

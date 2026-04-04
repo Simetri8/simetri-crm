@@ -590,6 +590,8 @@ export type FollowUpItem = {
   type: 'company' | 'deal' | 'contact';
   id: string;
   title: string;
+  /** Fırsat / kişi için bağlı şirket; şirket kaydı için null (title zaten şirket adı) */
+  companyName: string | null;
   nextAction: string | null;
   nextActionDate: Timestamp | null;
   ownerId: string | null;

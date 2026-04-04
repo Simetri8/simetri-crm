@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     AlertTriangle,
@@ -41,13 +40,13 @@ export function WorkOrderRisksPanel({
 
     if (loading) {
         return (
-            <Card className="col-span-1 row-span-1">
+            <Card className="min-w-0 w-full max-w-full">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Skeleton className="h-5 w-32" />
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="min-w-0">
                     <div className="space-y-3">
                         {Array.from({ length: 4 }).map((_, i) => (
                             <div key={i} className="p-3 rounded-lg border">
@@ -62,31 +61,33 @@ export function WorkOrderRisksPanel({
     }
 
     return (
-        <Card className="col-span-1 row-span-1">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <ShieldAlert className="h-5 w-5" />
-                    İş Emri Riskleri
+        <Card className="min-w-0 w-full max-w-full">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 min-w-0">
+                <CardTitle className="flex min-w-0 flex-1 items-center gap-2 text-lg">
+                    <ShieldAlert className="h-5 w-5 shrink-0" />
+                    <span className="truncate">İş Emri Riskleri</span>
                 </CardTitle>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => router.push('/ops/work-orders')}
-                    className="gap-1 text-xs"
+                    className="shrink-0 gap-1 text-xs"
                 >
                     Tümünü Gör
                     <ArrowRight className="h-3 w-3" />
                 </Button>
             </CardHeader>
-            <CardContent>
-                <ScrollArea className="h-[220px]">
+            <CardContent className="min-w-0">
+                <div
+                    className="h-[500px] w-full min-w-0 overflow-x-hidden overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable]"
+                >
                     {risks.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                            <ShieldAlert className="h-8 w-8 mb-2 text-green-500" />
+                        <div className="flex min-h-[480px] flex-col items-center justify-center text-muted-foreground">
+                            <ShieldAlert className="mb-2 h-8 w-8 text-green-500" />
                             <p className="text-sm">Riskli iş emri yok</p>
                         </div>
                     ) : (
-                        <div className="space-y-2">
+                        <div className="box-border w-full min-w-0 max-w-full space-y-2">
                             {risks.map((risk) => {
                                 const statusConfig = WORK_ORDER_STATUS_CONFIG[risk.status];
                                 const paymentConfig = PAYMENT_STATUS_CONFIG[risk.paymentStatus];
@@ -95,24 +96,60 @@ export function WorkOrderRisksPanel({
                                 return (
                                     <button
                                         key={risk.workOrderId}
+                                        type="button"
                                         onClick={() =>
                                             router.push(`/ops/work-orders/${risk.workOrderId}`)
                                         }
-                                        className={`w-full text-left p-3 rounded-lg border transition-colors hover:bg-accent ${risk.isOverdue
+                                        className={`box-border max-w-full min-w-0 w-full text-left p-3 rounded-lg border transition-colors hover:bg-accent ${risk.isOverdue
                                             ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30'
                                             : risk.isDueSoon
                                                 ? 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30'
                                                 : ''
                                             }`}
                                     >
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="min-w-0 flex-1">
-                                                <p className="font-medium text-sm truncate">
-                                                    {risk.title}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground truncate">
-                                                    {risk.companyName}
-                                                </p>
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-medium">
+                                                {risk.title}
+                                            </p>
+                                            <p className="truncate text-xs text-muted-foreground">
+                                                {risk.companyName}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-2 flex min-w-0 items-center justify-between gap-2 text-xs">
+                                            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+                                                <span
+                                                    className={`flex min-w-0 items-center gap-1 wrap-break-word ${risk.isOverdue
+                                                        ? 'text-red-600 dark:text-red-400'
+                                                        : risk.isDueSoon
+                                                            ? 'text-amber-600 dark:text-amber-400'
+                                                            : 'text-muted-foreground'
+                                                        }`}
+                                                >
+                                                    <Calendar className="h-3 w-3 shrink-0" />
+                                                    {risk.isOverdue
+                                                        ? `${Math.abs(daysUntil)} gün gecikti`
+                                                        : daysUntil === 0
+                                                            ? 'Bugün'
+                                                            : `${daysUntil} gün kaldı`}
+                                                </span>
+
+                                                {risk.blockedDeliverables > 0 && (
+                                                    <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
+                                                        <AlertTriangle className="h-3 w-3 shrink-0" />
+                                                        {risk.blockedDeliverables} engelli
+                                                    </span>
+                                                )}
+
+                                                {risk.paymentStatus !== 'paid' &&
+                                                    risk.paymentStatus !== 'unplanned' && (
+                                                        <span
+                                                            className={`flex items-center gap-1 ${paymentConfig.color}`}
+                                                        >
+                                                            <CreditCard className="h-3 w-3 shrink-0" />
+                                                            {paymentConfig.label}
+                                                        </span>
+                                                    )}
                                             </div>
                                             <Badge
                                                 variant="outline"
@@ -121,47 +158,12 @@ export function WorkOrderRisksPanel({
                                                 {statusConfig.label}
                                             </Badge>
                                         </div>
-
-                                        <div className="flex items-center gap-3 mt-2 text-xs">
-                                            <span
-                                                className={`flex items-center gap-1 ${risk.isOverdue
-                                                    ? 'text-red-600 dark:text-red-400'
-                                                    : risk.isDueSoon
-                                                        ? 'text-amber-600 dark:text-amber-400'
-                                                        : 'text-muted-foreground'
-                                                    }`}
-                                            >
-                                                <Calendar className="h-3 w-3" />
-                                                {risk.isOverdue
-                                                    ? `${Math.abs(daysUntil)} gün gecikti`
-                                                    : daysUntil === 0
-                                                        ? 'Bugün'
-                                                        : `${daysUntil} gün kaldı`}
-                                            </span>
-
-                                            {risk.blockedDeliverables > 0 && (
-                                                <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                                                    <AlertTriangle className="h-3 w-3" />
-                                                    {risk.blockedDeliverables} engelli
-                                                </span>
-                                            )}
-
-                                            {risk.paymentStatus !== 'paid' &&
-                                                risk.paymentStatus !== 'unplanned' && (
-                                                    <span
-                                                        className={`flex items-center gap-1 ${paymentConfig.color}`}
-                                                    >
-                                                        <CreditCard className="h-3 w-3" />
-                                                        {paymentConfig.label}
-                                                    </span>
-                                                )}
-                                        </div>
                                     </button>
                                 );
                             })}
                         </div>
                     )}
-                </ScrollArea>
+                </div>
             </CardContent>
         </Card>
     );

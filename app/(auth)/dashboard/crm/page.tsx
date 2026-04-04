@@ -226,7 +226,7 @@ export default function CrmDashboardPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <PageHeader title="CRM Dashboard" description="Takipler, pipeline ve networking" />
 
       {error && (
@@ -253,7 +253,7 @@ export default function CrmDashboardPage() {
         onCardClick={handleKpiClick}
       />
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-3">
         <NetworkingPanel
           contacts={data.networkingContacts}
           loading={loading}

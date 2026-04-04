@@ -37,7 +37,7 @@ export function TimesheetPanel({ queue, loading }: TimesheetPanelProps) {
 
     if (loading) {
         return (
-            <Card className="col-span-2 row-span-1">
+            <Card className="min-w-0 w-full max-w-full overflow-hidden">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Skeleton className="h-5 w-40" />
@@ -62,17 +62,17 @@ export function TimesheetPanel({ queue, loading }: TimesheetPanelProps) {
     }
 
     return (
-        <Card className="col-span-2 row-span-1">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Clock className="h-5 w-5" />
-                    Timesheet Onay Kuyruğu
+        <Card className="min-w-0 w-full max-w-full overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2 min-w-0">
+                <CardTitle className="flex min-w-0 flex-1 items-center gap-2 text-lg">
+                    <Clock className="h-5 w-5 shrink-0" />
+                    <span className="truncate">Timesheet Onay Kuyruğu</span>
                 </CardTitle>
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => router.push('/time/approve')}
-                    className="gap-1 text-xs"
+                    className="shrink-0 gap-1 text-xs"
                 >
                     Tümünü Gör
                     <ArrowRight className="h-3 w-3" />
@@ -90,31 +90,31 @@ export function TimesheetPanel({ queue, loading }: TimesheetPanelProps) {
                             {queue.map((item) => (
                                 <div
                                     key={`${item.userId}-${item.weekKey}`}
-                                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors"
+                                    className="flex min-w-0 flex-wrap items-center gap-2 p-3 rounded-lg border transition-colors hover:bg-accent sm:flex-nowrap sm:gap-3"
                                 >
-                                    <Avatar className="h-8 w-8">
+                                    <Avatar className="h-8 w-8 shrink-0">
                                         <AvatarFallback className="text-xs bg-primary/10">
                                             {getInitials(item.userName)}
                                         </AvatarFallback>
                                     </Avatar>
 
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-sm truncate">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-medium">
                                             {item.userName}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-xs text-muted-foreground wrap-break-word">
                                             {formatWeekLabel(item.weekKey)} • {item.entryCount} giriş
                                         </p>
                                     </div>
 
-                                    <div className="text-right">
-                                        <p className="font-medium text-sm">
+                                    <div className="ml-auto flex shrink-0 flex-col items-end text-right sm:ml-0">
+                                        <p className="text-sm font-medium tabular-nums">
                                             {formatDuration(item.submittedMinutes)}
                                         </p>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="h-7 text-xs mt-1"
+                                            className="mt-1 h-7 text-xs"
                                             onClick={() =>
                                                 router.push(
                                                     `/time/approve?user=${item.userId}&week=${item.weekKey}`

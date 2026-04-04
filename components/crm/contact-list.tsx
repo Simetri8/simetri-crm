@@ -48,11 +48,15 @@ export function ContactList({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Ad Soyad</TableHead>
-          <TableHead>Aşama</TableHead>
-          <TableHead>Unvan</TableHead>
-          {showCompany && <TableHead>Şirket</TableHead>}
-          <TableHead>İletişim</TableHead>
+          <TableHead className="min-w-40 max-w-56 whitespace-normal">
+            Ad Soyad
+          </TableHead>
+          <TableHead className="whitespace-nowrap">Aşama</TableHead>
+          <TableHead className="max-w-44 whitespace-normal">Ünvan</TableHead>
+          {showCompany && (
+            <TableHead className="max-w-48 whitespace-normal">Şirket</TableHead>
+          )}
+          <TableHead className="max-w-64 whitespace-normal">İletişim</TableHead>
           <TableHead className="w-[70px]"></TableHead>
         </TableRow>
       </TableHeader>
@@ -61,9 +65,9 @@ export function ContactList({
           const stageConfig = CONTACT_STAGE_CONFIG[contact.stage ?? "new"];
           return (
             <TableRow key={contact.id}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{contact.fullName}</span>
+              <TableCell className="min-w-0 max-w-56 whitespace-normal align-top">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="min-w-0 wrap-break-word font-medium">{contact.fullName}</span>
                   {contact.isPrimary && (
                     <Badge variant="secondary" className="bg-amber-100 text-amber-700">
                       <Star className="mr-1 h-3 w-3" />
@@ -78,7 +82,7 @@ export function ContactList({
                   </span>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap align-top">
                 <Badge
                   variant="secondary"
                   className={cn(stageConfig.bgColor, stageConfig.color)}
@@ -86,19 +90,19 @@ export function ContactList({
                   {stageConfig.label}
                 </Badge>
               </TableCell>
-              <TableCell>
-                <span className="text-muted-foreground">
+              <TableCell className="max-w-44 min-w-0 whitespace-normal align-top">
+                <span className="wrap-break-word text-muted-foreground">
                   {contact.title || '-'}
                 </span>
               </TableCell>
               {showCompany && (
-                <TableCell>
+                <TableCell className="max-w-48 min-w-0 whitespace-normal align-top">
                   {contact.companyId && contact.companyName ? (
                     <Link
                       href={`/crm/companies/${contact.companyId}`}
-                      className="flex items-center gap-1 text-sm hover:underline"
+                      className="inline-flex items-start gap-1 wrap-break-word text-sm hover:underline"
                     >
-                      <Building2 className="h-3 w-3" />
+                      <Building2 className="mt-0.5 h-3 w-3 shrink-0" />
                       {contact.companyName}
                     </Link>
                   ) : (
@@ -106,23 +110,23 @@ export function ContactList({
                   )}
                 </TableCell>
               )}
-              <TableCell>
+              <TableCell className="max-w-64 min-w-0 whitespace-normal align-top">
                 <div className="flex flex-col gap-1">
                   {contact.email && (
                     <a
                       href={`mailto:${contact.email}`}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+                      className="inline-flex items-start gap-1 break-all text-sm text-muted-foreground hover:text-primary"
                     >
-                      <Mail className="h-3 w-3" />
+                      <Mail className="mt-0.5 h-3 w-3 shrink-0" />
                       {contact.email}
                     </a>
                   )}
                   {contact.phone && (
                     <a
                       href={`tel:${contact.phone}`}
-                      className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+                      className="inline-flex items-start gap-1 break-all text-sm text-muted-foreground hover:text-primary"
                     >
-                      <Phone className="h-3 w-3" />
+                      <Phone className="mt-0.5 h-3 w-3 shrink-0" />
                       {contact.phone}
                     </a>
                   )}
@@ -131,7 +135,7 @@ export function ContactList({
                   )}
                 </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap align-top">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
