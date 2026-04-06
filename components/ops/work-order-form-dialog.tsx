@@ -196,7 +196,7 @@ export function WorkOrderFormDialog({
                             {companies.map((company) => (
                               <CommandItem
                                 key={company.id}
-                                value={company.id}
+                                value={company.name}
                                 onSelect={() => {
                                   field.onChange(company.id);
                                   form.setValue('dealId', null);
@@ -258,7 +258,7 @@ export function WorkOrderFormDialog({
                               {filteredDeals.map((deal) => (
                                 <CommandItem
                                   key={deal.id}
-                                  value={deal.id}
+                                  value={deal.title}
                                   onSelect={() => {
                                     field.onChange(deal.id);
                                     if (!form.getValues('title')) {

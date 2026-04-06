@@ -52,7 +52,7 @@ export default function WorkOrdersPage() {
     try {
       const [workOrdersData, companiesData, dealsData] = await Promise.all([
         workOrderService.getAll({ isArchived: false }),
-        companyService.getAll({ status: 'active' }),
+        companyService.getAll({ isArchived: false }),
         dealService.getAll({ isArchived: false }),
       ]);
       setWorkOrders(workOrdersData);

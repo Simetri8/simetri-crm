@@ -165,7 +165,7 @@ export default function WorkOrderDetailPage({
   const loadSupportData = async () => {
     try {
       const [companiesData, dealsData, usersData] = await Promise.all([
-        companyService.getAll({ status: 'active' }),
+        companyService.getAll({ isArchived: false }),
         dealService.getAll({ isArchived: false }),
         userService.getAllUsers(),
       ]);
